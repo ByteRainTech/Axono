@@ -11,7 +11,6 @@ from axono.core import Tensor, DataType
 
 
 class TestTensor(unittest.TestCase):
-    
     def test_tensor_creation(self):
         """测试 Tensor 创建"""
 
@@ -19,44 +18,44 @@ class TestTensor(unittest.TestCase):
         for shape in shapes:
             tensor = Tensor(shape=shape)
             self.assertEqual(tensor.shape, shape)
-    
+
     def test_tensor_data_types(self):
         """测试不同数据类型"""
         dtypes = [
             DataType.FLOAT32,
-            DataType.FLOAT64, 
+            DataType.FLOAT64,
             DataType.INT32,
             DataType.INT64,
             DataType.INT16,
             DataType.INT8,
-            DataType.BOOLEAN
+            DataType.BOOLEAN,
         ]
-        
+
         for dtype in dtypes:
             tensor = Tensor(dtype=dtype, shape=[2, 2])
             self.assertEqual(tensor.dtype, dtype)
-    
+
     def test_tensor_fill(self):
         """测试 Tensor 填充"""
         tensor_float = Tensor(dtype=DataType.FLOAT32, shape=[1, 3])
         tensor_float.fill(3.14)
         data_float = tensor_float.to_numpy()
         self.assertTrue(np.allclose(data_float, 3.14))
-        
+
         # 测试 INT32 填充
         tensor_int = Tensor(dtype=DataType.INT32, shape=[2, 2])
         tensor_int.fill(42)
         data_int = tensor_int.to_numpy()
         self.assertTrue(np.all(data_int == 42))
-    
+
     def test_tensor_fill_zero(self):
         """测试零填充"""
-        
+
         tensor = Tensor(dtype=DataType.FLOAT32, shape=[3, 3])
         tensor.fill_zero()
         data = tensor.to_numpy()
         self.assertTrue(np.all(data == 0))
-    
+
     def test_tensor_copy(self):
         """测试 Tensor 拷贝"""
 
@@ -70,7 +69,7 @@ class TestTensor(unittest.TestCase):
         src_numpy = src_tensor.to_numpy()
         dst_numpy = dst_tensor.to_numpy()
         self.assertTrue(np.allclose(src_numpy, dst_numpy))
-    
+
     def test_tensor_reshape(self):
         """测试 Tensor 重塑"""
 
@@ -88,15 +87,15 @@ class TestTensor(unittest.TestCase):
         self.assertEqual(tensor.ndim, 2)
         self.assertEqual(tensor.num_elements, 20)
         self.assertEqual(tensor.num_bytes, 20 * 4)
-    
+
     def test_tensor_large_array(self):
         tensor = Tensor(dtype=DataType.FLOAT32, shape=[100, 100])  # 10,000 元素
         tensor.fill(2.5)
-        
+
         data = tensor.to_numpy()
         self.assertTrue(np.allclose(data, 2.5))
         self.assertEqual(data.shape, (100, 100))
-    
+
     def test_tensor_edge_cases(self):
         """测试边界情况"""
         empty_tensor = Tensor(dtype=DataType.FLOAT32, shape=[])
@@ -110,20 +109,20 @@ class TestTensor(unittest.TestCase):
 
 class TestTensorFactoryMethods(unittest.TestCase):
     """测试 Tensor 工厂方法"""
-    
+
     def test_create_like(self):
         """测试 create_like 方法"""
         original = Tensor(dtype=DataType.FLOAT64, shape=[3, 4])
         original.fill(7.7)
-        
+
         copy = Tensor.create_like(original)
         self.assertEqual(copy.shape, original.shape)
         self.assertEqual(copy.dtype, original.dtype)
         self.assertEqual(copy.num_elements, original.num_elements)
-    
+
     def test_zeros_ones_full(self):
         """测试便捷创建函数"""
-        
+
         # 测试 zeros
         zeros_tensor = Tensor.zeros(shape=[2, 3], dtype=DataType.FLOAT32)
         zeros_data = zeros_tensor.to_numpy()
