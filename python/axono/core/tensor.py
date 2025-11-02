@@ -2,20 +2,19 @@
 Axono Tensor - Python interface for Tensor class
 """
 
-import sys
-import os
+import ctypes
 
 import numpy as np
-import ctypes
-from typing import List, Union, Optional
-from core import Tensor as _Tensor, DataType, Status
+
+from core import DataType, Status
+from core import Tensor as _Tensor
 
 
 class Tensor:
     """Python Tensor class wrapping C++ Tensor"""
 
     def __init__(
-        self, dtype: DataType = DataType.FLOAT32, shape: Optional[List[int]] = None
+        self, dtype: DataType = DataType.FLOAT32, shape: list[int] | None = None
     ):
         """
         Initialize Tensor
@@ -30,7 +29,7 @@ class Tensor:
             self._tensor = _Tensor(dtype, shape)
 
     @classmethod
-    def create(cls, dtype: DataType, shape: List[int]) -> "Tensor":
+    def create(cls, dtype: DataType, shape: list[int]) -> "Tensor":
         """Create a new tensor"""
         return cls(dtype, shape)
 
@@ -44,7 +43,6 @@ class Tensor:
     @classmethod
     def from_numpy(cls, array: np.ndarray) -> "Tensor":
         """Create tensor from numpy array - Simple version"""
-        # 直接使用构造函数创建，避免任何可能的递归
         if array.dtype == np.float32:
             tensor = cls(DataType.FLOAT32, list(array.shape))
             tensor_data = tensor._tensor.data_float32()
@@ -67,12 +65,10 @@ class Tensor:
             tensor = cls(DataType.BOOLEAN, list(array.shape))
             tensor_data = tensor._tensor.data_bool()
         else:
-            # 默认使用 float32
             tensor = cls(DataType.FLOAT32, list(array.shape))
             tensor_data = tensor._tensor.data_float32()
             array = array.astype(np.float32)
 
-        # 拷贝数据
         tensor_data[:] = array
         return tensor
 
@@ -87,14 +83,14 @@ class Tensor:
         else:
             raise ValueError(f"Unsupported dtype for numpy conversion: {self.dtype}")
 
-    def reshape(self, new_shape: List[int]) -> "Tensor":
+    def reshape(self, new_shape: list[int]) -> "Tensor":
         """Reshape the tensor"""
         status = self._tensor.reshape(new_shape)
         if status != Status.OK:
             raise RuntimeError(f"Reshape failed with status: {status}")
         return self
 
-    def resize(self, new_shape: List[int]) -> "Tensor":
+    def resize(self, new_shape: list[int]) -> "Tensor":
         """Resize the tensor (may reallocate memory)"""
         status = self._tensor.resize(new_shape)
         if status != Status.OK:
@@ -108,7 +104,7 @@ class Tensor:
             raise RuntimeError(f"Fill zero failed with status: {status}")
         return self
 
-    def fill(self, value: Union[int, float]) -> "Tensor":
+    def fill(self, value: int | float) -> "Tensor":
         """
         Fill tensor with the specified value.
 
@@ -129,9 +125,7 @@ class Tensor:
         RuntimeError
             If the fill operation fails
         """
-        import ctypes
-        from ctypes import pythonapi, py_object
-        from ctypes import c_void_p, c_char_p
+        from ctypes import c_char_p, c_void_p, py_object, pythonapi
 
         dtype_map = {
             DataType.INT8: (np.int8, ctypes.c_int8),
@@ -182,7 +176,7 @@ class Tensor:
         return self._tensor.dtype
 
     @property
-    def shape(self) -> List[int]:
+    def shape(self) -> list[int]:
         return self._tensor.shape
 
     @property
@@ -204,14 +198,14 @@ class Tensor:
         return self._tensor.__str__()
 
     @staticmethod
-    def zeros(shape: List[int], dtype: DataType = DataType.FLOAT32) -> _Tensor:
+    def zeros(shape: list[int], dtype: DataType = DataType.FLOAT32) -> _Tensor:
         """Create a tensor filled with zeros"""
         tensor = Tensor(dtype, shape)
         tensor.fill_zero()
         return tensor
 
     @staticmethod
-    def ones(shape: List[int], dtype: DataType = DataType.FLOAT32) -> _Tensor:
+    def ones(shape: list[int], dtype: DataType = DataType.FLOAT32) -> _Tensor:
         """Create a tensor filled with ones"""
         tensor = Tensor(dtype, shape)
         tensor.fill(1)
@@ -219,7 +213,7 @@ class Tensor:
 
     @staticmethod
     def full(
-        shape: List[int], value: Union[int, float], dtype: DataType = DataType.FLOAT32
+        shape: list[int], value: int | float, dtype: DataType = DataType.FLOAT32
     ) -> _Tensor:
         """Create a tensor filled with value"""
         tensor = Tensor(dtype, shape)
