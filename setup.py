@@ -1,15 +1,16 @@
 from pathlib import Path
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 from wheel.bdist_wheel import bdist_wheel
+import platform
+
+ext = Extension(
+    name="axono._pseudo",
+    sources=["python/axono/_pseudo.c"],
+)
 
 def load_req(fn: str):
     return [r.strip() for r in Path(fn).read_text(encoding="utf8").splitlines()
             if r.strip() and not r.startswith("#")]
-
-class BdistWheel(bdist_wheel):
-    def finalize_options(self):
-        self.root_is_pure = False
-        super().finalize_options()
 
 setup(
     name="axono",
@@ -19,6 +20,7 @@ setup(
     python_requires=">=3.8",
     install_requires=load_req("requirements.txt"),
     license="Apache-2.0",
+    ext_modules=[ext],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
@@ -27,7 +29,6 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],
-    cmdclass={"bdist_wheel": BdistWheel},
     package_data={
         "axono": ["library/*.so", "library/*.dll", "library/*.dylib"],
     },
