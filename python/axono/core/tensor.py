@@ -91,6 +91,10 @@ class Tensor:
         
         return tensor_obj
 
+    def __matmul__(self, other) -> "Tensor":
+        from . import matmul
+        return matmul(self, other)
+
     def to_numpy(self) -> np.ndarray:
         """Convert tensor to numpy array - FIXED VERSION"""
         
