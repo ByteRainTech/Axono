@@ -39,49 +39,78 @@ class Tensor:
         tensor = cls()
         tensor._tensor = _Tensor.create_like(other._tensor)
         return tensor
+    
+    @classmethod
+    def from_raw(cls, raw_tensor):
+        obj = cls.__new__(cls)
+        obj._tensor = raw_tensor
+        return obj
 
     @classmethod
-    def from_numpy(cls, array: np.ndarray) -> "Tensor":
-        """Create tensor from numpy array - Simple version"""
-        if array.dtype == np.float32:
-            tensor = cls(DataType.FLOAT32, list(array.shape))
-            tensor_data = tensor._tensor.data_float32()
-        elif array.dtype == np.float64:
-            tensor = cls(DataType.FLOAT64, list(array.shape))
-            tensor_data = tensor._tensor.data_float64()
-        elif array.dtype == np.int32:
-            tensor = cls(DataType.INT32, list(array.shape))
-            tensor_data = tensor._tensor.data_int32()
-        elif array.dtype == np.int64:
-            tensor = cls(DataType.INT64, list(array.shape))
-            tensor_data = tensor._tensor.data_int64()
+    def from_numpy(cls, array: np.ndarray) -> 'Tensor':
+        """Create tensor from numpy array - FIXED VERSION"""
+        dtype_map = {
+            np.int8: DataType.INT8,
+            np.int16: DataType.INT16, 
+            np.int32: DataType.INT32,
+            np.int64: DataType.INT64,
+            np.float32: DataType.FLOAT32,
+            np.float64: DataType.FLOAT64,
+            np.bool_: DataType.BOOLEAN,
+        }
+        
+        # Ensure we have a contiguous array
+        if not array.flags['C_CONTIGUOUS']:
+            array = np.ascontiguousarray(array)
+        
+        dtype = dtype_map.get(array.dtype.type, DataType.FLOAT32)
+        tensor_obj = cls(dtype, list(array.shape))
+        
+        # Get the tensor data as a numpy array view and copy the input array data
+        if array.dtype == np.int8:
+            tensor_data = tensor_obj._tensor.data_int8()
         elif array.dtype == np.int16:
-            tensor = cls(DataType.INT16, list(array.shape))
-            tensor_data = tensor._tensor.data_int16()
-        elif array.dtype == np.int8:
-            tensor = cls(DataType.INT8, list(array.shape))
-            tensor_data = tensor._tensor.data_int8()
+            tensor_data = tensor_obj._tensor.data_int16()
+        elif array.dtype == np.int32:
+            tensor_data = tensor_obj._tensor.data_int32()
+        elif array.dtype == np.int64:
+            tensor_data = tensor_obj._tensor.data_int64()
+        elif array.dtype == np.float32:
+            tensor_data = tensor_obj._tensor.data_float32()
+        elif array.dtype == np.float64:
+            tensor_data = tensor_obj._tensor.data_float64()
         elif array.dtype == np.bool_:
-            tensor = cls(DataType.BOOLEAN, list(array.shape))
-            tensor_data = tensor._tensor.data_bool()
+            tensor_data = tensor_obj._tensor.data_bool()
         else:
-            tensor = cls(DataType.FLOAT32, list(array.shape))
-            tensor_data = tensor._tensor.data_float32()
+            # Default to float32 and convert the input array
+            tensor_data = tensor_obj._tensor.data_float32()
             array = array.astype(np.float32)
 
+        # Copy the numpy array data into the tensor's data
         tensor_data[:] = array
-        return tensor
+        
+        return tensor_obj
 
     def to_numpy(self) -> np.ndarray:
-        """Convert tensor to numpy array"""
-        if self.dtype == DataType.INT32:
-            return self._tensor.data_int32()
+        """Convert tensor to numpy array - FIXED VERSION"""
+        
+        if self.dtype == DataType.INT8:
+            result = self._tensor.data_int8()
+        elif self.dtype == DataType.INT16:
+            result = self._tensor.data_int16()
+        elif self.dtype == DataType.INT32:
+            result = self._tensor.data_int32()
+        elif self.dtype == DataType.INT64:
+            result = self._tensor.data_int64()
         elif self.dtype == DataType.FLOAT32:
-            return self._tensor.data_float32()
+            result = self._tensor.data_float32()
         elif self.dtype == DataType.FLOAT64:
-            return self._tensor.data_float64()
+            result = self._tensor.data_float64()
+        elif self.dtype == DataType.BOOLEAN:
+            result = self._tensor.data_bool()
         else:
             raise ValueError(f"Unsupported dtype for numpy conversion: {self.dtype}")
+        return result
 
     def reshape(self, new_shape: list[int]) -> "Tensor":
         """Reshape the tensor"""
@@ -219,8 +248,3 @@ class Tensor:
         tensor = Tensor(dtype, shape)
         tensor.fill(value)
         return tensor
-
-    @staticmethod
-    def from_numpy(array: np.ndarray) -> _Tensor:
-        """Create tensor from numpy array"""
-        return Tensor.from_numpy(array)
