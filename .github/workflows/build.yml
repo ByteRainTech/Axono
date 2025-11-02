@@ -9,7 +9,7 @@ on:
 
 jobs:
   format-check:
-    if: contains(github.event.pull_request.labels.*.name, 'skip: code-style') == false
+    if: "${{ !contains(github.event.pull_request.labels.*.name, 'skip: code-style') }}"
     name: Code Format Check
     runs-on: ubuntu-latest
     
