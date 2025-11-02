@@ -1,7 +1,7 @@
 import sys
 import os
 
-library_path = os.path.dirname(os.path.dirname(__file__))+"/library/"
+library_path = os.path.dirname(os.path.dirname(__file__)) + "/library/"
 sys.path.append(library_path)
 
 from core import DataType, Status
