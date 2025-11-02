@@ -5,6 +5,11 @@ def load_req(fn: str):
     return [r.strip() for r in Path(fn).read_text(encoding="utf8").splitlines()
             if r.strip() and not r.startswith("#")]
 
+class BdistWheel(bdist_wheel):
+    def finalize_options(self):
+        self.root_is_pure = False
+        super().finalize_options()
+
 setup(
     name="axono",
     version="0.1.0",
@@ -21,6 +26,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],
+    cmdclass={"bdist_wheel": BdistWheel},
     package_data={
         "axono": ["library/*.so", "library/*.dll", "library/*.dylib"],
     },
