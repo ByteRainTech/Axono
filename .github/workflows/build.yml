@@ -5,7 +5,7 @@ on:
     branches: [ dev ]
   pull_request:
     branches: [ dev ]
-  workflow_dispatch:
+  workflow_dispatch:  # 添加手动触发器
 
 jobs:
   format-check:
@@ -49,6 +49,8 @@ jobs:
     name: Build Project
     runs-on: ubuntu-latest
     needs: format-check
+    outputs:
+      build-artifact: ${{ steps.upload.outputs.artifact-name }}
     
     steps:
     - name: Checkout code
@@ -72,11 +74,24 @@ jobs:
     
     - name: Build with build.sh
       run: ./build.sh
+    
+    - name: Upload build artifacts
+      id: upload
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts-${{ github.run_number }}
+        path: |
+          build/
+          *.so
+          *.pyd
+        retention-days: 3
 
   test:
     name: Run Tests
     runs-on: ubuntu-latest
     needs: build
+    env:
+      BUILD_ARTIFACT: ${{ needs.build.outputs.build-artifact }}
     
     steps:
     - name: Checkout code
@@ -95,13 +110,13 @@ jobs:
         sudo apt-get install -y build-essential cmake
         pip install pybind11
     
-    - name: Make build.sh executable
-      run: chmod +x build.sh
-    
-    - name: Build with build.sh
-      run: ./build.sh
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ needs.build.outputs.build-artifact }}
+        path: build/
     
     - name: Run Python tests
       run: |
         cd python/tests
-        python -m unittest discover -s . -p "run.py" -v
+        python run.py
