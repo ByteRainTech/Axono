@@ -1,0 +1,38 @@
+name: Build And Test
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pybind11
+      - run: chmod +x ./build.sh && ./build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: built-package
+          path: dist/
+  unittest:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: built-package
+          path: dist/
+      - run: pip install dist/*.whl
+      - run: python -m unittest discover -s ./python/tests -p "test_*.py" -v
