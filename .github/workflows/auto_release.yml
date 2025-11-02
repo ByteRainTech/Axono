@@ -7,6 +7,8 @@ on:
 
 jobs:
   build_wheels:
+    permissions:
+      contents: write
     name: |
       ${{ matrix.os }} 
       py${{ matrix.py }} 
@@ -59,7 +61,9 @@ jobs:
           cd dist
           for f in *.whl; do
             new=${f//-cp*-/-cp${{ matrix.py }}-${{ matrix.os }}_${{ matrix.arch }}-}
-            mv "$f" "$new"
+            if [[ "$f" != "$new" ]]; then
+              mv "$f" "$new"
+            fi
           done
         shell: bash
 
