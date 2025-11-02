@@ -14,6 +14,7 @@ add_library(axono_core SHARED
     src/core/tensor.cpp
     src/compute/cpu/operators/memory_copy.cpp
     src/compute/cpu/operators/tensor_ops.cpp
+    src/compute/cpu/operators/matmul.cpp
 )
 
 set_target_properties(axono_core PROPERTIES
