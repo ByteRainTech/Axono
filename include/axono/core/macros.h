@@ -1,33 +1,40 @@
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
+// 强制内联宏
+#if defined(__GNUC__) || defined(__clang__)
+    #define AXONO_FORCE_INLINE inline __attribute__((always_inline))
+    #define AXONO_LIKELY(x) __builtin_expect(!!(x), 1)
+    #define AXONO_UNLIKELY(x) __builtin_expect(!!(x), 0)
+#elif defined(_MSC_VER)
+    #define AXONO_FORCE_INLINE __forceinline
+    #define AXONO_LIKELY(x) (x)
+    #define AXONO_UNLIKELY(x) (x)
+#else
+    #define AXONO_FORCE_INLINE inline
+    #define AXONO_LIKELY(x) (x)
+    #define AXONO_UNLIKELY(x) (x)
+#endif
 
-namespace axono {
+// DLL 导出/导入宏
+#ifdef AXONO_BUILD_SHARED_LIB
+    #ifdef _WIN32
+        #define AXONO_EXPORT __declspec(dllexport)
+    #else
+        #define AXONO_EXPORT __attribute__((visibility("default")))
+    #endif
+#else
+    #define AXONO_EXPORT
+#endif
 
-// 基础数据类型枚举
-enum class DataType {
-    INT8,
-    INT16,
-    INT32,
-    INT64,
-    FLOAT32,
-    FLOAT64,
-    BOOLEAN
-};
+// 禁用拷贝和移动
+#define AXONO_DISALLOW_COPY(ClassName) \
+    ClassName(const ClassName&) = delete; \
+    ClassName& operator=(const ClassName&) = delete
 
-// 状态返回码
-enum class Status {
-    OK,
-    INVALID_ARGUMENT,
-    OUT_OF_MEMORY,
-    UNSUPPORTED_TYPE,
-    INTERNAL_ERROR
-};
+#define AXONO_DISALLOW_MOVE(ClassName) \
+    ClassName(ClassName&&) = delete; \
+    ClassName& operator=(ClassName&&) = delete
 
-// 计算上下文
-struct Context {
-    int device_id = 0;  // 未来可用于多设备
-};
-
-} // namespace axono
+#define AXONO_DISALLOW_COPY_AND_MOVE(ClassName) \
+    AXONO_DISALLOW_COPY(ClassName); \
+    AXONO_DISALLOW_MOVE(ClassName)
