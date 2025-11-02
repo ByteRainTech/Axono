@@ -5,13 +5,21 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Wall -Wextra -O3 -march=native)
+    add_compile_options(-Wall -Wextra -O3 -march=native -fPIC)
 endif()
 
 include_directories(include)
 
-add_library(axono_cpu_core
+add_library(axono_core SHARED
+    src/core/tensor.cpp
     src/compute/cpu/operators/memory_copy.cpp
+    src/compute/cpu/operators/tensor_ops.cpp
+)
+
+set_target_properties(axono_core PROPERTIES
+    OUTPUT_NAME "axono_core"
+    PREFIX ""
+    SOVERSION 1
 )
 
 add_subdirectory(python)
