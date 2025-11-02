@@ -1,8 +1,6 @@
 name: CI Pipeline
 
 on:
-  push:
-    branches: [ dev ]
   pull_request:
     branches: [ dev ]
   workflow_dispatch:  # 添加手动触发器
