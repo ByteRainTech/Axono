@@ -8,16 +8,23 @@ ext = Extension(
     sources=["python/axono/_pseudo.c"],
 )
 
+
 def load_req(fn: str):
-    return [r.strip() for r in Path(fn).read_text(encoding="utf8").splitlines()
-            if r.strip() and not r.startswith("#")]
+    return [
+        r.strip()
+        for r in Path(fn).read_text(encoding="utf8").splitlines()
+        if r.strip() and not r.startswith("#")
+    ]
+
 
 root = Path(__file__).parent
 lib = root / "python" / "library"
 
-lib_files = [str(p.relative_to(root / "python")).replace("\\", "/")
-             for p in lib.rglob("*")
-             if p.suffix in {".dll", ".so", ".pyd"}]
+lib_files = [
+    str(p.relative_to(root / "python")).replace("\\", "/")
+    for p in lib.rglob("*")
+    if p.suffix in {".dll", ".so", ".pyd"}
+]
 
 print("Library Files:")
 print(lib_files)
