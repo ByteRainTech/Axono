@@ -6,7 +6,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from axono.core import matmul, Tensor, DataType
+from axono.core import DataType, Tensor, matmul
 
 
 class TestMatmul(unittest.TestCase):
