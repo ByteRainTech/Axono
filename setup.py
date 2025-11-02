@@ -37,7 +37,7 @@ setup(
         "Programming Language :: Python :: 3.11",
     ],
     package_data={
-        "axono": ["library/*.so", "library/*.dll", "library/*.dylib","python/library/*.so", "python/library/*.dll", "python/library/*.dylib"],
+        "axono": lib_files,
     },
     include_package_data=True,
     zip_safe=False,
