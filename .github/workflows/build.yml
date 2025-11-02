@@ -1,0 +1,19 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Make build script executable
+      run: chmod +x ./build.sh
+
+    - name: Run build script
+      run: ./build.sh
