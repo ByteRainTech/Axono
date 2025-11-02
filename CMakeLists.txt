@@ -17,6 +17,16 @@ add_library(axono_core SHARED
     src/compute/cpu/operators/matmul.cpp
 )
 
+target_compile_definitions(axono_core PRIVATE AXONO_CORE_EXPORTS)
+
+set_target_properties(axono_core PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"  # .dll
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"  # .lib
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"  # .so/.dylib
+)
+
+set_target_properties(axono_core PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 set_target_properties(axono_core PROPERTIES
     OUTPUT_NAME "axono_core"
     PREFIX ""
