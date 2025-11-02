@@ -1,7 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
-mkdir -p build
-cd build
 
-cmake .. -Dpybind11_DIR=$(python3 -m pybind11 --cmakedir)
-make -j$(nproc)
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+  cmake --build build --config Release
+else
+  make -C build -j$(nproc)
+fi
