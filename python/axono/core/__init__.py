@@ -6,7 +6,7 @@ sys.path.append(library_path)
 
 from core import DataType, Status
 
-from .tensor import Tensor
 from .matmul import matmul
+from .tensor import Tensor
 
 __all__ = ["DataType", "Status", "Tensor", "matmul"]
