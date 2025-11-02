@@ -1,5 +1,9 @@
 import unittest
 import os
+import sys
+
+sys.path.append("../")
+sys.path.append("../../")
 
 def run_all_tests():
     # 获取当前目录
