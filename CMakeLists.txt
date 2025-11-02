@@ -37,7 +37,7 @@ set_target_properties(axono_core PROPERTIES
 set_target_properties(axono_core PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 set_target_properties(axono_core PROPERTIES
-    OUTPUT_NAME "axono_core"
+    OUTPUT_NAME "core"
     PREFIX ""
     SOVERSION 1
 )
