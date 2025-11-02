@@ -1,0 +1,22 @@
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+# 允许使用星号导入
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "F403",  # 忽略 `from .core import *` 错误
+    "F405",  # 忽略可能未定义的名称，因为星号导入
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["axono"]

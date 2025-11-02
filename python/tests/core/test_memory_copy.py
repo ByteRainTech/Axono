@@ -2,9 +2,11 @@ import sys
 
 sys.path.append("../../")
 
-from axono.core import memory_copy
-import numpy as np
 import unittest
+
+import numpy as np
+
+from axono.core import memory_copy
 
 
 class TestMemoryCopy(unittest.TestCase):

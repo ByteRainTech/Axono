@@ -1,0 +1,70 @@
+name: Code Format and Commit
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message for the formatting changes'
+        required: true
+        default: 'Format code'
+      branch:
+        description: 'Target branch'
+        required: true
+        default: 'dev'
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13.7'
+    
+    - name: Install dependencies
+      run: |
+        pip install ruff
+    
+    - name: Format Python code with ruff
+      run: |
+        ruff check --fix --unsafe-fixes .
+        ruff format .
+    
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+    
+    - name: Format C++ code with clang-format
+      run: |
+        # Find all C++ files
+        find . -name "*.cpp" -o -name "*.hpp" -o -name "*.cc" -o -name "*.h" -o -name "*.cxx" -o -name "*.hxx" | while read file; do
+          clang-format -i -style=file "$file"
+        done
+    
+    - name: Check if there are changes
+      id: check-changes
+      run: |
+        if git diff --quiet; then
+          echo "No changes detected"
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected"
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit and push changes
+      if: steps.check-changes.outputs.has_changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "${{ github.event.inputs.commit_message }}"
+        git push origin ${{ github.event.inputs.branch }}
