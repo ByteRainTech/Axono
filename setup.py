@@ -1,5 +1,6 @@
 from pathlib import Path
 from setuptools import setup, find_packages
+from wheel.bdist_wheel import bdist_wheel
 
 def load_req(fn: str):
     return [r.strip() for r in Path(fn).read_text(encoding="utf8").splitlines()
