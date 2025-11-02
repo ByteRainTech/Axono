@@ -1,6 +1,7 @@
 """
 Axono Tensor - Python interface for Tensor class
 """
+
 import sys
 import os
 
@@ -9,13 +10,16 @@ import ctypes
 from typing import List, Union, Optional
 from core import Tensor as _Tensor, DataType, Status
 
+
 class Tensor:
     """Python Tensor class wrapping C++ Tensor"""
-    
-    def __init__(self, dtype: DataType = DataType.FLOAT32, shape: Optional[List[int]] = None):
+
+    def __init__(
+        self, dtype: DataType = DataType.FLOAT32, shape: Optional[List[int]] = None
+    ):
         """
         Initialize Tensor
-        
+
         Args:
             dtype: Data type of tensor
             shape: Shape of tensor, if None creates empty tensor
@@ -24,21 +28,21 @@ class Tensor:
             self._tensor = _Tensor(dtype)
         else:
             self._tensor = _Tensor(dtype, shape)
-    
+
     @classmethod
-    def create(cls, dtype: DataType, shape: List[int]) -> 'Tensor':
+    def create(cls, dtype: DataType, shape: List[int]) -> "Tensor":
         """Create a new tensor"""
         return cls(dtype, shape)
-    
+
     @classmethod
-    def create_like(cls, other: 'Tensor') -> 'Tensor':
+    def create_like(cls, other: "Tensor") -> "Tensor":
         """Create a tensor with same shape and dtype as another"""
         tensor = cls()
         tensor._tensor = _Tensor.create_like(other._tensor)
         return tensor
-    
+
     @classmethod
-    def from_numpy(cls, array: np.ndarray) -> 'Tensor':
+    def from_numpy(cls, array: np.ndarray) -> "Tensor":
         """Create tensor from numpy array - Simple version"""
         # 直接使用构造函数创建，避免任何可能的递归
         if array.dtype == np.float32:
@@ -67,11 +71,11 @@ class Tensor:
             tensor = cls(DataType.FLOAT32, list(array.shape))
             tensor_data = tensor._tensor.data_float32()
             array = array.astype(np.float32)
-        
+
         # 拷贝数据
         tensor_data[:] = array
         return tensor
-    
+
     def to_numpy(self) -> np.ndarray:
         """Convert tensor to numpy array"""
         if self.dtype == DataType.INT32:
@@ -82,42 +86,42 @@ class Tensor:
             return self._tensor.data_float64()
         else:
             raise ValueError(f"Unsupported dtype for numpy conversion: {self.dtype}")
-    
-    def reshape(self, new_shape: List[int]) -> 'Tensor':
+
+    def reshape(self, new_shape: List[int]) -> "Tensor":
         """Reshape the tensor"""
         status = self._tensor.reshape(new_shape)
         if status != Status.OK:
             raise RuntimeError(f"Reshape failed with status: {status}")
         return self
-    
-    def resize(self, new_shape: List[int]) -> 'Tensor':
+
+    def resize(self, new_shape: List[int]) -> "Tensor":
         """Resize the tensor (may reallocate memory)"""
         status = self._tensor.resize(new_shape)
         if status != Status.OK:
             raise RuntimeError(f"Resize failed with status: {status}")
         return self
-    
-    def fill_zero(self) -> 'Tensor':
+
+    def fill_zero(self) -> "Tensor":
         """Fill tensor with zeros"""
         status = self._tensor.fill_zero()
         if status != Status.OK:
             raise RuntimeError(f"Fill zero failed with status: {status}")
         return self
-    
-    def fill(self, value: Union[int, float]) -> 'Tensor':
+
+    def fill(self, value: Union[int, float]) -> "Tensor":
         """
         Fill tensor with the specified value.
-        
+
         Parameters:
         -----------
         value : int or float
             The value to fill the tensor with
-            
+
         Returns:
         --------
         Tensor
             self for method chaining
-            
+
         Raises:
         -------
         ValueError
@@ -128,17 +132,17 @@ class Tensor:
         import ctypes
         from ctypes import pythonapi, py_object
         from ctypes import c_void_p, c_char_p
-        
+
         dtype_map = {
             DataType.INT8: (np.int8, ctypes.c_int8),
-            DataType.INT16: (np.int16, ctypes.c_int16), 
+            DataType.INT16: (np.int16, ctypes.c_int16),
             DataType.INT32: (np.int32, ctypes.c_int32),
             DataType.INT64: (np.int64, ctypes.c_int64),
             DataType.FLOAT32: (np.float32, ctypes.c_float),
             DataType.FLOAT64: (np.float64, ctypes.c_double),
             DataType.BOOLEAN: (np.bool_, ctypes.c_bool),
         }
-        
+
         if self.dtype not in dtype_map:
             raise ValueError(f"Unsupported dtype for fill: {self.dtype}")
 
@@ -148,61 +152,57 @@ class Tensor:
             pythonapi.PyCapsule_New.argtypes = [c_void_p, c_char_p, c_void_p]
             pythonapi.PyCapsule_New.restype = py_object
 
-            capsule = pythonapi.PyCapsule_New(
-                ctypes.addressof(c_value),
-                None,
-                None
-            )
+            capsule = pythonapi.PyCapsule_New(ctypes.addressof(c_value), None, None)
 
             status = self._tensor.fill(capsule, ctypes.sizeof(c_value))
-            
+
             if status != Status.OK:
                 raise RuntimeError(f"Fill failed with status: {status}")
-                
+
             return self
-            
+
         except OverflowError:
             raise ValueError(f"Value {value} is too large for dtype {self.dtype}")
         except Exception as e:
             raise RuntimeError(f"Fill operation failed: {e}")
-    
-    def copy_from(self, other: 'Tensor') -> 'Tensor':
+
+    def copy_from(self, other: "Tensor") -> "Tensor":
         """Copy data from another tensor"""
         status = self._tensor.copy_from(other._tensor)
         if status != Status.OK:
             raise RuntimeError(f"Copy failed with status: {status}")
         return self
-    
-    def is_same_shape(self, other: 'Tensor') -> bool:
+
+    def is_same_shape(self, other: "Tensor") -> bool:
         """Check if has same shape as another tensor"""
         return self._tensor.is_same_shape(other._tensor)
-    
+
     @property
     def dtype(self) -> DataType:
         return self._tensor.dtype
-    
+
     @property
     def shape(self) -> List[int]:
         return self._tensor.shape
-    
+
     @property
     def ndim(self) -> int:
         return self._tensor.ndim
-    
+
     @property
     def num_elements(self) -> int:
         return self._tensor.num_elements
-    
+
     @property
     def num_bytes(self) -> int:
         return self._tensor.num_bytes
-    
+
     def __repr__(self) -> str:
         return self._tensor.__repr__()
-    
+
     def __str__(self) -> str:
         return self._tensor.__str__()
-    
+
     @staticmethod
     def zeros(shape: List[int], dtype: DataType = DataType.FLOAT32) -> _Tensor:
         """Create a tensor filled with zeros"""
@@ -218,7 +218,9 @@ class Tensor:
         return tensor
 
     @staticmethod
-    def full(shape: List[int], value: Union[int, float], dtype: DataType = DataType.FLOAT32) -> _Tensor:
+    def full(
+        shape: List[int], value: Union[int, float], dtype: DataType = DataType.FLOAT32
+    ) -> _Tensor:
         """Create a tensor filled with value"""
         tensor = Tensor(dtype, shape)
         tensor.fill(value)
