@@ -1,13 +1,12 @@
-import sys
 import os
+import sys
 
-# 添加 Python 包路径
-print(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-import numpy as np
 import unittest
-from axono.core import Tensor, DataType
+
+import numpy as np
+from axono.core import DataType, Tensor
 
 
 class TestTensor(unittest.TestCase):
