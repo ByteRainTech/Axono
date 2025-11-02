@@ -3,6 +3,9 @@ import os
 import sys
 import unittest
 
+sys.path.append("../")
+sys.path.append("../../")
+
 
 def discover_tests_recursive(directory):
     """递归发现所有测试文件"""
