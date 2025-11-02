@@ -12,6 +12,13 @@ def load_req(fn: str):
     return [r.strip() for r in Path(fn).read_text(encoding="utf8").splitlines()
             if r.strip() and not r.startswith("#")]
 
+lib_files = [str(p.relative_to(root / "python")).replace("\\", "/")
+             for p in lib.rglob("*")
+             if p.suffix in {".dll", ".so", ".pyd"}]
+
+print("Library Files:")
+print(lib_files)
+
 setup(
     name="axono",
     version="0.1.0",
