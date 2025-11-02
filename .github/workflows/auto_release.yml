@@ -49,7 +49,7 @@ jobs:
         shell: bash
 
       - name: build.sh
-        run: bash build.sh
+        run: bash build.sh && ls python/library
         shell: bash
 
       - name: Build wheel
