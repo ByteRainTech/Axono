@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 
 #include "axono/compute/cpu/operators.h"
+#include "axono/compute/cpu/ops.h"
 #include "axono/core/tensor.h"
 
 namespace py = pybind11;
@@ -188,6 +189,33 @@ void init_add_operations(py::module& m) {
     }, "Add scalar to tensor", py::arg("a"), py::arg("scalar"));
 }
 
+// ReLU 操作绑定
+void init_activation_operations(py::module& m) {
+    m.def("relu", [](const axono::Tensor& input) {
+        axono::Context ctx;
+        axono::Tensor output;
+        
+        auto status = axono::compute::cpu::Relu(ctx, input, output);
+        if (status != axono::Status::OK) {
+            throw std::runtime_error("ReLU operation failed with status: " + 
+                                   std::to_string(static_cast<int>(status)));
+        }
+        
+        return output;
+    }, "ReLU activation function", py::arg("input"));
+    
+    m.def("relu_", [](axono::Tensor& tensor) {
+        axono::Context ctx;
+        
+        auto status = axono::compute::cpu::ReluInplace(ctx, tensor);
+        if (status != axono::Status::OK) {
+            throw std::runtime_error("Inplace ReLU operation failed");
+        }
+        
+        return tensor;
+    }, "Inplace ReLU activation function", py::arg("tensor"));
+}
+
 PYBIND11_MODULE(core, m) {
   m.doc() = "Axono Core Library";
 
@@ -219,4 +247,5 @@ PYBIND11_MODULE(core, m) {
   init_tensor(m);
   init_matmul_operations(m);
   init_add_operations(m);
+  init_activation_operations(m);
 }
