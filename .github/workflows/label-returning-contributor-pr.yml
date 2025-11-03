@@ -1,0 +1,46 @@
+# .github/workflows/label-returning-contributor-pr.yml
+name: Label returning contributor PR
+
+on:
+  pull_request_target:   # 安全读取 token
+    types: [opened]
+
+permissions:
+  pull-requests: write   # 给 PR 打标签
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if author has any merged PR
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const author = context.payload.pull_request.user.login;
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'all',
+              per_page: 100
+            });
+
+            const hasMerged = prs.some(pr => pr.user.login === author && pr.merged_at);
+            core.setOutput('hasMerged', hasMerged);
+
+      - name: Ensure label exists
+        if: steps.check.outputs.hasMerged == 'true'
+        run: |
+          gh api repos/$GITHUB_REPOSITORY/labels/contributor \
+            --silent 2>/dev/null || \
+          gh api repos/$GITHUB_REPOSITORY/labels \
+            --method POST -f name=contributor -f color=0366d6 -f description='Returning contributor PR'
+
+      - name: Add contributor label to this PR
+        if: steps.check.outputs.hasMerged == 'true'
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --add-label contributor
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
