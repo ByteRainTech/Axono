@@ -49,9 +49,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = ""
-Repository = ""
-Documentation = ""
+Homepage = "https://github.com/ByteRainTech/Axono/"
+Repository = "https://github.com/ByteRainTech/Axono/"
+Documentation = "https://github.com/ByteRainTech/Axono/docs/"
 
 [tool.setuptools]
 package-dir = {"" = "python"}
