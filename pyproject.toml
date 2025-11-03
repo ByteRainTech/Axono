@@ -45,7 +45,6 @@ classifiers = [
 dependencies = [
     "numpy>=1.20.0",
     "pybind11>=2.6",
-    # 其他依赖将从requirements.txt读取
 ]
 
 [project.urls]
