@@ -1,6 +1,8 @@
 # Axono
 > 版本 `0.1.0`
 
+<a href="https://cla-assistant.io/ByteRainTech/Axono"><img src="https://cla-assistant.io/readme/badge/ByteRainTech/Axono" alt="CLA assistant" /></a>
+
 Axono——轻量级的人工智能算法库喵~
 
 ## 现已支持
