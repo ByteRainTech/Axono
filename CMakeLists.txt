@@ -22,9 +22,10 @@ include_directories(include)
 add_library(axono_core SHARED
     src/core/tensor.cpp
     src/compute/cpu/operators/memory_copy.cpp
-    src/compute/cpu/operators/tensor_ops.cpp
     src/compute/cpu/operators/matmul.cpp
     src/compute/cpu/operators/add.cpp
+    src/compute/cpu/ops/tensor_ops.cpp
+    src/compute/cpu/ops/relu.cpp
 )
 
 target_compile_definitions(axono_core PRIVATE AXONO_CORE_EXPORTS)
