@@ -1,0 +1,114 @@
+#pragma once
+
+#include "axono/core/macros.h"
+#include "axono/core/tensor.h"
+#include <cstddef>
+#include <cstring>
+
+namespace axono {
+namespace compute {
+namespace cpu {
+namespace kernel {
+
+// 逐元素加法内核
+template<typename T>
+AXONO_FORCE_INLINE void AddKernel(const T* a, const T* b, T* result, size_t num_elements) {
+    for (size_t i = 0; i < num_elements; ++i) {
+        result[i] = a[i] + b[i];
+    }
+}
+
+// 标量加法内核
+template<typename T>
+AXONO_FORCE_INLINE void AddScalarKernel(const T* a, T scalar, T* result, size_t num_elements) {
+    for (size_t i = 0; i < num_elements; ++i) {
+        result[i] = a[i] + scalar;
+    }
+}
+
+// 类型分派的加法
+AXONO_FORCE_INLINE Status DispatchAdd(const Tensor& a, const Tensor& b, Tensor& result) {
+    auto num_elements = a.num_elements();
+    
+    // 检查形状一致性
+    if (!a.IsSameShape(b) || !a.IsSameShape(result)) {
+        return Status::SHAPE_MISMATCH;
+    }
+    
+    // 检查数据类型一致性
+    if (a.dtype() != b.dtype() || a.dtype() != result.dtype()) {
+        return Status::UNSUPPORTED_TYPE;
+    }
+    
+    // 根据数据类型选择内核
+    switch (a.dtype()) {
+        case DataType::FLOAT32:
+            AddKernel(a.data<float>(), b.data<float>(), result.data<float>(), num_elements);
+            break;
+        case DataType::FLOAT64:
+            AddKernel(a.data<double>(), b.data<double>(), result.data<double>(), num_elements);
+            break;
+        case DataType::INT32:
+            AddKernel(a.data<int32_t>(), b.data<int32_t>(), result.data<int32_t>(), num_elements);
+            break;
+        case DataType::INT64:
+            AddKernel(a.data<int64_t>(), b.data<int64_t>(), result.data<int64_t>(), num_elements);
+            break;
+        default:
+            return Status::UNSUPPORTED_TYPE;
+    }
+    
+    return Status::OK;
+}
+
+// 类型分派的标量加法
+AXONO_FORCE_INLINE Status DispatchAddScalar(const Tensor& a, void* scalar, size_t scalar_size, Tensor& result) {
+    auto num_elements = a.num_elements();
+    
+    // 检查形状一致性
+    if (!a.IsSameShape(result)) {
+        return Status::SHAPE_MISMATCH;
+    }
+    
+    // 检查数据类型一致性
+    if (a.dtype() != result.dtype()) {
+        return Status::UNSUPPORTED_TYPE;
+    }
+    
+    // 根据数据类型选择内核
+    switch (a.dtype()) {
+        case DataType::FLOAT32: {
+            float scalar_value = 0.0f;
+            if (scalar_size >= sizeof(float)) {
+                memcpy(&scalar_value, scalar, sizeof(float));
+            }
+            AddScalarKernel(a.data<float>(), scalar_value, result.data<float>(), num_elements);
+            break;
+        }
+        case DataType::FLOAT64: {
+            double scalar_value = 0.0;
+            if (scalar_size >= sizeof(double)) {
+                memcpy(&scalar_value, scalar, sizeof(double));
+            }
+            AddScalarKernel(a.data<double>(), scalar_value, result.data<double>(), num_elements);
+            break;
+        }
+        case DataType::INT32: {
+            int32_t scalar_value = 0;
+            if (scalar_size >= sizeof(int32_t)) {
+                memcpy(&scalar_value, scalar, sizeof(int32_t));
+            }
+            AddScalarKernel(a.data<int32_t>(), scalar_value, result.data<int32_t>(), num_elements);
+            break;
+        }
+        default:
+            return Status::UNSUPPORTED_TYPE;
+    }
+    
+    return Status::OK;
+}
+
+} // namespace kernel
+} // namespace cpu
+} // namespace compute
+} // namespace axono
