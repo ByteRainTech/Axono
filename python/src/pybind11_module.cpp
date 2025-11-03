@@ -148,6 +148,46 @@ void init_matmul_operations(py::module &m) {
       "Matrix multiplication of two tensors", py::arg("a"), py::arg("b"));
 }
 
+// 加法操作绑定
+void init_add_operations(py::module& m) {
+    m.def("add", [](const axono::Tensor& a, const axono::Tensor& b) {
+        axono::Context ctx;
+        axono::Tensor result;
+        
+        auto status = axono::compute::cpu::Add(ctx, a, b, result);
+        if (status != axono::Status::OK) {
+            throw std::runtime_error("Add operation failed with status: " + 
+                                   std::to_string(static_cast<int>(status)));
+        }
+        
+        return result;
+    }, "Element-wise addition of two tensors", py::arg("a"), py::arg("b"));
+    
+    m.def("add_scalar", [](const axono::Tensor& a, py::object scalar) {
+        axono::Context ctx;
+        axono::Tensor result;
+        
+        // 将 Python 标量转换为 C++ 数据
+        if (a.dtype() == axono::DataType::FLOAT32) {
+            float value = scalar.cast<float>();
+            auto status = axono::compute::cpu::AddScalar(ctx, a, &value, sizeof(float), result);
+            if (status != axono::Status::OK) {
+                throw std::runtime_error("Add scalar operation failed");
+            }
+        } else if (a.dtype() == axono::DataType::INT32) {
+            int32_t value = scalar.cast<int32_t>();
+            auto status = axono::compute::cpu::AddScalar(ctx, a, &value, sizeof(int32_t), result);
+            if (status != axono::Status::OK) {
+                throw std::runtime_error("Add scalar operation failed");
+            }
+        } else {
+            throw std::runtime_error("Unsupported data type for scalar addition");
+        }
+        
+        return result;
+    }, "Add scalar to tensor", py::arg("a"), py::arg("scalar"));
+}
+
 PYBIND11_MODULE(core, m) {
   m.doc() = "Axono Core Library";
 
@@ -178,4 +218,5 @@ PYBIND11_MODULE(core, m) {
   // 初始化 Tensor
   init_tensor(m);
   init_matmul_operations(m);
+  init_add_operations(m);
 }
