@@ -92,7 +92,7 @@ class Tensor:
         return tensor_obj
 
     def __matmul__(self, other) -> "Tensor":
-        from . import matmul
+        from .operators import matmul
 
         return matmul(self, other)
 
