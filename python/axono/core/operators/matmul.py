@@ -4,7 +4,7 @@ Axono Matmul
 
 from core import matmul as _matmul
 
-from .tensor import Tensor
+from ..tensor import Tensor
 
 
 def matmul(a: Tensor, b: Tensor) -> Tensor:
