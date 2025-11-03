@@ -1,0 +1,42 @@
+site_name: Axono 开发文档
+repo_name: ByteRainTech/Axono
+
+theme:
+  name: material
+  language: zh
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+# 页面导航（按需增删）
+nav:
+  - 首页: index.md
+  - 快速开始: quickstart.md
+  - 用户指南:
+      - 安装: user-guide/install.md
+      - 配置: user-guide/config.md
+  - 关于: about.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
