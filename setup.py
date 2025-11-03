@@ -1,7 +1,5 @@
 from pathlib import Path
-from setuptools import setup, find_packages, Extension
-from wheel.bdist_wheel import bdist_wheel
-import platform
+from setuptools import Extension, find_packages, setup
 
 ext = Extension(
     name="axono._pseudo",
