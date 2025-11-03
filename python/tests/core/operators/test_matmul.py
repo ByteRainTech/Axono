@@ -4,10 +4,13 @@ import unittest
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+)
 
 from axono.core import DataType, Tensor
 from axono.core.operators import matmul
+
 
 class TestMatmul(unittest.TestCase):
     """矩阵乘法单元测试"""

@@ -12,6 +12,7 @@ from core import Tensor as _Tensor
 
 class Tensor:
     """Python Tensor class wrapping C++ Tensor"""
+
     def __init__(
         self, dtype: DataType = DataType.FLOAT32, shape: list[int] | None = None
     ):
@@ -92,10 +93,12 @@ class Tensor:
 
     def __matmul__(self, other) -> "Tensor":
         from .operators import matmul
+
         return matmul(self, other)
-    
+
     def __add__(self, other) -> "Tensor":
         from .operators import add
+
         return add(self, other)
 
     def to_numpy(self) -> np.ndarray:
@@ -255,5 +258,6 @@ class Tensor:
         tensor = Tensor(dtype, shape)
         tensor.fill(value)
         return tensor
+
     __radd__ = __add__
     __rmatmul__ = __matmul__

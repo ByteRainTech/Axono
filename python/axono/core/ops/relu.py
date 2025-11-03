@@ -1,9 +1,11 @@
 """
 core.ops.Relu()
 """
+
 from core import relu as relu_op, relu_ as relu_op_
 
 from ..tensor import Tensor
+
 
 def relu(a: Tensor, inplace: bool = False) -> Tensor:
     if inplace:

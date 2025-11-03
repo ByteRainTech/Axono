@@ -16,12 +16,10 @@ AXONO_EXPORT Status TensorFillZero(const Context &ctx, Tensor &tensor);
 AXONO_EXPORT Status TensorCreateLike(const Context &ctx, const Tensor &src,
                                      Tensor &dst);
 
-AXONO_EXPORT Status Relu(const Context& ctx, 
-                        const Tensor& input, 
-                        Tensor& output);
+AXONO_EXPORT Status Relu(const Context &ctx, const Tensor &input,
+                         Tensor &output);
 
-AXONO_EXPORT Status ReluInplace(const Context& ctx, 
-                               Tensor& tensor);
+AXONO_EXPORT Status ReluInplace(const Context &ctx, Tensor &tensor);
 } // namespace cpu
 } // namespace compute
 } // namespace axono

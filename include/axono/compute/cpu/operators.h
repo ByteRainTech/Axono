@@ -18,16 +18,11 @@ AXONO_EXPORT Status MemorySet(const Context &ctx, void *dst, int value,
 AXONO_EXPORT Status MatMul(const Context &ctx, const Tensor &a, const Tensor &b,
                            Tensor &result);
 
-AXONO_EXPORT Status Add(const Context& ctx, 
-                       const Tensor& a, 
-                       const Tensor& b, 
-                       Tensor& result);
+AXONO_EXPORT Status Add(const Context &ctx, const Tensor &a, const Tensor &b,
+                        Tensor &result);
 
-AXONO_EXPORT Status AddScalar(const Context& ctx,
-                             const Tensor& a,
-                             void* scalar,
-                             size_t scalar_size,
-                             Tensor& result);
+AXONO_EXPORT Status AddScalar(const Context &ctx, const Tensor &a, void *scalar,
+                              size_t scalar_size, Tensor &result);
 } // namespace cpu
 } // namespace compute
 } // namespace axono

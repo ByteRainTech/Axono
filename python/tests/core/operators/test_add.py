@@ -4,12 +4,15 @@ import unittest
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+)
 
 from axono.core import DataType, Tensor
 from axono.core.operators import add
 
 # TODO: 广播加法
+
 
 class TestAdd(unittest.TestCase):
     """逐元素加法单元测试"""
