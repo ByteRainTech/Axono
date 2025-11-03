@@ -12,10 +12,11 @@ Axono——轻量级的大数据库喵~
 - float32
 - float64
 > 精度接口见 `axono.core -> DataType`
-> Tensor接口见 `axono.core -> tensor.Tensor`
+> Tensor接口见 `axono.core -> Tensor`
 
 运算支持
 - `matmul` (也可使用@运算)
+- `add` (也可使用+运算)
 
 通用转换支持
 - `to_numpy()` and `from_numpy` (与大多框架用法一致)
