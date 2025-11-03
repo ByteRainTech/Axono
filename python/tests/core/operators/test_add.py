@@ -19,7 +19,7 @@ class TestAdd(unittest.TestCase):
         a = Tensor.from_numpy(np.array([[1, 2], [3, 4]], dtype=np.float32))
         b = Tensor.from_numpy(np.array([[5, 6], [7, 8]], dtype=np.float32))
 
-        result = add(a, b)
+        result = a + b
 
         expected = np.array([[6, 8], [10, 12]], dtype=np.float32)
         actual = result.to_numpy()
