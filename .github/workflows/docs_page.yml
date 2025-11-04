@@ -2,7 +2,7 @@ name: DocString → Docsify → GitHub Pages
 
 on:
   push:
-    branches: [ dev ]
+    branches: [main]
 
 permissions:
   contents: write
@@ -14,25 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v4
         with: {python-version: '3.12'}
-
       - run: pip install astunparse
 
+      # 1) 生成 Markdown（路径改成 python/axono）
       - name: Generate MD
         shell: python
         run: |
-          import ast, os, pathlib, textwrap, shutil
+          import ast, pathlib, shutil, textwrap
 
-          src_root = pathlib.Path('axono')
+          src_root = pathlib.Path('python/axono')   # 🔧 改这里
           docs_root = pathlib.Path('docs')
-
-          api_dir = docs_root / 'axono'
+          api_dir   = docs_root / 'axono'
           if api_dir.exists(): shutil.rmtree(api_dir)
 
           for py in src_root.rglob('*.py'):
-
               rel = py.relative_to(src_root).with_suffix('.md')
               md_file = api_dir / rel
               md_file.parent.mkdir(parents=True, exist_ok=True)
@@ -49,9 +46,9 @@ jobs:
                       parts.append('')
                       parts.append(textwrap.indent(doc, '    '))
                       parts.append('')
-
               md_file.write_text('\n'.join(parts)+'\n', encoding='utf8')
 
+      # 2) 更新侧边栏
       - name: Build sidebar
         shell: python
         run: |
@@ -59,13 +56,14 @@ jobs:
           api = pathlib.Path('docs/axono')
           lines = ['- [Home](/)']
           for md in sorted(api.rglob('*.md')):
-              rel = md.relative_to(api)
+              rel   = md.relative_to(api)
               depth = len(rel.parts) - 1
               title = rel.stem.replace('_', ' ').title()
-              link = '/axono/' + str(rel.with_suffix(''))
+              link  = '/axono/' + str(rel.with_suffix(''))
               lines.append('  '*depth + f'- [{title}]({link})')
           pathlib.Path('docs/_sidebar.md').write_text('\n'.join(lines)+'\n')
 
+      # 3) 提交 & 部署
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore(ci): update docsify from DocString'
