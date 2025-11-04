@@ -1,27 +1,57 @@
-name: Publish Docs
+name: Auto Docs
 
 on:
   push:
     branches: [ dev ]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - run: pip install pdoc3
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - run: |
+          pdoc --html src \
+               --output-dir docs/api \
+               --force \
+               --template-dir docs/_pdoc_theme
+
+      - name: Build sidebar
+        shell: python
+        run: |
+          import pathlib, textwrap
+          root = pathlib.Path('docs/api')
+          lines = ['- [Home](/)']
+          for p in sorted(root.rglob('*.md')):
+              rel = p.relative_to(root)
+              depth = len(rel.parts) - 1
+              title = rel.stem.replace('_', ' ').title()
+              link = '/api/' + str(rel.with_suffix(''))
+              lines.append('  '*depth + f'- [{title}]({link})')
+          pathlib.Path('docs/_sidebar.md').write_text('\n'.join(lines)+'\n')
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore(ci): auto-update docs from DocString'
+          file_pattern: 'docs/api/* docs/_sidebar.md'
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
