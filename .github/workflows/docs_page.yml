@@ -23,8 +23,7 @@ jobs:
       - run: |
           pdoc --html src \
                --output-dir docs/api \
-               --force \
-               --template-dir docs/_pdoc_theme
+               --force
 
       - name: Build sidebar
         shell: python
