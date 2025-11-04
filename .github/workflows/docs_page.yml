@@ -1,4 +1,4 @@
-name: Auto Docs
+name: DocString → Docsify → GitHub Pages
 
 on:
   push:
@@ -16,33 +16,60 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - run: pip install pdoc3
+        with: {python-version: '3.12'}
 
-      - run: |
-          pdoc --html src \
-               --output-dir docs/api \
-               --force
+      - run: pip install astunparse
+
+      - name: Generate MD
+        shell: python
+        run: |
+          import ast, os, pathlib, textwrap, shutil
+
+          src_root = pathlib.Path('axono')
+          docs_root = pathlib.Path('docs')
+
+          api_dir = docs_root / 'axono'
+          if api_dir.exists(): shutil.rmtree(api_dir)
+
+          for py in src_root.rglob('*.py'):
+
+              rel = py.relative_to(src_root).with_suffix('.md')
+              md_file = api_dir / rel
+              md_file.parent.mkdir(parents=True, exist_ok=True)
+
+              with open(py, encoding='utf8') as f:
+                  tree = ast.parse(f.read(), filename=str(py))
+
+              parts = ['# `{}`'.format(py.stem), '']
+              for node in ast.walk(tree):
+                  if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                      doc = ast.get_docstring(node)
+                      if not doc: continue
+                      parts.append('## `{}`'.format(node.name))
+                      parts.append('')
+                      parts.append(textwrap.indent(doc, '    '))
+                      parts.append('')
+
+              md_file.write_text('\n'.join(parts)+'\n', encoding='utf8')
 
       - name: Build sidebar
         shell: python
         run: |
-          import pathlib, textwrap
-          root = pathlib.Path('docs/api')
+          import pathlib
+          api = pathlib.Path('docs/axono')
           lines = ['- [Home](/)']
-          for p in sorted(root.rglob('*.md')):
-              rel = p.relative_to(root)
+          for md in sorted(api.rglob('*.md')):
+              rel = md.relative_to(api)
               depth = len(rel.parts) - 1
               title = rel.stem.replace('_', ' ').title()
-              link = '/api/' + str(rel.with_suffix(''))
+              link = '/axono/' + str(rel.with_suffix(''))
               lines.append('  '*depth + f'- [{title}]({link})')
           pathlib.Path('docs/_sidebar.md').write_text('\n'.join(lines)+'\n')
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'chore(ci): auto-update docs from DocString'
-          file_pattern: 'docs/api/* docs/_sidebar.md'
+          commit_message: 'chore(ci): update docsify from DocString'
+          file_pattern: 'docs/axono/* docs/_sidebar.md'
 
   deploy:
     needs: build
@@ -51,6 +78,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
+        with: {path: docs}
       - uses: actions/deploy-pages@v4
