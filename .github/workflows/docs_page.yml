@@ -18,7 +18,6 @@ jobs:
         with: {python-version: '3.12'}
       - run: pip install astunparse
 
-      # 1. 生成 Markdown（跳过空 __init__；合并 docstring）
       - name: Generate MD
         shell: python
         run: |
@@ -80,7 +79,7 @@ jobs:
           def emit(d, depth=0):
               for k, v in d.items():
                   if isinstance(v, dict):          # 目录
-                      lines.append('  ' * depth + f'- **{k.replace("_", " ").title()}**')
+                      lines.append('  ' * depth + f'- {k.replace("_", " ").title()}')
                       emit(v, depth + 1)
                   else:                            # 叶子文件
                       title = k.replace('_', ' ').title()
