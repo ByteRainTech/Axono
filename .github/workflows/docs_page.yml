@@ -2,7 +2,7 @@ name: DocString → Docsify → GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [ dev ]
 
 permissions:
   contents: write
