@@ -2,10 +2,10 @@ name: DocString → Docsify → GitHub Pages
 
 on:
   push:
-    branches: [ dev ]
+    branches: [main]
 
 permissions:
-  contents: write
+  contents: write   # 写回 docs
   pages: write
   id-token: write
 
@@ -18,57 +18,85 @@ jobs:
         with: {python-version: '3.12'}
       - run: pip install astunparse
 
-      # 1) 生成 Markdown（路径改成 python/axono）
+      # 1. 生成 Markdown（跳过空 __init__；合并 docstring）
       - name: Generate MD
         shell: python
         run: |
           import ast, pathlib, shutil, textwrap
 
-          src_root = pathlib.Path('python/axono')   # 🔧 改这里
+          src_root = pathlib.Path('python/axono')   # 🔧 你的源码根
           docs_root = pathlib.Path('docs')
-          api_dir   = docs_root / 'axono'
-          if api_dir.exists(): shutil.rmtree(api_dir)
+          api_dir = docs_root / 'axono'
+          if api_dir.exists():
+              shutil.rmtree(api_dir)
 
           for py in src_root.rglob('*.py'):
               rel = py.relative_to(src_root).with_suffix('.md')
               md_file = api_dir / rel
               md_file.parent.mkdir(parents=True, exist_ok=True)
 
-              with open(py, encoding='utf8') as f:
-                  tree = ast.parse(f.read(), filename=str(py))
+              code = py.read_text(encoding='utf8')
+              tree = ast.parse(code, filename=str(py))
 
-              parts = ['# `{}`'.format(py.stem), '']
-              for node in ast.walk(tree):
-                  if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                      doc = ast.get_docstring(node)
-                      if not doc: continue
-                      parts.append('## `{}`'.format(node.name))
-                      parts.append('')
-                      parts.append(textwrap.indent(doc, '    '))
-                      parts.append('')
-              md_file.write_text('\n'.join(parts)+'\n', encoding='utf8')
+              # 只保留带 docstring 的函数/类
+              nodes = [n for n in ast.walk(tree)
+                       if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+                       and ast.get_docstring(n)]
 
-      # 2) 更新侧边栏
+              # 空 __init__.py 直接跳过
+              if py.name == '__init__.py' and not nodes:
+                  continue
+
+              # 标题：__init__ 用包名，其余用模块名
+              title = py.parent.name if py.name == '__init__.py' else py.stem
+              parts = [f'# `{title}`', '']
+              for node in nodes:
+                  doc = ast.get_docstring(node)
+                  parts.append(f'## `{node.name}`')
+                  parts.append('')
+                  parts.append(textwrap.indent(doc, '    '))
+                  parts.append('')
+              md_file.write_text('\n'.join(parts) + '\n', encoding='utf8')
+
+      # 2. 真正的树形侧边栏
       - name: Build sidebar
         shell: python
         run: |
           import pathlib
+
           api = pathlib.Path('docs/axono')
           lines = ['- [Home](/)']
-          for md in sorted(api.rglob('*.md')):
-              rel   = md.relative_to(api)
-              depth = len(rel.parts) - 1
-              title = rel.stem.replace('_', ' ').title()
-              link  = '/axono/' + str(rel.with_suffix(''))
-              lines.append('  '*depth + f'- [{title}]({link})')
-          pathlib.Path('docs/_sidebar.md').write_text('\n'.join(lines)+'\n')
 
-      # 3) 提交 & 部署
+          # 用 dict 建树
+          tree = {}
+          for md in sorted(api.rglob('*.md')):
+              parts = md.relative_to(api).with_suffix('').parts
+              d = tree
+              for p in parts[:-1]:
+                  d = d.setdefault(p, {})
+              d[parts[-1]] = str(md.relative_to(api).with_suffix(''))
+
+          # 递归输出
+          def emit(d, depth=0):
+              for k, v in d.items():
+                  if isinstance(v, dict):          # 目录
+                      lines.append('  ' * depth + f'- **{k.replace("_", " ").title()}**')
+                      emit(v, depth + 1)
+                  else:                            # 叶子文件
+                      title = k.replace('_', ' ').title()
+                      link = '/axono/' + v
+                      lines.append('  ' * depth + f'- [{title}]({link})')
+
+          emit(tree)
+          pathlib.Path('docs/_sidebar.md').write_text('\n'.join(lines) + '\n')
+
+      # 3. 提交生成的文档
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore(ci): update docsify from DocString'
           file_pattern: 'docs/axono/* docs/_sidebar.md'
 
+  # 4. 部署到 GitHub Pages
   deploy:
     needs: build
     runs-on: ubuntu-latest
