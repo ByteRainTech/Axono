@@ -1,8 +1,8 @@
 - [Home](/)
-- **Core**
-  - **Operators**
+- Core
+  - Operators
     - [Add](/axono/core/operators/add)
     - [Matmul](/axono/core/operators/matmul)
-  - **Ops**
+  - Ops
     - [Relu](/axono/core/ops/relu)
   - [Tensor](/axono/core/tensor)
