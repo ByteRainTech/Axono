@@ -1,9 +1,8 @@
 - [Home](/)
-- [  Init  ](/axono/__init__)
-  - [  Init  ](/axono/core/__init__)
-    - [  Init  ](/axono/core/operators/__init__)
+- **Core**
+  - **Operators**
     - [Add](/axono/core/operators/add)
     - [Matmul](/axono/core/operators/matmul)
-    - [  Init  ](/axono/core/ops/__init__)
+  - **Ops**
     - [Relu](/axono/core/ops/relu)
   - [Tensor](/axono/core/tensor)
