@@ -14,6 +14,7 @@ public:
   Tensor();
   explicit Tensor(DataType dtype);
   Tensor(DataType dtype, const Shape &shape);
+  Tensor(DataType dtype, const Shape& shape, const std::string& device);
   Tensor(DataType dtype, const Shape &shape, void *data);
 
   // 拷贝构造函数和赋值操作符
@@ -33,12 +34,14 @@ public:
   static Tensor FromData(DataType dtype, const Shape &shape, void *data);
 
   // 基本信息
+  const std::string& device() const { return device_; }
+  bool is_cuda() const { return device_.substr(0, 4) == "cuda"; }
   DataType dtype() const { return dtype_; }
   const Shape &shape() const { return shape_; }
   size_t ndim() const { return shape_.size(); }
   size_t num_elements() const { return num_elements_; }
   size_t num_bytes() const { return num_elements_ * GetDataTypeSize(dtype_); }
-  bool is_contiguous() const { return true; } // 简化版本
+  bool is_contiguous() const { return true; } // TODO
 
   // 数据访问
   template <typename T> T *data() { return reinterpret_cast<T *>(data_.get()); }
@@ -65,31 +68,12 @@ public:
 private:
   DataType dtype_ = DataType::FLOAT32;
   Shape shape_;
+  std::string device_ = "cpu"; // 设备看这里喵，后续会出一个文档方便你们理解底层运行逻辑~希望越来越多人PR哦~
   size_t num_elements_ = 0;
   std::shared_ptr<void> data_;
 
   // 初始化数据存储
   void InitializeStorage();
 };
-
-// Tensor 操作函数
-namespace compute {
-namespace cpu {
-
-// Tensor 内存拷贝
-AXONO_EXPORT Status TensorCopy(const Context &ctx, Tensor &dst,
-                               const Tensor &src);
-
-// Tensor 填充
-AXONO_EXPORT Status TensorFill(const Context &ctx, Tensor &tensor, void *value,
-                               size_t value_size);
-AXONO_EXPORT Status TensorFillZero(const Context &ctx, Tensor &tensor);
-
-// Tensor 创建
-AXONO_EXPORT Status TensorCreateLike(const Context &ctx, const Tensor &src,
-                                     Tensor &dst);
-
-} // namespace cpu
-} // namespace compute
 
 } // namespace axono
