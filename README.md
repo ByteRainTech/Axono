@@ -31,6 +31,15 @@ Axono——轻量级的人工智能算法库喵~
 #### 通用转换支持 `axono.core`
 - `to_numpy()` and `from_numpy` (与大多框架用法一致)
 
+#### 设备支持
+
+|设备|设备设置|
+|---|---|
+|cpu|`cpu`|
+|nvidia系列|`cuda:${id}`|
+
+> 请不要现在使用本框架，请至少等候Release完成。
+
 ## 安装
 > Linux
 ```bash
