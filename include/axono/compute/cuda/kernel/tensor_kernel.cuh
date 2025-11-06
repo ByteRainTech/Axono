@@ -3,28 +3,15 @@
 #include "axono/core/types.h"
 #include <cstddef>
 
-namespace axono {
-namespace compute {
-namespace cuda {
-namespace kernel {
+namespace axono::compute::cuda::kernel {
 
-// 填充函数
-AXONO_FORCE_INLINE Status DispatchFill(Tensor &tensor, void *value, size_t value_size)
-{
-    (void)tensor;
-    (void)value;
-    (void)value_size;
-    return Status::OK;
+// 只声明，不定义
+AXONO_EXPORT Status DispatchFill(Tensor &tensor, void *value, size_t value_size);
+AXONO_EXPORT Status DispatchZero(Tensor &tensor);
+AXONO_EXPORT void TensorCopyKernel(void *dst, const void *src, size_t num_bytes);
+
+// 模板函数声明
+template <typename T>
+AXONO_EXPORT Status TensorReadKernel(const T* device_data, T* host_data, size_t num_elements);
+
 }
-
-// 零填充函数
-AXONO_FORCE_INLINE Status DispatchZero(Tensor &tensor)
-{
-    (void)tensor;
-    return Status::OK;
-}
-
-} // namespace kernel
-} // namespace cuda
-} // namespace compute
-} // namespace axono
