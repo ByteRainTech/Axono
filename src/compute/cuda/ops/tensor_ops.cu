@@ -1,5 +1,6 @@
-#include "axono/compute/cuda/kernel/tensor_kernel.cuh"
+
 #include "axono/compute/cuda/operators.cuh"
+#include "axono/compute/cuda/kernel/tensor_kernel.cuh"
 #include "axono/core/macros.h"
 #include "axono/core/tensor.h"
 
@@ -43,6 +44,6 @@ Status TensorCreateLike(const Context &ctx, const Tensor &src, Tensor &dst) {
   return Status::OK;
 }
 
-} // namespace cuda
+} // namespace cpu
 } // namespace compute
 } // namespace axono
