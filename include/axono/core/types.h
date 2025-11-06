@@ -8,6 +8,11 @@
 
 namespace axono {
 
+// 基础设备枚举
+enum class DeviceType { 
+    CPU,
+    CUDA,
+};
 // 基础数据类型枚举
 enum class DataType { INT8, INT16, INT32, INT64, FLOAT32, FLOAT64, BOOLEAN };
 
@@ -40,7 +45,8 @@ enum class Status {
   OUT_OF_MEMORY,
   UNSUPPORTED_TYPE,
   SHAPE_MISMATCH,
-  INTERNAL_ERROR
+  INTERNAL_ERROR,
+  DEVICE_ERROR
 };
 
 // 计算上下文
