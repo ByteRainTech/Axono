@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(axono LANGUAGES CXX)
+project(axono LANGUAGES CXX CUDA)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library)
@@ -26,6 +26,13 @@ add_library(axono_core SHARED
     src/compute/cpu/operators/add.cpp
     src/compute/cpu/ops/tensor_ops.cpp
     src/compute/cpu/ops/relu.cpp
+    src/compute/cuda/operators/memory_copy.cu
+    src/compute/cuda/operators/matmul.cu
+    src/compute/cuda/operators/add.cu
+    src/compute/cuda/ops/tensor_ops.cu
+    src/compute/cuda/ops/relu.cu
+    src/core/cuda/detail.cu
+    ./include/axono/compute/cuda/kernel/tensor_kernel.cu
 )
 
 target_compile_definitions(axono_core PRIVATE AXONO_CORE_EXPORTS)
