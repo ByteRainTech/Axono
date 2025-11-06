@@ -4,6 +4,10 @@
 
 #include "axono/compute/cpu/operators.h"
 #include "axono/compute/cpu/ops.h"
+
+#include "axono/compute/cuda/operators.cuh"
+#include "axono/compute/cuda/ops.cuh"
+
 #include "axono/core/tensor.h"
 
 namespace py = pybind11;
@@ -48,6 +52,10 @@ void init_tensor(py::module &m) {
       .def(py::init<>())
       .def(py::init<axono::DataType>())
       .def(py::init<axono::DataType, const std::vector<size_t> &>())
+      .def(py::init<axono::DataType, const std::vector<size_t> &>(),
+             py::arg("dtype"), py::arg("shape"))
+      .def(py::init<axono::DataType, const std::vector<size_t> &, const std::string &>(),
+             py::arg("dtype"), py::arg("shape"), py::arg("device"))
       .def_static("create", &axono::Tensor::Create)
       .def_static("create_like", &axono::Tensor::CreateLike)
       .def("reshape", &axono::Tensor::Reshape)
@@ -57,6 +65,9 @@ void init_tensor(py::module &m) {
       .def("copy_from",
            [](axono::Tensor &self, const axono::Tensor &other) {
              axono::Context ctx;
+             if (self.is_cuda()){
+                return axono::compute::cuda::TensorCopy(ctx, self, other);
+             }
              return axono::compute::cpu::TensorCopy(ctx, self, other);
            })
       .def("is_same_shape", &axono::Tensor::IsSameShape)
@@ -106,6 +117,28 @@ void init_tensor(py::module &m) {
       .def(
           "data_float32",
           [](axono::Tensor &self) {
+            if (self.is_cuda()){
+                size_t num_elems = self.num_elements();
+                auto host_data = std::make_unique<float[]>(num_elems);  // 主机内存缓冲区
+                // 调用 CUDA 读取器，从设备复制数据到主机内存
+                auto status = axono::compute::cuda::TensorReadKernel(
+                    self.data<float>(), host_data.get(), num_elems);
+                if (status != axono::Status::OK) {
+                throw std::runtime_error("CUDA read int8 failed: " + std::to_string(static_cast<int>(status)));
+                }
+                // 计算 strides 并返回 numpy 数组（托管主机内存）
+                auto strides = calculate_strides(self.shape(), sizeof(float));
+                float* data_ptr = host_data.release();
+                py::capsule free_when_done(data_ptr, [](void* ptr) {
+                    delete[] static_cast<float*>(ptr);
+                });
+                return py::array_t<float>(
+                    self.shape(),
+                    strides,
+                    data_ptr,
+                    free_when_done
+                );
+            }
             auto strides = calculate_strides(self.shape(), sizeof(float));
             return py::array_t<float>(
                 self.shape(), strides, self.data<float>(),
@@ -139,7 +172,13 @@ void init_matmul_operations(py::module &m) {
         axono::Context ctx;
         axono::Tensor result;
 
-        auto status = axono::compute::cpu::MatMul(ctx, a, b, result);
+        axono::Status status;
+
+        if (a.is_cuda()){
+            status = axono::compute::cuda::MatMul(ctx, a, b, result);
+        } else{
+            status = axono::compute::cpu::MatMul(ctx, a, b, result);
+        }
         if (status != axono::Status::OK) {
           throw std::runtime_error("Matrix multiplication failed");
         }
@@ -172,19 +211,27 @@ void init_add_operations(py::module &m) {
       [](const axono::Tensor &a, py::object scalar) {
         axono::Context ctx;
         axono::Tensor result;
+        axono::Status status;
 
         // 将 Python 标量转换为 C++ 数据
         if (a.dtype() == axono::DataType::FLOAT32) {
           float value = scalar.cast<float>();
-          auto status = axono::compute::cpu::AddScalar(ctx, a, &value,
-                                                       sizeof(float), result);
-          if (status != axono::Status::OK) {
-            throw std::runtime_error("Add scalar operation failed");
+          if (a.is_cuda()){
+            status = axono::compute::cuda::AddScalar(ctx, a, &value,sizeof(float), result);
           }
+          else{
+            status = axono::compute::cpu::AddScalar(ctx, a, &value, sizeof(float), result);
+          }
+        }
+        if (status != axono::Status::OK) {
+          throw std::runtime_error("Add scalar operation failed");
         } else if (a.dtype() == axono::DataType::INT32) {
           int32_t value = scalar.cast<int32_t>();
-          auto status = axono::compute::cpu::AddScalar(ctx, a, &value,
-                                                       sizeof(int32_t), result);
+          if (a.is_cuda()){
+            status = axono::compute::cuda::AddScalar(ctx, a, &value, sizeof(int32_t), result);
+          } else {
+            status = axono::compute::cpu::AddScalar(ctx, a, &value, sizeof(int32_t), result);
+          }
           if (status != axono::Status::OK) {
             throw std::runtime_error("Add scalar operation failed");
           }
