@@ -237,25 +237,25 @@ class Tensor:
         return self._tensor.__str__()
 
     @staticmethod
-    def zeros(shape: list[int], dtype: DataType = DataType.FLOAT32) -> _Tensor:
+    def zeros(shape: list[int], dtype: DataType = DataType.FLOAT32, device: str = "cpu") -> _Tensor:
         """Create a tensor filled with zeros"""
-        tensor = Tensor(dtype, shape)
+        tensor = Tensor(dtype, shape, device=device)
         tensor.fill_zero()
         return tensor
 
     @staticmethod
-    def ones(shape: list[int], dtype: DataType = DataType.FLOAT32) -> _Tensor:
+    def ones(shape: list[int], dtype: DataType = DataType.FLOAT32, device: str = "cpu") -> _Tensor:
         """Create a tensor filled with ones"""
-        tensor = Tensor(dtype, shape)
+        tensor = Tensor(dtype, shape, device=device)
         tensor.fill(1)
         return tensor
 
     @staticmethod
     def full(
-        shape: list[int], value: int | float, dtype: DataType = DataType.FLOAT32
+        shape: list[int], value: int | float, dtype: DataType = DataType.FLOAT32, device: str = "cpu"
     ) -> _Tensor:
         """Create a tensor filled with value"""
-        tensor = Tensor(dtype, shape)
+        tensor = Tensor(dtype, shape, device=device)
         tensor.fill(value)
         return tensor
 
