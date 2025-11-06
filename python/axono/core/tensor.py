@@ -14,7 +14,7 @@ class Tensor:
     """Python Tensor class wrapping C++ Tensor"""
 
     def __init__(
-        self, dtype: DataType = DataType.FLOAT32, shape: list[int] | None = None
+        self, dtype: DataType = DataType.FLOAT32, shape: list[int] | None = None, device: str = "cpu"
     ):
         """
         Initialize Tensor
@@ -26,7 +26,7 @@ class Tensor:
         if shape is None:
             self._tensor = _Tensor(dtype)
         else:
-            self._tensor = _Tensor(dtype, shape)
+            self._tensor = _Tensor(dtype, shape, device=device)
 
     @classmethod
     def create(cls, dtype: DataType, shape: list[int]) -> "Tensor":
