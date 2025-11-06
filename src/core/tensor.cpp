@@ -1,3 +1,7 @@
+#include "./cuda/detail.cuh"
+
+#include "axono/compute/cuda/kernel/tensor_kernel.cuh"
+
 #include "axono/core/tensor.h"
 #include "axono/compute/cpu/kernel/tensor_kernel.h"
 #include <cstdlib>
@@ -17,6 +21,12 @@ Tensor::Tensor(DataType dtype) : dtype_(dtype), num_elements_(0) {}
 
 Tensor::Tensor(DataType dtype, const Shape &shape)
     : dtype_(dtype), shape_(shape) {
+  num_elements_ = CalculateNumElements(shape_);
+  InitializeStorage();
+}
+
+Tensor::Tensor(DataType dtype, const Shape &shape, const std::string& device) // 设备在这里喵
+    : dtype_(dtype), shape_(shape), device_(device) {
   num_elements_ = CalculateNumElements(shape_);
   InitializeStorage();
 }
@@ -87,15 +97,24 @@ Tensor Tensor::FromData(DataType dtype, const Shape &shape, void *data) {
 }
 
 void Tensor::InitializeStorage() {
-  if (num_elements_ > 0) {
+    if (num_elements_ == 0) return;
     size_t bytes = num_bytes();
-    void *ptr = std::malloc(bytes);
-    if (ptr) {
-      data_ = std::shared_ptr<void>(ptr, FreeDeleter());
-      // 初始化为零
-      std::memset(ptr, 0, bytes);
+    if (bytes == 0) return;
+
+    if (device_.substr(0, 4) == "cuda") {
+        // #ifdef AXONO_WITH_CUDA
+        data_ = detail::CudaAllocateStorage(bytes, device_);
+        // #else
+        // throw std::runtime_error("Axono not compiled with CUDA support"); // 不支持了喵，别选这个啦~
+        // #endif
+    } else {
+        // CPU HERE~
+        void* ptr = std::malloc(bytes);
+        if (ptr) {
+            data_ = std::shared_ptr<void>(ptr, FreeDeleter());
+            std::memset(ptr, 0, bytes);
+        }
     }
-  }
 }
 
 Status Tensor::Reshape(const Shape &new_shape) {
@@ -154,6 +173,9 @@ Status Tensor::FillZero() {
 Status Tensor::Fill(void *value, size_t value_size) {
   if (!data_)
     return Status::INVALID_ARGUMENT;
+  if (this->is_cuda()){
+    return compute::cuda::kernel::DispatchFill(*this, value, value_size);
+  }
   return compute::cpu::kernel::DispatchFill(*this, value, value_size);
 }
 
