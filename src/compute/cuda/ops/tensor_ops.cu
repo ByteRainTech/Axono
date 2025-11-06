@@ -44,6 +44,6 @@ Status TensorCreateLike(const Context &ctx, const Tensor &src, Tensor &dst) {
   return Status::OK;
 }
 
-} // namespace cpu
+} // namespace cuda
 } // namespace compute
 } // namespace axono
