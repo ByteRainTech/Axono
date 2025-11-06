@@ -144,24 +144,52 @@ Status Tensor::FillZero() {
 
   switch (dtype_) {
   case DataType::INT8:
+    if(this->is_cuda()){
+        compute::cuda::kernel::DispatchZero(*this);
+        break;
+    }
     compute::cpu::kernel::TensorZeroKernel(data<int8_t>(), num_elements_);
     break;
   case DataType::INT16:
+    if(this->is_cuda()){
+        compute::cuda::kernel::DispatchZero(*this);
+        break;
+    }
     compute::cpu::kernel::TensorZeroKernel(data<int16_t>(), num_elements_);
     break;
   case DataType::INT32:
+    if(this->is_cuda()){
+        compute::cuda::kernel::DispatchZero(*this);
+        break;
+    }
     compute::cpu::kernel::TensorZeroKernel(data<int32_t>(), num_elements_);
     break;
   case DataType::INT64:
+    if(this->is_cuda()){
+        compute::cuda::kernel::DispatchZero(*this);
+        break;
+    }
     compute::cpu::kernel::TensorZeroKernel(data<int64_t>(), num_elements_);
     break;
   case DataType::FLOAT32:
+    if(this->is_cuda()){
+        compute::cuda::kernel::DispatchZero(*this);
+        break;
+    }
     compute::cpu::kernel::TensorZeroKernel(data<float>(), num_elements_);
     break;
   case DataType::FLOAT64:
+    if(this->is_cuda()){
+        compute::cuda::kernel::DispatchZero(*this);
+        break;
+    }
     compute::cpu::kernel::TensorZeroKernel(data<double>(), num_elements_);
     break;
   case DataType::BOOLEAN:
+    if(this->is_cuda()){
+        compute::cuda::kernel::DispatchZero(*this);
+        break;
+    }
     compute::cpu::kernel::TensorZeroKernel(data<bool>(), num_elements_);
     break;
   default:
@@ -219,7 +247,7 @@ std::string Tensor::ToString() const {
     oss << "unknown";
     break;
   }
-  oss << ")";
+  oss << ", device=" << device_ << ")";
   return oss.str();
 }
 
