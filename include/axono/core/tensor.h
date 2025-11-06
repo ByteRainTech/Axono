@@ -44,11 +44,19 @@ public:
   bool is_contiguous() const { return true; } // TODO
 
   // 数据访问
-  template <typename T> T *data() { return reinterpret_cast<T *>(data_.get()); }
+  template <typename T>
+T *data() {
+  if (is_cuda()) [[likely]]
+    return reinterpret_cast<T *>(data_.get());   // device ptr
+  return reinterpret_cast<T *>(data_.get());
+}
 
-  template <typename T> const T *data() const {
+template <typename T>
+const T *data() const {
+  if (is_cuda()) [[likely]]
     return reinterpret_cast<const T *>(data_.get());
-  }
+  return reinterpret_cast<const T *>(data_.get());
+}
 
   void *raw_data() { return data_.get(); }
   const void *raw_data() const { return data_.get(); }
