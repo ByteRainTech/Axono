@@ -20,17 +20,6 @@ AXONO_EXPORT Status Relu(const Context &ctx, const Tensor &input,
                          Tensor &output);
 
 AXONO_EXPORT Status ReluInplace(const Context &ctx, Tensor &tensor);
-
-// 读取内核需要声明为模板函数
-template <typename T>
-AXONO_FORCE_INLINE Status TensorReadKernel(const T* device_data, T* host_data, size_t num_elements)
-{
-    (void)device_data;
-    (void)host_data;
-    (void)num_elements;
-    // TODO: cudaMemcpyDeviceToHost
-    return Status::OK;
-}
 } // namespace cuda
 } // namespace compute
 } // namespace axono
