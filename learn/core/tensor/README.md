@@ -1,2 +1,2 @@
-<p align="center"><h4>Tensor 初始化</h4></p>
+<p align="center"><h2>Tensor 初始化</h2></p>
 <img src="init.svg">
