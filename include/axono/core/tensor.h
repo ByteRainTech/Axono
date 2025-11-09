@@ -44,11 +44,13 @@ public:
   bool is_contiguous() const { return true; } // TODO
 
   // 数据访问
-  template <typename T>
+template <typename T>
 T *data() {
-  if (is_cuda()) [[likely]]
-    return reinterpret_cast<T *>(data_.get());   // device ptr
-  return reinterpret_cast<T *>(data_.get());
+  if (is_cuda()) [[likely]] {
+    // 确保返回的是设备指针
+    return static_cast<T*>(data_.get());
+  }
+  return static_cast<T*>(data_.get());
 }
 
 template <typename T>
@@ -73,10 +75,13 @@ const T *data() const {
   bool IsSameShape(const Tensor &other) const;
   std::string ToString() const;
 
+  void* data() { return raw_data(); }
+  const void* data() const { return raw_data(); }
+
 private:
   DataType dtype_ = DataType::FLOAT32;
   Shape shape_;
-  std::string device_ = "cpu"; // 设备看这里喵，后续会出一个文档方便你们理解底层运行逻辑~希望越来越多人PR哦~
+  std::string device_; // 设备看这里喵，后续会出一个文档方便你们理解底层运行逻辑~希望越来越多人PR哦~
   size_t num_elements_ = 0;
   std::shared_ptr<void> data_;
 
