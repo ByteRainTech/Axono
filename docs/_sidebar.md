@@ -6,3 +6,18 @@
   - Ops
     - [Relu](/axono/core/ops/relu)
   - [Tensor](/axono/core/tensor)
+- Data
+  - [Dataloader](/axono/data/dataloader)
+  - [Transforms](/axono/data/transforms)
+- Models
+  - [Container](/axono/models/container)
+  - [Sequential](/axono/models/sequential)
+  - [Transformer](/axono/models/transformer)
+- Nn
+  - [Layers](/axono/nn/layers)
+  - [Module](/axono/nn/module)
+- Train
+  - [Optimizer](/axono/train/optimizer)
+  - [Trainer](/axono/train/trainer)
+- Viz
+  - [Visualizer](/axono/viz/visualizer)
