@@ -1,4 +1,3 @@
-// ...existing code...
 # Axono
 
 <img src="logo.png" width="230">
