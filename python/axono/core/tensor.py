@@ -24,7 +24,7 @@ class Tensor:
             shape: Shape of tensor, if None creates empty tensor
         """
         if shape is None:
-            self._tensor = _Tensor(dtype)
+            self._tensor = _Tensor(dtype, device=device)
         else:
             self._tensor = _Tensor(dtype, shape, device=device)
 
