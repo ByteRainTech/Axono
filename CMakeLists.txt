@@ -19,6 +19,7 @@ endif()
 
 include_directories(include)
 
+
 add_library(axono_core SHARED
     src/core/tensor.cpp
     src/compute/cpu/operators/memory_copy.cpp
@@ -32,7 +33,14 @@ add_library(axono_core SHARED
     src/compute/cuda/ops/tensor_ops.cu
     src/compute/cuda/ops/relu.cu
     src/core/cuda/detail.cu
+    src/core/cuda/gpu_sync_buffer.cu
     ./include/axono/compute/cuda/kernel/tensor_kernel.cu
+)
+
+target_include_directories(axono_core PRIVATE
+    ${Python3_INCLUDE_DIRS}
+    ${pybind11_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_compile_definitions(axono_core PRIVATE AXONO_CORE_EXPORTS)
