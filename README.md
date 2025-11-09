@@ -42,17 +42,78 @@ python setup.py install
 ```
 
 ## 快速示例
+### 天气预报
 ```python
+import numpy as np
 from axono.core import Tensor
-import axono.core.ops as ops
+from axono.train.optimizer import Adam
+import pandas as pd
 
-a = Tensor.from_numpy(...)
-b = Tensor.from_numpy(...)
+class WeatherMLP:
+    def __init__(self, input_size=4, hidden_size=8, output_size=1):
+        # 初始化权重
+        self.W1 = Tensor(np.random.randn(input_size, hidden_size) * 0.01)
+        self.b1 = Tensor(np.zeros(hidden_size))
+        self.W2 = Tensor(np.random.randn(hidden_size, output_size) * 0.01)
+        self.b2 = Tensor(np.zeros(output_size))
+        
+    def forward(self, x):
+        # 前向传播
+        self.x = Tensor(x)
+        self.h = (self.x @ self.W1 + self.b1).relu()
+        self.y_pred = self.h @ self.W2 + self.b2
+        return self.y_pred
+    
+    def backward(self, grad):
+        # 反向传播
+        self.y_pred.backward(grad)
 
-c = a @ b            # 矩阵乘法
-d = a + b            # 加法
-e = ops.relu(d)      # ReLU
-np_arr = e.to_numpy()
+def main():
+    # 模拟气象数据 (温度、湿度、气压、风速)
+    np.random.seed(42)
+    n_samples = 1000
+    X = np.random.randn(n_samples, 4)
+    # 模拟天气预测 (0: 晴天, 1: 雨天)
+    y = (0.3 * X[:, 0] + 0.2 * X[:, 1] + 0.1 * X[:, 2] + 0.4 * X[:, 3] > 0).astype(float)
+    y = y.reshape(-1, 1)
+
+    # 创建模型
+    model = WeatherMLP()
+    optimizer = Adam([model.W1, model.b1, model.W2, model.b2], lr=0.01)
+
+    # 训练模型
+    batch_size = 32
+    epochs = 100
+    
+    for epoch in range(epochs):
+        total_loss = 0
+        for i in range(0, n_samples, batch_size):
+            batch_X = X[i:i+batch_size]
+            batch_y = y[i:i+batch_size]
+            
+            # 前向传播
+            y_pred = model.forward(batch_X)
+            
+            # 计算loss (MSE)
+            loss = ((y_pred - Tensor(batch_y)) ** 2).mean()
+            total_loss += loss.data
+            
+            # 反向传播
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch {epoch+1}, Loss: {total_loss/n_samples:.4f}")
+
+    # 测试模型
+    test_X = np.array([[25.0, 0.8, 1013.0, 15.0]])  # 示例：温度25℃，湿度80%，气压1013hPa，风速15m/s
+    pred = model.forward(test_X)
+    print(f"预测结果: {'有可能下雨' if pred.data[0, 0] > 0.5 else '可能晴天'}")
+
+if __name__ == "__main__":
+    main()
+
 ```
 
 ## 单元测试
