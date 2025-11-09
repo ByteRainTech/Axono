@@ -52,11 +52,11 @@ void memory_copy_wrapper(py::bytes dst, py::bytes src) {
 // Tensor Python 绑定
 void init_tensor(py::module &m) {
   py::class_<axono::Tensor>(m, "Tensor")
-    //   .def(py::init<>())
-    //   .def(py::init<axono::DataType>())
-    //   .def(py::init<axono::DataType, const std::vector<size_t> &>())
-    //   .def(py::init<axono::DataType, const std::vector<size_t> &>(),
-    //          py::arg("dtype"), py::arg("shape"))
+      .def(py::init<>())
+      .def(py::init<axono::DataType>())
+      .def(py::init<axono::DataType, const std::vector<size_t> &>())
+      .def(py::init<axono::DataType, const std::vector<size_t> &>(),
+             py::arg("dtype"), py::arg("shape"))
       .def(py::init<axono::DataType, const std::vector<size_t> &, const std::string &>(),
              py::arg("dtype"), py::arg("shape"), py::arg("device"))
       .def_static("create", &axono::Tensor::Create)
