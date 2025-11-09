@@ -6,7 +6,6 @@
 #include "axono/compute/cpu/ops.h"
 
 #include "axono/compute/cuda/operators.cuh"
-#include "../python/src/autosync/cuda_autosync.h"
 #include "axono/compute/cuda/ops.cuh"
 #include "axono/compute/cuda/kernel/tensor_kernel.cuh"
 
