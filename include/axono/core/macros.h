@@ -24,3 +24,9 @@
 #define AXONO_DISALLOW_COPY_AND_MOVE(ClassName)                                \
   AXONO_DISALLOW_COPY(ClassName);                                              \
   AXONO_DISALLOW_MOVE(ClassName)
+
+#if defined(__CUDACC__) || defined(__NVCC__)
+#  define AXONO_COMPILING_WITH_NVCC 1
+#else
+#  define AXONO_COMPILING_WITH_NVCC 0
+#endif
