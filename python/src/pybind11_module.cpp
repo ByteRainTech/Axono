@@ -6,9 +6,12 @@
 #include "axono/compute/cpu/ops.h"
 
 #include "axono/compute/cuda/operators.cuh"
+#include "../python/src/autosync/cuda_autosync.h"
 #include "axono/compute/cuda/ops.cuh"
+#include "axono/compute/cuda/kernel/tensor_kernel.cuh"
 
 #include "axono/core/tensor.h"
+#include "axono/core/cuda/gpu_sync_buffer.h"
 
 namespace py = pybind11;
 
@@ -49,11 +52,11 @@ void memory_copy_wrapper(py::bytes dst, py::bytes src) {
 // Tensor Python 绑定
 void init_tensor(py::module &m) {
   py::class_<axono::Tensor>(m, "Tensor")
-      .def(py::init<>())
-      .def(py::init<axono::DataType>())
-      .def(py::init<axono::DataType, const std::vector<size_t> &>())
-      .def(py::init<axono::DataType, const std::vector<size_t> &>(),
-             py::arg("dtype"), py::arg("shape"))
+    //   .def(py::init<>())
+    //   .def(py::init<axono::DataType>())
+    //   .def(py::init<axono::DataType, const std::vector<size_t> &>())
+    //   .def(py::init<axono::DataType, const std::vector<size_t> &>(),
+    //          py::arg("dtype"), py::arg("shape"))
       .def(py::init<axono::DataType, const std::vector<size_t> &, const std::string &>(),
              py::arg("dtype"), py::arg("shape"), py::arg("device"))
       .def_static("create", &axono::Tensor::Create)
@@ -73,6 +76,8 @@ void init_tensor(py::module &m) {
       .def("is_same_shape", &axono::Tensor::IsSameShape)
       .def("__repr__", &axono::Tensor::ToString)
       .def("__str__", &axono::Tensor::ToString)
+      .def("device", &axono::Tensor::device)
+      .def("is_cuda", &axono::Tensor::is_cuda)
       .def_property_readonly("dtype", &axono::Tensor::dtype)
       .def_property_readonly("shape", &axono::Tensor::shape)
       .def_property_readonly("ndim", &axono::Tensor::ndim)
@@ -81,15 +86,55 @@ void init_tensor(py::module &m) {
       .def(
           "data_int8",
           [](axono::Tensor &self) {
+            if (self.is_cuda()){
+                size_t num_elems = self.num_elements();
+                auto host_data = std::make_unique<int8_t[]>(num_elems);
+                auto status = axono::compute::cuda::kernel::TensorReadKernel(
+                    self.data<int8_t>(), host_data.get(), num_elems);
+                if (status != axono::Status::OK) {
+                throw std::runtime_error("本喵建议您检查下精度，CUDA在读取 int8 数据时候出现问题，状态代码：" + std::to_string(static_cast<int>(status)));
+                }
+                auto strides = calculate_strides(self.shape(), sizeof(int8_t));
+                int8_t* data_ptr = host_data.release();
+                py::capsule free_when_done(data_ptr, [](void* ptr) {
+                    delete[] static_cast<int8_t*>(ptr);
+                });
+                return py::array_t<int8_t>(
+                    self.shape(),
+                    strides,
+                    data_ptr,
+                    free_when_done
+                );
+            }
             auto strides = calculate_strides(self.shape(), sizeof(int8_t));
             return py::array_t<int8_t>(
                 self.shape(), strides, self.data<int8_t>(),
                 py::capsule(self.data<void *>(), [](void *) {}));
           },
-          "Get data as int8 numpy array (shared memory)")
+          "Get data as int8 numpy array")
       .def(
           "data_int16",
           [](axono::Tensor &self) {
+            if (self.is_cuda()){
+                size_t num_elems = self.num_elements();
+                auto host_data = std::make_unique<int16_t[]>(num_elems);
+                auto status = axono::compute::cuda::kernel::TensorReadKernel(
+                    self.data<int16_t>(), host_data.get(), num_elems);
+                if (status != axono::Status::OK) {
+                throw std::runtime_error("本喵建议您检查下精度，CUDA在读取 int16 数据时候出现问题，状态代码：" + std::to_string(static_cast<int>(status)));
+                }
+                auto strides = calculate_strides(self.shape(), sizeof(int16_t));
+                int16_t* data_ptr = host_data.release();
+                py::capsule free_when_done(data_ptr, [](void* ptr) {
+                    delete[] static_cast<int16_t*>(ptr);
+                });
+                return py::array_t<int16_t>(
+                    self.shape(),
+                    strides,
+                    data_ptr,
+                    free_when_done
+                );
+            }
             auto strides = calculate_strides(self.shape(), sizeof(int16_t));
             return py::array_t<int16_t>(
                 self.shape(), strides, self.data<int16_t>(),
@@ -99,6 +144,26 @@ void init_tensor(py::module &m) {
       .def(
           "data_int32",
           [](axono::Tensor &self) {
+            if (self.is_cuda()){
+                size_t num_elems = self.num_elements();
+                auto host_data = std::make_unique<int32_t[]>(num_elems);
+                auto status = axono::compute::cuda::kernel::TensorReadKernel(
+                    self.data<int32_t>(), host_data.get(), num_elems);
+                if (status != axono::Status::OK) {
+                throw std::runtime_error("本喵建议您检查下精度，CUDA在读取 int32 数据时候出现问题，状态代码：" + std::to_string(static_cast<int>(status)));
+                }
+                auto strides = calculate_strides(self.shape(), sizeof(int32_t));
+                int32_t* data_ptr = host_data.release();
+                py::capsule free_when_done(data_ptr, [](void* ptr) {
+                    delete[] static_cast<int32_t*>(ptr);
+                });
+                return py::array_t<int32_t>(
+                    self.shape(),
+                    strides,
+                    data_ptr,
+                    free_when_done
+                );
+            }
             auto strides = calculate_strides(self.shape(), sizeof(int32_t));
             return py::array_t<int32_t>(
                 self.shape(), strides, self.data<int32_t>(),
@@ -108,61 +173,127 @@ void init_tensor(py::module &m) {
       .def(
           "data_int64",
           [](axono::Tensor &self) {
-            auto strides = calculate_strides(self.shape(), sizeof(int64_t));
-            return py::array_t<int64_t>(
-                self.shape(), strides, self.data<int64_t>(),
-                py::capsule(self.data<void *>(), [](void *) {}));
-          },
-          "Get data as int64 numpy array (shared memory)")
-      .def(
-          "data_float32",
-          [](axono::Tensor &self) {
             if (self.is_cuda()){
                 size_t num_elems = self.num_elements();
-                auto host_data = std::make_unique<float[]>(num_elems);  // 主机内存缓冲区
-                // 调用 CUDA 读取器，从设备复制数据到主机内存
-                auto status = axono::compute::cuda::TensorReadKernel(
-                    self.data<float>(), host_data.get(), num_elems);
+                auto host_data = std::make_unique<int64_t[]>(num_elems);
+                auto status = axono::compute::cuda::kernel::TensorReadKernel(
+                    self.data<int64_t>(), host_data.get(), num_elems);
                 if (status != axono::Status::OK) {
-                throw std::runtime_error("CUDA read int8 failed: " + std::to_string(static_cast<int>(status)));
+                throw std::runtime_error("本喵建议您检查下精度，CUDA在读取 int64 数据时候出现问题，状态代码：" + std::to_string(static_cast<int>(status)));
                 }
-                // 计算 strides 并返回 numpy 数组（托管主机内存）
-                auto strides = calculate_strides(self.shape(), sizeof(float));
-                float* data_ptr = host_data.release();
+                auto strides = calculate_strides(self.shape(), sizeof(int64_t));
+                int64_t* data_ptr = host_data.release();
                 py::capsule free_when_done(data_ptr, [](void* ptr) {
-                    delete[] static_cast<float*>(ptr);
+                    delete[] static_cast<int64_t*>(ptr);
                 });
-                return py::array_t<float>(
+                return py::array_t<int64_t>(
                     self.shape(),
                     strides,
                     data_ptr,
                     free_when_done
                 );
             }
-            auto strides = calculate_strides(self.shape(), sizeof(float));
-            return py::array_t<float>(
-                self.shape(), strides, self.data<float>(),
+            auto strides = calculate_strides(self.shape(), sizeof(int64_t));
+            return py::array_t<int64_t>(
+                self.shape(), strides, self.data<int64_t>(),
                 py::capsule(self.data<void *>(), [](void *) {}));
           },
-          "Get data as float32 numpy array (shared memory)")
+          "Get data as int64 numpy array")
+.def("data_float32",
+     [](axono::Tensor &self){
+         
+         if (self.is_cuda()) {
+            size_t num_elems = self.num_elements();
+            auto host_data = std::make_unique<float[]>(num_elems);
+            auto status = axono::compute::cuda::kernel::TensorReadKernel(
+                self.data<float>(), host_data.get(), num_elems);
+            if (status != axono::Status::OK) {
+            throw std::runtime_error("本喵建议您检查下精度，CUDA在读取 float32 数据时候出现问题，状态代码：" + std::to_string(static_cast<int>(status)));
+            }
+            auto strides = calculate_strides(self.shape(), sizeof(float));
+            float* data_ptr = host_data.release();
+            py::capsule free_when_done(data_ptr, [](void* ptr) {
+                delete[] static_cast<float*>(ptr);
+            });
+            return py::array_t<float>(
+                self.shape(),
+                strides,
+                data_ptr,
+                free_when_done
+            );
+            // return tensor_to_sync_numpy(self);
+         }
+         
+         // CPU 路径
+         auto strides = calculate_strides(self.shape(), sizeof(float));
+         return py::array_t<float>(self.shape(), strides, self.data<float>(),
+                                 py::capsule(self.data<void*>(), [](void*) {}));
+     },
+     "Get data as float32 numpy array")
       .def(
           "data_float64",
           [](axono::Tensor &self) {
+            if (self.is_cuda()){
+                size_t num_elems = self.num_elements();
+                auto host_data = std::make_unique<double[]>(num_elems);
+                auto status = axono::compute::cuda::kernel::TensorReadKernel(
+                    self.data<double>(), host_data.get(), num_elems);
+                if (status != axono::Status::OK) {
+                throw std::runtime_error("本喵建议您检查下精度，CUDA在读取 float64 数据时候出现问题，状态代码：" + std::to_string(static_cast<int>(status)));
+                }
+                auto strides = calculate_strides(self.shape(), sizeof(double));
+                double* data_ptr = host_data.release();
+                py::capsule free_when_done(data_ptr, [](void* ptr) {
+                    delete[] static_cast<double*>(ptr);
+                });
+                return py::array_t<double>(
+                    self.shape(),
+                    strides,
+                    data_ptr,
+                    free_when_done
+                );
+            }
             auto strides = calculate_strides(self.shape(), sizeof(double));
             return py::array_t<double>(
                 self.shape(), strides, self.data<double>(),
                 py::capsule(self.data<void *>(), [](void *) {}));
           },
-          "Get data as float64 numpy array (shared memory)")
+          "Get data as float64 numpy array")
       .def(
           "data_bool",
           [](axono::Tensor &self) {
+            if (self.is_cuda()){
+                size_t num_elems = self.num_elements();
+                auto host_data = std::make_unique<bool[]>(num_elems);
+                auto status = axono::compute::cuda::kernel::TensorReadKernel(
+                    self.data<bool>(), host_data.get(), num_elems);
+                if (status != axono::Status::OK) {
+                throw std::runtime_error("本喵建议您检查下精度，CUDA在读取 float64 数据时候出现问题，状态代码：" + std::to_string(static_cast<int>(status)));
+                }
+                auto strides = calculate_strides(self.shape(), sizeof(bool));
+                bool* data_ptr = host_data.release();
+                py::capsule free_when_done(data_ptr, [](void* ptr) {
+                    delete[] static_cast<bool*>(ptr);
+                });
+                return py::array_t<bool>(
+                    self.shape(),
+                    strides,
+                    data_ptr,
+                    free_when_done
+                );
+            }
             auto strides = calculate_strides(self.shape(), sizeof(bool));
             return py::array_t<bool>(
                 self.shape(), strides, self.data<bool>(),
                 py::capsule(self.data<void *>(), [](void *) {}));
           },
-          "Get data as bool numpy array (shared memory)");
+          "Get data as bool numpy array")
+          .def("__copy__",  [](const axono::Tensor& self){
+             return axono::Tensor(self.dtype(), self.shape(), self.device()); 
+             })
+            .def("__deepcopy__", [](const axono::Tensor& self, py::dict){
+                return axono::Tensor(self.dtype(), self.shape(), self.device());
+            });
 }
 
 void init_matmul_operations(py::module &m) {
@@ -194,11 +325,18 @@ void init_add_operations(py::module &m) {
       "add",
       [](const axono::Tensor &a, const axono::Tensor &b) {
         axono::Context ctx;
-        axono::Tensor result;
+        // axono::Tensor result;
+        axono::Tensor result = axono::Tensor(a.dtype(), a.shape(), a.device());
 
-        auto status = axono::compute::cpu::Add(ctx, a, b, result);
+        axono::Status status;
+        if (a.is_cuda()){
+            status = axono::compute::cuda::Add(ctx, a, b, result);
+        }
+        else{
+            status = axono::compute::cpu::Add(ctx, a, b, result);
+        }
         if (status != axono::Status::OK) {
-          throw std::runtime_error("Add operation failed with status: " +
+          throw std::runtime_error("喵！计算矩阵加法的时候出现问题啦，错误代码：" +
                                    std::to_string(static_cast<int>(status)));
         }
 
@@ -250,24 +388,36 @@ void init_activation_operations(py::module &m) {
       "relu",
       [](const axono::Tensor &input) {
         axono::Context ctx;
-        axono::Tensor output;
+        // axono::Tensor output = axono::Tensor(input.dtype(), input.shape(), input.device());
+        axono::Tensor output = axono::Tensor::CreateLike(input);
 
-        auto status = axono::compute::cpu::Relu(ctx, input, output);
+        axono::Status status;
+        if (input.is_cuda()){
+            status = axono::compute::cuda::Relu(ctx, input, output);
+        }
+        else{
+            status = axono::compute::cpu::Relu(ctx, input, output);
+        }
         if (status != axono::Status::OK) {
-          throw std::runtime_error("ReLU operation failed with status: " +
+          throw std::runtime_error("喵！ReLU计算时发生错误，错误代码: " +
                                    std::to_string(static_cast<int>(status)));
         }
-
         return output;
       },
-      "ReLU activation function", py::arg("input"));
+      "ReLU activation function", py::arg("input"),
+      py::return_value_policy::move
+      ),
 
   m.def(
       "relu_",
       [](axono::Tensor &tensor) {
         axono::Context ctx;
-
-        auto status = axono::compute::cpu::ReluInplace(ctx, tensor);
+        axono::Status status;
+        if (tensor.is_cuda()){
+            status = axono::compute::cuda::ReluInplace(ctx, tensor);
+        } else {
+            status = axono::compute::cpu::ReluInplace(ctx, tensor);
+        }
         if (status != axono::Status::OK) {
           throw std::runtime_error("Inplace ReLU operation failed");
         }
