@@ -1,6 +1,6 @@
 ### 用途 USAGE
 
 > #### CUDA ONLY
-> 本文件夹用于 `Core` 中 的 `Tensor` 的实现类函数
+> 本文件夹用于 `Core` 中 的 `Tensor` 的类声明
 > 
-> FOR Functions Of `Core.tensor`
+> FOR Class Statements Of `Core.tensor`
