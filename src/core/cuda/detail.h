@@ -6,6 +6,8 @@
 #include <string>
 
 namespace axono {
+namespace core {
+namespace cuda {
 namespace detail {
 
 // 分配 CUDA 设备内存，返回带 cudaFree 的 shared_ptr
@@ -26,5 +28,7 @@ std::shared_ptr<void> make_shared_cuda_memory(size_t bytes);
 std::shared_ptr<void> deep_copy_cuda_memory(const void* src, size_t bytes);
 
 
-} // namespace detail
-} // namespace axono
+}
+}
+}
+}
