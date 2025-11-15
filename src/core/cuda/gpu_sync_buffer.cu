@@ -35,14 +35,8 @@ inline cudaError_t raw_write_d2h(const float* host_ptr, float* device_ptr, size_
 
 }  // namespace
 
-GPUSyncBuffer::GPUSyncBuffer(const axono::Tensor& tensor)
+GPUSyncBuffer::GPUSyncBuffer(const axono::core::Tensor& tensor)
     : gpu_tensor_(tensor), modified_(false), num_elems_(tensor.num_elements()) {
-    
-    
-
-    std::cerr << "[GPUSyncBuffer] is_cuda=" << tensor.is_cuda()
-              << "  num_elems=" << num_elems_
-              << "  gpu_data_ptr=" << tensor.data<float>() << std::endl;
 
     if (!tensor.is_cuda()) {
         throw std::runtime_error("喵！GPUSyncBuffer 只能接受 CUDA tensor！");
@@ -131,11 +125,11 @@ std::vector<py::ssize_t> calculate_strides(const std::vector<int64_t>& shape, py
     return strides;
 }
 
-std::vector<int64_t> shape_to_vector(const axono::Shape& shape) {
+std::vector<int64_t> shape_to_vector(const axono::core::Shape& shape) {
     return std::vector<int64_t>(shape.begin(), shape.end());
 }
 
-py::array tensor_to_sync_numpy(const axono::Tensor& tensor) {
+py::array tensor_to_sync_numpy(const axono::core::Tensor& tensor) {
     if (!tensor.is_cuda()) {
         throw std::runtime_error("喵！张量不在GPU上，无需同步缓冲QwQ");
     }
