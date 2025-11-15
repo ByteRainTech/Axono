@@ -1,37 +1,38 @@
-#include "axono/compute/cpu/kernel/memory_copy_kernel.h"
+#include "axono/compute/cpu/operators/memory_copy.h"
 #include "axono/compute/cpu/operators.h"
 #include "axono/core/macros.h"
 
 namespace axono {
 namespace compute {
 namespace cpu {
+namespace operators {
 
-Status MemoryCopy(const Context &ctx, void *dst, const void *src,
+core::Status MemoryCopy(const core::Context &ctx, void *dst, const void *src,
                   size_t num_bytes) {
   // 使用上下文参数避免警告
   (void)ctx; // 标记为已使用
 
   // 参数检查
   if (AXONO_UNLIKELY(dst == nullptr || src == nullptr)) {
-    return Status::INVALID_ARGUMENT;
+    return core::Status::INVALID_ARGUMENT;
   }
 
   if (AXONO_UNLIKELY(num_bytes == 0)) {
-    return Status::OK;
+    return core::Status::OK;
   }
 
   // 检查自拷贝
   if (AXONO_UNLIKELY(dst == src)) {
-    return Status::OK;
+    return core::Status::OK;
   }
 
   // 调用底层内核执行拷贝
-  kernel::MemoryCopyKernel(dst, src, num_bytes);
+  MemoryCopyKernel(dst, src, num_bytes);
 
-  return Status::OK;
+  return core::Status::OK;
 }
 
-Status MemorySet(const Context &ctx, void *dst, int value, size_t num_bytes) {
+core::Status MemorySet(const core::Context &ctx, void *dst, int value, size_t num_bytes) {
   // 使用所有参数避免警告
   (void)ctx;
   (void)dst;
@@ -39,9 +40,10 @@ Status MemorySet(const Context &ctx, void *dst, int value, size_t num_bytes) {
   (void)num_bytes;
 
   // 暂时返回未实现，未来可以在这里实现
-  return Status::UNSUPPORTED_TYPE;
+  return core::Status::UNSUPPORTED_TYPE;
 }
 
-} // namespace cpu
-} // namespace compute
-} // namespace axono
+} 
+}
+}
+}
