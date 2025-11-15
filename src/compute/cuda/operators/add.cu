@@ -1,64 +1,137 @@
-#include "axono/compute/cuda/kernel/add_kernel.cuh"
-#include "axono/compute/cuda/operators.cuh"
 #include "axono/core/macros.h"
+#include "axono/core/tensor.h"
+#include <cuda_runtime.h>
+#include "axono/core/types.h"
+#include <cstddef>
+#include <cstring>
 
 namespace axono {
 namespace compute {
 namespace cuda {
+namespace operators {
 
-Status Add(const Context &ctx, const Tensor &a, const Tensor &b,
-           Tensor &result) {
-  (void)ctx; // 暂时未使用
-
-  // 基本参数检查
-  if (a.ndim() != b.ndim()) {
-    return Status::SHAPE_MISMATCH;
+// CUDA 逐元素加法内核
+template <typename T>
+__global__ void AddKernel(const T *a, const T *b, T *result, size_t num_elements) {
+  size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (idx < num_elements) {
+    result[idx] = a[idx] + b[idx];
   }
+}
+
+// CUDA 标量加法内核
+template <typename T>
+__global__ void AddScalarKernel(const T *a, T scalar, T *result, size_t num_elements) {
+  size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (idx < num_elements) {
+    result[idx] = a[idx] + scalar;
+  }
+}
+
+// 启动配置计算
+inline dim3 CalculateLaunchConfig(size_t num_elements) {
+  const size_t block_size = 256;
+  const size_t grid_size = (num_elements + block_size - 1) / block_size;
+  return dim3(grid_size);
+}
+
+// 类型分派的加法
+core::Status DispatchAdd(const core::Tensor &a, const core::Tensor &b, core::Tensor &result) {
+  auto num_elements = a.num_elements();
 
   // 检查形状一致性
-  if (!a.IsSameShape(b)) {
-    return Status::SHAPE_MISMATCH;
+  if (!a.IsSameShape(b) || !a.IsSameShape(result)) {
+    return core::Status::SHAPE_MISMATCH;
   }
 
   // 检查数据类型一致性
-  if (a.dtype() != b.dtype()) {
-    return Status::UNSUPPORTED_TYPE;
+  if (a.dtype() != b.dtype() || a.dtype() != result.dtype()) {
+    return core::Status::UNSUPPORTED_TYPE;
   }
 
-  // 设置结果张量的形状
-  Status status = result.Resize(a.shape());
-  if (status != Status::OK) {
-    return status;
+  auto launch_config = CalculateLaunchConfig(num_elements);
+  
+  // 根据数据类型选择内核
+  switch (a.dtype()) {
+  case core::DataType::FLOAT32:
+    AddKernel<float><<<launch_config, 256>>>(
+        a.data<float>(), b.data<float>(), result.data<float>(), num_elements);
+    break;
+  case core::DataType::FLOAT64:
+    AddKernel<double><<<launch_config, 256>>>(
+        a.data<double>(), b.data<double>(), result.data<double>(), num_elements);
+    break;
+  case core::DataType::INT32:
+    AddKernel<int32_t><<<launch_config, 256>>>(
+        a.data<int32_t>(), b.data<int32_t>(), result.data<int32_t>(), num_elements);
+    break;
+  case core::DataType::INT64:
+    AddKernel<int64_t><<<launch_config, 256>>>(
+        a.data<int64_t>(), b.data<int64_t>(), result.data<int64_t>(), num_elements);
+    break;
+  default:
+    return core::Status::UNSUPPORTED_TYPE;
   }
 
-  // 设置结果的数据类型
-  if (result.dtype() != a.dtype()) {
-    return Status::UNSUPPORTED_TYPE;
-  }
-
-  // 调用内核执行加法
-  return kernel::DispatchAdd(a, b, result);
+  cudaDeviceSynchronize();
+  return core::Status::OK;
 }
 
-Status AddScalar(const Context &ctx, const Tensor &a, void *scalar,
-                 size_t scalar_size, Tensor &result) {
-  (void)ctx; // 暂时未使用
+// 类型分派的标量加法
+core::Status DispatchAddScalar(const core::Tensor &a, void *scalar,
+                                            size_t scalar_size, core::Tensor &result) {
+  auto num_elements = a.num_elements();
 
-  // 设置结果张量的形状
-  Status status = result.Resize(a.shape());
-  if (status != Status::OK) {
-    return status;
+  // 检查形状一致性
+  if (!a.IsSameShape(result)) {
+    return core::Status::SHAPE_MISMATCH;
   }
 
-  // 设置结果的数据类型
-  if (result.dtype() != a.dtype()) {
-    return Status::UNSUPPORTED_TYPE;
+  // 检查数据类型一致性
+  if (a.dtype() != result.dtype()) {
+    return core::Status::UNSUPPORTED_TYPE;
   }
 
-  // 调用内核执行标量加法
-  return kernel::DispatchAddScalar(a, scalar, scalar_size, result);
+  auto launch_config = CalculateLaunchConfig(num_elements);
+  
+  // 根据数据类型选择内核
+  switch (a.dtype()) {
+  case core::DataType::FLOAT32: {
+    float scalar_value = 0.0f;
+    if (scalar_size >= sizeof(float)) {
+      memcpy(&scalar_value, scalar, sizeof(float));
+    }
+    AddScalarKernel<float><<<launch_config, 256>>>(
+        a.data<float>(), scalar_value, result.data<float>(), num_elements);
+    break;
+  }
+  case core::DataType::FLOAT64: {
+    double scalar_value = 0.0;
+    if (scalar_size >= sizeof(double)) {
+      memcpy(&scalar_value, scalar, sizeof(double));
+    }
+    AddScalarKernel<double><<<launch_config, 256>>>(
+        a.data<double>(), scalar_value, result.data<double>(), num_elements);
+    break;
+  }
+  case core::DataType::INT32: {
+    int32_t scalar_value = 0;
+    if (scalar_size >= sizeof(int32_t)) {
+      memcpy(&scalar_value, scalar, sizeof(int32_t));
+    }
+    AddScalarKernel<int32_t><<<launch_config, 256>>>(
+        a.data<int32_t>(), scalar_value, result.data<int32_t>(), num_elements);
+    break;
+  }
+  default:
+    return core::Status::UNSUPPORTED_TYPE;
+  }
+
+  cudaDeviceSynchronize();
+  return core::Status::OK;
 }
 
+} // namespace operators
 } // namespace cuda
 } // namespace compute
 } // namespace axono
