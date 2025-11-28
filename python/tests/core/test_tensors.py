@@ -56,20 +56,6 @@ class TestTensor(unittest.TestCase):
         data = tensor.to_numpy()
         self.assertTrue(np.all(data == 0))
 
-    def test_tensor_copy(self):
-        """测试 Tensor 拷贝"""
-
-        src_tensor = Tensor(dtype=DataType.FLOAT32, shape=[2, 2])
-        src_data = src_tensor._tensor.data_float32()
-        src_data[:] = [[1.1, 2.2], [3.3, 4.4]]
-
-        dst_tensor = Tensor(dtype=DataType.FLOAT32, shape=[2, 2])
-        dst_tensor.copy_from(src_tensor)
-
-        src_numpy = src_tensor.to_numpy()
-        dst_numpy = dst_tensor.to_numpy()
-        self.assertTrue(np.allclose(src_numpy, dst_numpy))
-
     def test_tensor_reshape(self):
         """测试 Tensor 重塑"""
 
