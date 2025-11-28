@@ -47,7 +47,7 @@ jobs:
         fi
 
   build:
-    name: Build And Test Project
+    name: Build And Test (CPU)
     runs-on: ubuntu-latest
     
     steps:
@@ -60,15 +60,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
-    
-    - name: Install dependencies
-      run: |
-        sh build_env.sh
-    
-    - name: Build
-      run: mkdir -p build && cd build && cmake .. -Dpybind11_DIR=$(python3 -m pybind11 --cmakedir) && make -j$(nproc)
 
-    - name: Run Python tests
+    - name: Build And Test
       run: |
-        cd python/tests
-        python run.py
+        echo -e "y\nn\ny\ny\ny" | bash build.sh
