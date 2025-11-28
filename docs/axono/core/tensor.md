@@ -61,10 +61,6 @@
     RuntimeError
         If the fill operation fails
 
-## `copy_from`
-
-    Copy data from another tensor
-
 ## `is_same_shape`
 
     Check if has same shape as another tensor
