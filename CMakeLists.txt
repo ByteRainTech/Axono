@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(axono LANGUAGES CXX CUDA)
+project(axono LANGUAGES CXX)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library)
@@ -17,46 +17,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra -O3 -march=native -fPIC)
 endif()
 
+# Find Python with the correct components
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module Development.Embed)
+find_package(pybind11 REQUIRED)
+
 include_directories(include)
 
-
-add_library(axono_core SHARED
-    src/core/tensor.cpp
-    src/compute/cpu/operators/memory_copy.cpp
-    src/compute/cpu/operators/matmul.cpp
-    src/compute/cpu/operators/add.cpp
-    src/compute/cpu/ops/tensor_ops.cpp
-    src/compute/cpu/ops/relu.cpp
-    src/compute/cuda/operators/memory_copy.cu
-    src/compute/cuda/operators/matmul.cu
-    src/compute/cuda/operators/add.cu
-    src/compute/cuda/ops/tensor_ops.cu
-    src/compute/cuda/ops/relu.cu
-    src/core/cuda/detail.cu
-    src/core/cuda/gpu_sync_buffer.cu
-    ./include/axono/compute/cuda/kernel/tensor_kernel.cu
-)
-
-target_include_directories(axono_core PRIVATE
-    ${Python3_INCLUDE_DIRS}
-    ${pybind11_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-target_compile_definitions(axono_core PRIVATE AXONO_CORE_EXPORTS)
-
-set_target_properties(axono_core PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"  # .dll
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"  # .lib
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"  # .so/.dylib
-)
-
-set_target_properties(axono_core PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
-
-set_target_properties(axono_core PROPERTIES
-    OUTPUT_NAME "core"
-    PREFIX ""
-    SOVERSION 1
-)
-
+# Add Python subdirectory
 add_subdirectory(python)
