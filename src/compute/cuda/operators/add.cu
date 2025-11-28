@@ -1,7 +1,7 @@
 #include "axono/core/macros.h"
 #include "axono/core/tensor.h"
-#include <cuda_runtime.h>
 #include "axono/core/types.h"
+#include <cuda_runtime.h>
 #include <cstddef>
 #include <cstring>
 
@@ -76,6 +76,39 @@ core::Status DispatchAdd(const core::Tensor &a, const core::Tensor &b, core::Ten
   cudaDeviceSynchronize();
   return core::Status::OK;
 }
+core::Status Add(const core::Context &ctx, const core::Tensor &a, const core::Tensor &b,
+           core::Tensor &result) {
+  (void)ctx; // 暂时未使用
+
+  // 基本参数检查
+  if (a.ndim() != b.ndim()) {
+    return core::Status::SHAPE_MISMATCH;
+  }
+
+  // 检查形状一致性
+  if (!a.IsSameShape(b)) {
+    return core::Status::SHAPE_MISMATCH;
+  }
+
+  // 检查数据类型一致性
+  if (a.dtype() != b.dtype()) {
+    return core::Status::UNSUPPORTED_TYPE;
+  }
+
+  // 设置结果张量的形状
+  core::Status status = result.Resize(a.shape());
+  if (status != core::Status::OK) {
+    return status;
+  }
+
+  // 设置结果的数据类型
+  if (result.dtype() != a.dtype()) {
+    return core::Status::UNSUPPORTED_TYPE;
+  }
+
+  // 调用内核执行加法
+  return DispatchAdd(a, b, result);
+}
 
 // 类型分派的标量加法
 core::Status DispatchAddScalar(const core::Tensor &a, void *scalar,
@@ -129,6 +162,21 @@ core::Status DispatchAddScalar(const core::Tensor &a, void *scalar,
 
   cudaDeviceSynchronize();
   return core::Status::OK;
+}
+
+core::Status AddScalar(const core::Context &ctx, const core::Tensor &a, 
+                       void *scalar, size_t scalar_size, core::Tensor &result) {
+  (void)ctx;
+
+  // 检查形状和数据类型
+  if (!a.IsSameShape(result)) {
+    return core::Status::SHAPE_MISMATCH;
+  }
+  if (a.dtype() != result.dtype()) {
+    return core::Status::UNSUPPORTED_TYPE;
+  }
+
+  return DispatchAddScalar(a, scalar, scalar_size, result);
 }
 
 } // namespace operators
