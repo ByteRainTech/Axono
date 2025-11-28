@@ -1,36 +1,72 @@
-#include "axono/compute/cpu/kernel/relu_kernel.h"
-#include "axono/compute/cpu/ops.h"
 #include "axono/core/macros.h"
+#include "axono/core/types.h"
+#include "axono/core/tensor.h"
+#include <algorithm>
 
 namespace axono {
 namespace compute {
 namespace cpu {
+namespace ops {
 
-Status Relu(const Context &ctx, const Tensor &input, Tensor &output) {
-  (void)ctx; // 暂时未使用
-
-  // 设置结果张量的形状
-  Status status = output.Resize(input.shape());
-  if (status != Status::OK) {
-    return status;
-  }
-
-  // 设置结果的数据类型
-  if (output.dtype() != input.dtype()) {
-    return Status::UNSUPPORTED_TYPE;
-  }
-
-  // 调用内核执行 ReLU
-  return kernel::DispatchRelu(input, output);
+/* ===== 内核 ===== */
+template <typename T>
+void ReluKernel(const T *input, T *output, size_t n) {
+  for (size_t i = 0; i < n; ++i) output[i] = std::max(T(0), input[i]);
+}
+template <typename T>
+void ReluInplaceKernel(T *data, size_t n) {
+  for (size_t i = 0; i < n; ++i) data[i] = std::max(T(0), data[i]);
 }
 
-Status ReluInplace(const Context &ctx, Tensor &tensor) {
-  (void)ctx; // 暂时未使用
+/* ===== 分派 ===== */
+core::Status DispatchRelu(const core::Tensor &input, core::Tensor &output) {
+  if (!input.IsSameShape(output)) return core::Status::SHAPE_MISMATCH;
+  if (input.dtype() != output.dtype()) return core::Status::UNSUPPORTED_TYPE;
 
-  // 直接原地执行 ReLU
-  return kernel::DispatchReluInplace(tensor);
+  const size_t n = input.num_elements();
+  switch (input.dtype()) {
+    case core::DataType::FLOAT32:
+      ReluKernel(input.data<float>(), output.data<float>(), n); break;
+    case core::DataType::FLOAT64:
+      ReluKernel(input.data<double>(), output.data<double>(), n); break;
+    case core::DataType::INT32:
+      ReluKernel(input.data<int32_t>(), output.data<int32_t>(), n); break;
+    default: return core::Status::UNSUPPORTED_TYPE;
+  }
+  return core::Status::OK;
 }
 
+core::Status DispatchReluInplace(core::Tensor &tensor) {
+  const size_t n = tensor.num_elements();
+  switch (tensor.dtype()) {
+    case core::DataType::FLOAT32:
+      ReluInplaceKernel(tensor.data<float>(), n); break;
+    case core::DataType::FLOAT64:
+      ReluInplaceKernel(tensor.data<double>(), n); break;
+    case core::DataType::INT32:
+      ReluInplaceKernel(tensor.data<int32_t>(), n); break;
+    default: return core::Status::UNSUPPORTED_TYPE;
+  }
+  return core::Status::OK;
+}
+
+/* ===== 对外接口实现 ===== */
+core::Status Relu(const core::Context &ctx,
+                  const core::Tensor &input,
+                  core::Tensor &output) {
+  (void)ctx;
+  auto st = output.Resize(input.shape());
+  if (st != core::Status::OK) return st;
+  if (output.dtype() != input.dtype()) return core::Status::UNSUPPORTED_TYPE;
+  return DispatchRelu(input, output);
+}
+
+core::Status ReluInplace(const core::Context &ctx, core::Tensor &tensor) {
+  (void)ctx;
+  return DispatchReluInplace(tensor);
+}
+
+} // namespace ops
 } // namespace cpu
 } // namespace compute
 } // namespace axono

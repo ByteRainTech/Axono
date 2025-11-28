@@ -2,7 +2,7 @@
 core.ops.Relu()
 """
 
-from core import relu as relu_op, relu_ as relu_op_
+from axonolib import relu as relu_op, relu_ as relu_op_
 
 from ..tensor import Tensor
 

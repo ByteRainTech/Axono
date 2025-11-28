@@ -1,10 +1,11 @@
 // Axono/src/core/cuda/detail.cu
-#include "axono/core/tensor.h"
 #include <cuda_runtime.h>
 #include <stdexcept>
+#include "axono/core/tensor.h"
 
 namespace axono {
-
+namespace core {
+namespace cuda {
 namespace detail {
 
 // CUDA设备内存分配实现
@@ -179,7 +180,7 @@ std::shared_ptr<void> deep_copy_cuda_tensor(const Tensor& src_tensor) {
     return deep_copy_cuda_memory(src_tensor.raw_data(), src_tensor.num_bytes());
 }
 
-
-} // namespace detail
-
-} // namespace axono
+}
+}
+}
+}

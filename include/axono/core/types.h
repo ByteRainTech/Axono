@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace axono {
+namespace core {
 
 // 基础设备枚举
 enum class DeviceType { 
@@ -71,3 +72,4 @@ inline size_t CalculateNumElements(const Shape &shape) {
 }
 
 } // namespace axono
+}

@@ -13,13 +13,13 @@ namespace pybind11 {
 class GPUSyncBuffer {
 private:
     float* host_data_;
-    axono::Tensor gpu_tensor_;
+    axono::core::Tensor gpu_tensor_;
     bool modified_;
     size_t num_elems_;
 
 public:
     // 构造函数：初始化并同步数据从GPU到CPU
-    GPUSyncBuffer(const axono::Tensor& tensor);
+    GPUSyncBuffer(const axono::core::Tensor& tensor);
     
     // 析构函数：自动同步修改回GPU
     ~GPUSyncBuffer();
@@ -52,11 +52,11 @@ public:
     bool is_modified() const { return modified_; }
     
     // 获取原始GPU张量
-    const axono::Tensor& gpu_tensor() const { return gpu_tensor_; }
+    const axono::core::Tensor& gpu_tensor() const { return gpu_tensor_; }
 };
 
 // 工具函数：将GPU张量转换为带同步的numpy数组
 // Attention：这里只声明，实现在.cu文件中
-pybind11::array tensor_to_sync_numpy(const axono::Tensor& tensor);
+pybind11::array tensor_to_sync_numpy(const axono::core::Tensor& tensor);
 
 #endif // GPU_SYNC_BUFFER_H

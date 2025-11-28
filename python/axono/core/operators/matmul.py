@@ -2,7 +2,7 @@
 Axono Matmul
 """
 
-from core import matmul as _matmul
+from axonolib import matmul as _matmul
 
 from ..tensor import Tensor
 
