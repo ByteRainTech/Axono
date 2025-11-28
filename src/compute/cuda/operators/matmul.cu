@@ -9,6 +9,7 @@ namespace compute {
 namespace cuda {
 namespace operators {
 
+
 // CUDA 矩阵乘法内核 - 使用共享内存优化
 template <typename T>
 __global__ void MatMulKernel(const T *a, const T *b, T *result,
@@ -69,7 +70,7 @@ __global__ void MatMulOptimizedKernel(const T *a, const T *b, T *result,
 }
 
 // 类型分派的矩阵乘法
-AXONO_FORCE_INLINE core::Status DispatchMatMul(const core::Tensor &a, const core::Tensor &b, core::Tensor &result) {
+core::Status DispatchMatMul(const core::Tensor &a, const core::Tensor &b, core::Tensor &result) {
   auto a_shape = a.shape();
   auto b_shape = b.shape();
 
@@ -108,6 +109,44 @@ AXONO_FORCE_INLINE core::Status DispatchMatMul(const core::Tensor &a, const core
 
   cudaDeviceSynchronize();
   return core::Status::OK;
+}
+
+core::Status MatMul(const core::Context &ctx, const core::Tensor &a, const core::Tensor &b,
+              core::Tensor &result) {
+  (void)ctx; // 暂时未使用
+
+  // 基本参数检查
+  if (a.ndim() != 2 || b.ndim() != 2) {
+    return core::Status::INVALID_ARGUMENT;
+  }
+
+  auto a_shape = a.shape();
+  auto b_shape = b.shape();
+
+  // 检查矩阵乘法形状兼容性
+  if (a_shape[1] != b_shape[0]) {
+    return core::Status::SHAPE_MISMATCH;
+  }
+
+  // 检查数据类型一致性
+  if (a.dtype() != b.dtype()) {
+    return core::Status::UNSUPPORTED_TYPE;
+  }
+
+  // 设置结果张量的形状
+  std::vector<size_t> result_shape = {a_shape[0], b_shape[1]};
+  core::Status status = result.Resize(result_shape);
+  if (status != core::Status::OK) {
+    return status;
+  }
+
+  // 设置结果的数据类型
+  if (result.dtype() != a.dtype()) {
+    return core::Status::UNSUPPORTED_TYPE;
+  }
+
+  // 调用内核执行矩阵乘法
+  return DispatchMatMul(a, b, result);
 }
 
 } // namespace kernel
