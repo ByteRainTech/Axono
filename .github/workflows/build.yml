@@ -65,12 +65,9 @@ jobs:
       run: |
         sh build_env.sh
     
-    - name: Make build.sh executable
-      run: chmod +x build.sh
-    
-    - name: Build with build.sh
-      run: ./build.sh
-    
+    - name: Build
+      run: mkdir -p build && cd build && cmake .. -Dpybind11_DIR=$(python3 -m pybind11 --cmakedir) && make -j$(nproc)
+
     - name: Run Python tests
       run: |
         cd python/tests
