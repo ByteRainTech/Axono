@@ -2,7 +2,7 @@
 Axono Add
 """
 
-from core import add as _add
+from axonolib import add as _add
 
 from ..tensor import Tensor
 
