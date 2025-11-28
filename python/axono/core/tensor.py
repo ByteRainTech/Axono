@@ -3,18 +3,20 @@ Axono Tensor - Python interface for Tensor class
 """
 
 import ctypes
+import os
 
 import numpy as np
 
-from core import DataType, Status
-from core import Tensor as _Tensor
+from axonolib import DataType, Status
+from axonolib import Tensor as _Tensor
 
+default_device = os.getenv('axono_default_device', 'cpu')
 
 class Tensor:
     """Python Tensor class wrapping C++ Tensor"""
 
     def __init__(
-        self, dtype: DataType = DataType.FLOAT32, shape: list[int] | None = None, device: str = "cpu"
+        self, dtype: DataType = DataType.FLOAT32, shape: list[int] | None = None, device: str = None
     ):
         """
         Initialize Tensor
@@ -24,7 +26,9 @@ class Tensor:
             shape: Shape of tensor, if None creates empty tensor
         """
         if shape is None:
-            self._tensor = _Tensor(dtype, device=device)
+            self._tensor = _Tensor(dtype)
+        elif device is None:
+            self._tensor = _Tensor(dtype, shape, device=default_device)
         else:
             self._tensor = _Tensor(dtype, shape, device=device)
 
@@ -64,7 +68,7 @@ class Tensor:
             array = np.ascontiguousarray(array)
 
         dtype = dtype_map.get(array.dtype.type, DataType.FLOAT32)
-        tensor_obj = cls(dtype, list(array.shape))
+        tensor_obj = cls(dtype, list(array.shape), device="cpu")
 
         # Get the tensor data as a numpy array view and copy the input array data
         if array.dtype == np.int8:
@@ -93,7 +97,6 @@ class Tensor:
 
     def __matmul__(self, other) -> "Tensor":
         from .operators import matmul
-
         return matmul(self, other)
 
     def __add__(self, other) -> "Tensor":
@@ -198,13 +201,6 @@ class Tensor:
             raise ValueError(f"Value {value} is too large for dtype {self.dtype}")
         except Exception as e:
             raise RuntimeError(f"Fill operation failed: {e}")
-
-    def copy_from(self, other: "Tensor") -> "Tensor":
-        """Copy data from another tensor"""
-        status = self._tensor.copy_from(other._tensor)
-        if status != Status.OK:
-            raise RuntimeError(f"Copy failed with status: {status}")
-        return self
 
     def is_same_shape(self, other: "Tensor") -> bool:
         """Check if has same shape as another tensor"""
