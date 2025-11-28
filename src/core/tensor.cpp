@@ -106,7 +106,9 @@ void Tensor::InitializeStorage() {
     if (bytes == 0) return;
 
     if (device_.substr(0, 4) == "cuda") {
+#ifdef COMPILED_WITH_CUDA
         data_ = cuda::detail::CudaAllocateStorage(bytes, device_);
+#endif
     } else {
         // CPU HERE~
         void* ptr = std::malloc(bytes);
@@ -145,50 +147,64 @@ Status Tensor::FillZero() {
   switch (dtype_) {
   case DataType::INT8:
     if(this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
         cuda::tensor::DispatchZero(*this);
         break;
+#endif
     }
     cpu::tensor::TensorZeroKernel(data<int8_t>(), num_elements_);
     break;
   case DataType::INT16:
     if(this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
         cuda::tensor::DispatchZero(*this);
         break;
+#endif
     }
     cpu::tensor::TensorZeroKernel(data<int16_t>(), num_elements_);
     break;
   case DataType::INT32:
     if(this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
         cuda::tensor::DispatchZero(*this);
         break;
+#endif
     }
     cpu::tensor::TensorZeroKernel(data<int32_t>(), num_elements_);
     break;
   case DataType::INT64:
     if(this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
         cuda::tensor::DispatchZero(*this);
         break;
+#endif
     }
     cpu::tensor::TensorZeroKernel(data<int64_t>(), num_elements_);
     break;
   case DataType::FLOAT32:
     if(this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
         cuda::tensor::DispatchZero(*this);
         break;
+#endif
     }
     cpu::tensor::TensorZeroKernel(data<float>(), num_elements_);
     break;
   case DataType::FLOAT64:
     if(this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
         cuda::tensor::DispatchZero(*this);
         break;
+#endif
     }
     cpu::tensor::TensorZeroKernel(data<double>(), num_elements_);
     break;
   case DataType::BOOLEAN:
     if(this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
         cuda::tensor::DispatchZero(*this);
         break;
+#endif
     }
     cpu::tensor::TensorZeroKernel(data<bool>(), num_elements_);
     break;
@@ -202,7 +218,9 @@ Status Tensor::Fill(void *value, size_t value_size) {
   if (!data_)
     return Status::INVALID_ARGUMENT;
   if (this->is_cuda()){
+#ifdef COMPILED_WITH_CUDA
     return cuda::tensor::DispatchFill(*this, value, value_size);
+#endif
   }
   return cpu::tensor::DispatchFill(*this, value, value_size);
 }
