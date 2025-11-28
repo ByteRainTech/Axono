@@ -33,7 +33,7 @@ class Module(ABC):
     def parameters(self) -> List[Tensor]:
         return list(self._parameters.values())
 
-    def to(self, device: str) -> 'Module':
+    def to(self, device: str) -> "Module":
         for name, param in self._parameters.items():
             self._parameters[name] = param.to(device)
         return self

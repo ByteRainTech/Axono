@@ -8,8 +8,8 @@ namespace compute {
 namespace cpu {
 namespace operators {
 
-core::Status Add(const core::Context &ctx, const core::Tensor &a, const core::Tensor &b,
-           core::Tensor &result) {
+core::Status Add(const core::Context &ctx, const core::Tensor &a,
+                 const core::Tensor &b, core::Tensor &result) {
   (void)ctx; // 暂时未使用
 
   // 检查数据类型一致性
@@ -32,8 +32,8 @@ core::Status Add(const core::Context &ctx, const core::Tensor &a, const core::Te
   return DispatchAdd(a, b, result);
 }
 
-core::Status AddScalar(const core::Context &ctx, const core::Tensor &a, void *scalar,
-                 size_t scalar_size, core::Tensor &result) {
+core::Status AddScalar(const core::Context &ctx, const core::Tensor &a,
+                       void *scalar, size_t scalar_size, core::Tensor &result) {
   (void)ctx; // 暂时未使用
 
   // 设置结果张量的形状
@@ -51,7 +51,7 @@ core::Status AddScalar(const core::Context &ctx, const core::Tensor &a, void *sc
   return DispatchAddScalar(a, scalar, scalar_size, result);
 }
 
-}
-}
-}
-}
+} // namespace operators
+} // namespace cpu
+} // namespace compute
+} // namespace axono

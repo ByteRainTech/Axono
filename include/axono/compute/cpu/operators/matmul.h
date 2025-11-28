@@ -47,8 +47,9 @@ AXONO_FORCE_INLINE void MatMulOptimizedKernel(const T *a, const T *b, T *result,
 }
 
 // 类型分派的矩阵乘法
-AXONO_FORCE_INLINE core::Status DispatchMatMul(const core::Tensor &a, const core::Tensor &b,
-                                         core::Tensor &result) {
+AXONO_FORCE_INLINE core::Status DispatchMatMul(const core::Tensor &a,
+                                               const core::Tensor &b,
+                                               core::Tensor &result) {
   auto a_shape = a.shape();
   auto b_shape = b.shape();
 
@@ -82,7 +83,7 @@ AXONO_FORCE_INLINE core::Status DispatchMatMul(const core::Tensor &a, const core
   return core::Status::OK;
 }
 
-} // namespace kernel
+} // namespace operators
 } // namespace cpu
 } // namespace compute
 } // namespace axono

@@ -9,11 +9,12 @@ namespace compute {
 namespace cuda {
 namespace ops {
 // Tensor 操作
-AXONO_EXPORT core::Status Relu(const core::Context &ctx, const core::Tensor &input,
-                         core::Tensor &output);
+AXONO_EXPORT core::Status Relu(const core::Context &ctx,
+                               const core::Tensor &input, core::Tensor &output);
 
-AXONO_EXPORT core::Status ReluInplace(const core::Context &ctx, core::Tensor &tensor);
-}
-}
-}
-}
+AXONO_EXPORT core::Status ReluInplace(const core::Context &ctx,
+                                      core::Tensor &tensor);
+} // namespace ops
+} // namespace cuda
+} // namespace compute
+} // namespace axono

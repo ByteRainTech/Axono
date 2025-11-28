@@ -12,13 +12,13 @@ namespace operators {
 
 // 广播加法
 template <typename T>
-AXONO_FORCE_INLINE void AddBroadcastKernel(const T* a, const T* b, T* out,
-                        size_t M, size_t K) {
-    for (size_t m = 0; m < M; ++m) {
-        for (size_t k = 0; k < K; ++k) {
-            out[m * K + k] = a[m * K + k] + b[k];   // b 被广播
-        }
+AXONO_FORCE_INLINE void AddBroadcastKernel(const T *a, const T *b, T *out,
+                                           size_t M, size_t K) {
+  for (size_t m = 0; m < M; ++m) {
+    for (size_t k = 0; k < K; ++k) {
+      out[m * K + k] = a[m * K + k] + b[k]; // b 被广播
     }
+  }
 }
 
 // 逐元素加法内核
@@ -40,8 +40,9 @@ AXONO_FORCE_INLINE void AddScalarKernel(const T *a, T scalar, T *result,
 }
 
 // 类型分派的加法
-AXONO_FORCE_INLINE core::Status DispatchAdd(const core::Tensor &a, const core::Tensor &b,
-                                      core::Tensor &result) {
+AXONO_FORCE_INLINE core::Status DispatchAdd(const core::Tensor &a,
+                                            const core::Tensor &b,
+                                            core::Tensor &result) {
   // 1. dtype 必须一致
   if (a.dtype() != b.dtype() || a.dtype() != result.dtype()) {
     return core::Status::UNSUPPORTED_TYPE;
@@ -61,10 +62,12 @@ AXONO_FORCE_INLINE core::Status DispatchAdd(const core::Tensor &a, const core::T
       AddKernel(a.data<double>(), b.data<double>(), result.data<double>(), num);
       return core::Status::OK;
     case core::DataType::INT32:
-      AddKernel(a.data<int32_t>(), b.data<int32_t>(), result.data<int32_t>(), num);
+      AddKernel(a.data<int32_t>(), b.data<int32_t>(), result.data<int32_t>(),
+                num);
       return core::Status::OK;
     case core::DataType::INT64:
-      AddKernel(a.data<int64_t>(), b.data<int64_t>(), result.data<int64_t>(), num);
+      AddKernel(a.data<int64_t>(), b.data<int64_t>(), result.data<int64_t>(),
+                num);
       return core::Status::OK;
     default:
       return core::Status::UNSUPPORTED_TYPE;
@@ -78,16 +81,20 @@ AXONO_FORCE_INLINE core::Status DispatchAdd(const core::Tensor &a, const core::T
     const size_t K = a_shape[1];
     switch (a.dtype()) {
     case core::DataType::FLOAT32:
-      AddBroadcastKernel(a.data<float>(), b.data<float>(), result.data<float>(), M, K);
+      AddBroadcastKernel(a.data<float>(), b.data<float>(), result.data<float>(),
+                         M, K);
       return core::Status::OK;
     case core::DataType::FLOAT64:
-      AddBroadcastKernel(a.data<double>(), b.data<double>(), result.data<double>(), M, K);
+      AddBroadcastKernel(a.data<double>(), b.data<double>(),
+                         result.data<double>(), M, K);
       return core::Status::OK;
     case core::DataType::INT32:
-      AddBroadcastKernel(a.data<int32_t>(), b.data<int32_t>(), result.data<int32_t>(), M, K);
+      AddBroadcastKernel(a.data<int32_t>(), b.data<int32_t>(),
+                         result.data<int32_t>(), M, K);
       return core::Status::OK;
     case core::DataType::INT64:
-      AddBroadcastKernel(a.data<int64_t>(), b.data<int64_t>(), result.data<int64_t>(), M, K);
+      AddBroadcastKernel(a.data<int64_t>(), b.data<int64_t>(),
+                         result.data<int64_t>(), M, K);
       return core::Status::OK;
     default:
       return core::Status::UNSUPPORTED_TYPE;
@@ -98,9 +105,10 @@ AXONO_FORCE_INLINE core::Status DispatchAdd(const core::Tensor &a, const core::T
 }
 
 // 类型分派的标量加法
-AXONO_FORCE_INLINE core::Status DispatchAddScalar(const core::Tensor &a, void *scalar,
-                                            size_t scalar_size,
-                                            core::Tensor &result) {
+AXONO_FORCE_INLINE core::Status DispatchAddScalar(const core::Tensor &a,
+                                                  void *scalar,
+                                                  size_t scalar_size,
+                                                  core::Tensor &result) {
   auto num_elements = a.num_elements();
 
   // 检查形状一致性
@@ -149,7 +157,7 @@ AXONO_FORCE_INLINE core::Status DispatchAddScalar(const core::Tensor &a, void *s
   return core::Status::OK;
 }
 
-} // namespace kernel
+} // namespace operators
 } // namespace cpu
 } // namespace compute
 } // namespace axono

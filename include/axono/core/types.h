@@ -10,9 +10,9 @@ namespace axono {
 namespace core {
 
 // 基础设备枚举
-enum class DeviceType { 
-    CPU,
-    CUDA,
+enum class DeviceType {
+  CPU,
+  CUDA,
 };
 // 基础数据类型枚举
 enum class DataType { INT8, INT16, INT32, INT64, FLOAT32, FLOAT64, BOOLEAN };
@@ -71,5 +71,5 @@ inline size_t CalculateNumElements(const Shape &shape) {
   return num_elements;
 }
 
+} // namespace core
 } // namespace axono
-}

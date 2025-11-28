@@ -26,7 +26,7 @@
   AXONO_DISALLOW_MOVE(ClassName)
 
 #if defined(__CUDACC__) || defined(__NVCC__)
-#  define AXONO_COMPILING_WITH_NVCC 1
+#define AXONO_COMPILING_WITH_NVCC 1
 #else
-#  define AXONO_COMPILING_WITH_NVCC 0
+#define AXONO_COMPILING_WITH_NVCC 0
 #endif

@@ -102,18 +102,18 @@ core::Status DispatchFill(Tensor &tensor, void *value, size_t value_size) {
 }
 
 AXONO_FORCE_INLINE core::Status DispatchZero(Tensor &tensor) {
-    return tensor.FillZero();
+  return tensor.FillZero();
 }
 
-template void TensorZeroKernel<int8_t>(int8_t*, size_t);
-template void TensorZeroKernel<int16_t>(int16_t*, size_t);
-template void TensorZeroKernel<int32_t>(int32_t*, size_t);
-template void TensorZeroKernel<int64_t>(int64_t*, size_t);
-template void TensorZeroKernel<float>(float*, size_t);
-template void TensorZeroKernel<double>(double*, size_t);
-template void TensorZeroKernel<bool>(bool*, size_t);
+template void TensorZeroKernel<int8_t>(int8_t *, size_t);
+template void TensorZeroKernel<int16_t>(int16_t *, size_t);
+template void TensorZeroKernel<int32_t>(int32_t *, size_t);
+template void TensorZeroKernel<int64_t>(int64_t *, size_t);
+template void TensorZeroKernel<float>(float *, size_t);
+template void TensorZeroKernel<double>(double *, size_t);
+template void TensorZeroKernel<bool>(bool *, size_t);
 
-}
-}
-}
-}
+} // namespace tensor
+} // namespace cpu
+} // namespace core
+} // namespace axono

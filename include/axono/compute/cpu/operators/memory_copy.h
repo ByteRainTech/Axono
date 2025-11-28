@@ -53,7 +53,7 @@ AXONO_FORCE_INLINE void MemoryCopyKernel(void *__restrict dst,
   std::memcpy(dst, src, num_bytes);
 }
 
-} // namespace kernel
+} // namespace operators
 } // namespace cpu
 } // namespace compute
 } // namespace axono

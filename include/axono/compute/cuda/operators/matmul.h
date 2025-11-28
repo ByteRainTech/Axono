@@ -7,13 +7,13 @@ namespace compute {
 namespace cuda {
 namespace operators {
 
-core::Status MatMul(const core::Context &ctx, const core::Tensor &a, const core::Tensor &b,
-              core::Tensor &result)
+core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
+                    const core::Tensor &b, core::Tensor &result)
 
-core::Status MatMul(const core::Context &ctx, const core::Tensor &a, const core::Tensor &b,
-              core::Tensor &result)
+    core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
+                        const core::Tensor &b, core::Tensor &result)
 
 }
-}
-}
-}
+} // namespace cuda
+} // namespace compute
+} // namespace axono

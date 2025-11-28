@@ -3,23 +3,23 @@
 #include "axono/core/macros.h"
 
 namespace axono::compute::cpu::operators {
-    template void MatMulOptimizedKernel<float>(
-        const float*, const float*, float*, size_t, size_t, size_t);
+template void MatMulOptimizedKernel<float>(const float *, const float *,
+                                           float *, size_t, size_t, size_t);
 
-    template void MatMulOptimizedKernel<double>(
-        const double*, const double*, double*, size_t, size_t, size_t);
+template void MatMulOptimizedKernel<double>(const double *, const double *,
+                                            double *, size_t, size_t, size_t);
 
-    template void MatMulOptimizedKernel<int32_t>(
-        const int32_t*, const int32_t*, int32_t*, size_t, size_t, size_t);
-}
+template void MatMulOptimizedKernel<int32_t>(const int32_t *, const int32_t *,
+                                             int32_t *, size_t, size_t, size_t);
+} // namespace axono::compute::cpu::operators
 
 namespace axono {
 namespace compute {
 namespace cpu {
 namespace operators {
 
-core::Status MatMul(const core::Context &ctx, const core::Tensor &a, const core::Tensor &b,
-              core::Tensor &result) {
+core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
+                    const core::Tensor &b, core::Tensor &result) {
   (void)ctx; // 暂时未使用
 
   // 基本参数检查
@@ -50,14 +50,15 @@ core::Status MatMul(const core::Context &ctx, const core::Tensor &a, const core:
   // 设置结果的数据类型
   if (result.dtype() != a.dtype()) {
     result = core::Tensor(a.dtype(), result_shape);
-    if (!result.data()) return core::Status::OUT_OF_MEMORY;
-}
+    if (!result.data())
+      return core::Status::OUT_OF_MEMORY;
+  }
 
   // 调用内核执行矩阵乘法
   return DispatchMatMul(a, b, result);
 }
 
-}
-}
-}
-}
+} // namespace operators
+} // namespace cpu
+} // namespace compute
+} // namespace axono

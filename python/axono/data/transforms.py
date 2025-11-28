@@ -35,13 +35,13 @@ class RandomCrop(Transform):
     def __call__(self, img: Image.Image) -> Image.Image:
         if self.padding > 0:
             img = pad(img, self.padding)
-        
+
         w, h = img.size
         th, tw = self.size
-        
+
         if w == tw and h == th:
             return img
-        
+
         i = random.randint(0, h - th)
         j = random.randint(0, w - tw)
         return img.crop((j, i, j + tw, i + th))
@@ -83,11 +83,11 @@ class ToTensor(Transform):
     def __call__(self, img: Union[Image.Image, np.ndarray]):
         if isinstance(img, Image.Image):
             img = np.array(img)
-        
+
         # Handle PIL Image
         if len(img.shape) == 2:
             img = img[:, :, None]
-        
+
         # Convert HWC to CHW format
         img = img.transpose((2, 0, 1))
         return img
@@ -99,11 +99,11 @@ def pad(img: Image.Image, padding: int) -> Image.Image:
         padding = (padding, padding, padding, padding)
     elif isinstance(padding, tuple) and len(padding) == 2:
         padding = (padding[0], padding[1], padding[0], padding[1])
-    
+
     w, h = img.size
     new_w = w + padding[0] + padding[2]
     new_h = h + padding[1] + padding[3]
-    
+
     result = Image.new(img.mode, (new_w, new_h), 0)
     result.paste(img, (padding[0], padding[1]))
     return result

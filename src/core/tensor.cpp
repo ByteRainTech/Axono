@@ -1,21 +1,21 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
-#include <stdexcept>   // std::runtime_error
+#include <stdexcept> // std::runtime_error
 
 #include "./cuda/detail.h"
 
+#include "axono/core/cpu/tensor/kernel.h"
+#include "axono/core/cuda/tensor/kernel.h"
 #include "axono/core/tensor.h"
 #include "axono/core/types.h"
-#include "axono/core/cuda/tensor/kernel.h"
-#include "axono/core/cpu/tensor/kernel.h"
 
 namespace {
 // 自定义删除器，用于 shared_ptr
 struct FreeDeleter {
   void operator()(void *ptr) const { std::free(ptr); }
 };
-}
+} // namespace
 namespace axono {
 namespace core {
 
@@ -29,7 +29,8 @@ Tensor::Tensor(DataType dtype, const Shape &shape)
   InitializeStorage();
 }
 
-Tensor::Tensor(DataType dtype, const Shape &shape, const std::string& device) // 设备在这里喵
+Tensor::Tensor(DataType dtype, const Shape &shape,
+               const std::string &device) // 设备在这里喵
     : dtype_(dtype), shape_(shape), device_(device) {
   num_elements_ = CalculateNumElements(shape_);
   InitializeStorage();
@@ -101,22 +102,24 @@ Tensor Tensor::FromData(DataType dtype, const Shape &shape, void *data) {
 }
 
 void Tensor::InitializeStorage() {
-    if (num_elements_ == 0) return;
-    size_t bytes = num_bytes();
-    if (bytes == 0) return;
+  if (num_elements_ == 0)
+    return;
+  size_t bytes = num_bytes();
+  if (bytes == 0)
+    return;
 
-    if (device_.substr(0, 4) == "cuda") {
+  if (device_.substr(0, 4) == "cuda") {
 #ifdef COMPILED_WITH_CUDA
-        data_ = cuda::detail::CudaAllocateStorage(bytes, device_);
+    data_ = cuda::detail::CudaAllocateStorage(bytes, device_);
 #endif
-    } else {
-        // CPU HERE~
-        void* ptr = std::malloc(bytes);
-        if (ptr) {
-            data_ = std::shared_ptr<void>(ptr, FreeDeleter());
-            std::memset(ptr, 0, bytes);
-        }
+  } else {
+    // CPU HERE~
+    void *ptr = std::malloc(bytes);
+    if (ptr) {
+      data_ = std::shared_ptr<void>(ptr, FreeDeleter());
+      std::memset(ptr, 0, bytes);
     }
+  }
 }
 
 Status Tensor::Reshape(const Shape &new_shape) {
@@ -146,64 +149,64 @@ Status Tensor::FillZero() {
 
   switch (dtype_) {
   case DataType::INT8:
-    if(this->is_cuda()){
+    if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        cuda::tensor::DispatchZero(*this);
-        break;
+      cuda::tensor::DispatchZero(*this);
+      break;
 #endif
     }
     cpu::tensor::TensorZeroKernel(data<int8_t>(), num_elements_);
     break;
   case DataType::INT16:
-    if(this->is_cuda()){
+    if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        cuda::tensor::DispatchZero(*this);
-        break;
+      cuda::tensor::DispatchZero(*this);
+      break;
 #endif
     }
     cpu::tensor::TensorZeroKernel(data<int16_t>(), num_elements_);
     break;
   case DataType::INT32:
-    if(this->is_cuda()){
+    if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        cuda::tensor::DispatchZero(*this);
-        break;
+      cuda::tensor::DispatchZero(*this);
+      break;
 #endif
     }
     cpu::tensor::TensorZeroKernel(data<int32_t>(), num_elements_);
     break;
   case DataType::INT64:
-    if(this->is_cuda()){
+    if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        cuda::tensor::DispatchZero(*this);
-        break;
+      cuda::tensor::DispatchZero(*this);
+      break;
 #endif
     }
     cpu::tensor::TensorZeroKernel(data<int64_t>(), num_elements_);
     break;
   case DataType::FLOAT32:
-    if(this->is_cuda()){
+    if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        cuda::tensor::DispatchZero(*this);
-        break;
+      cuda::tensor::DispatchZero(*this);
+      break;
 #endif
     }
     cpu::tensor::TensorZeroKernel(data<float>(), num_elements_);
     break;
   case DataType::FLOAT64:
-    if(this->is_cuda()){
+    if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        cuda::tensor::DispatchZero(*this);
-        break;
+      cuda::tensor::DispatchZero(*this);
+      break;
 #endif
     }
     cpu::tensor::TensorZeroKernel(data<double>(), num_elements_);
     break;
   case DataType::BOOLEAN:
-    if(this->is_cuda()){
+    if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        cuda::tensor::DispatchZero(*this);
-        break;
+      cuda::tensor::DispatchZero(*this);
+      break;
 #endif
     }
     cpu::tensor::TensorZeroKernel(data<bool>(), num_elements_);
@@ -217,7 +220,7 @@ Status Tensor::FillZero() {
 Status Tensor::Fill(void *value, size_t value_size) {
   if (!data_)
     return Status::INVALID_ARGUMENT;
-  if (this->is_cuda()){
+  if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
     return cuda::tensor::DispatchFill(*this, value, value_size);
 #endif
@@ -269,5 +272,5 @@ std::string Tensor::ToString() const {
   return oss.str();
 }
 
-}
-}
+} // namespace core
+} // namespace axono

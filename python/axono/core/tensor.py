@@ -10,13 +10,17 @@ import numpy as np
 from axonolib import DataType, Status
 from axonolib import Tensor as _Tensor
 
-default_device = os.getenv('axono_default_device', 'cpu')
+default_device = os.getenv("axono_default_device", "cpu")
+
 
 class Tensor:
     """Python Tensor class wrapping C++ Tensor"""
 
     def __init__(
-        self, dtype: DataType = DataType.FLOAT32, shape: list[int] | None = None, device: str = None
+        self,
+        dtype: DataType = DataType.FLOAT32,
+        shape: list[int] | None = None,
+        device: str = None,
     ):
         """
         Initialize Tensor
@@ -97,6 +101,7 @@ class Tensor:
 
     def __matmul__(self, other) -> "Tensor":
         from .operators import matmul
+
         return matmul(self, other)
 
     def __add__(self, other) -> "Tensor":
@@ -233,14 +238,18 @@ class Tensor:
         return self._tensor.__str__()
 
     @staticmethod
-    def zeros(shape: list[int], dtype: DataType = DataType.FLOAT32, device: str = "cpu") -> _Tensor:
+    def zeros(
+        shape: list[int], dtype: DataType = DataType.FLOAT32, device: str = "cpu"
+    ) -> _Tensor:
         """Create a tensor filled with zeros"""
         tensor = Tensor(dtype, shape, device=device)
         tensor.fill_zero()
         return tensor
 
     @staticmethod
-    def ones(shape: list[int], dtype: DataType = DataType.FLOAT32, device: str = "cpu") -> _Tensor:
+    def ones(
+        shape: list[int], dtype: DataType = DataType.FLOAT32, device: str = "cpu"
+    ) -> _Tensor:
         """Create a tensor filled with ones"""
         tensor = Tensor(dtype, shape, device=device)
         tensor.fill(1)
@@ -248,7 +257,10 @@ class Tensor:
 
     @staticmethod
     def full(
-        shape: list[int], value: int | float, dtype: DataType = DataType.FLOAT32, device: str = "cpu"
+        shape: list[int],
+        value: int | float,
+        dtype: DataType = DataType.FLOAT32,
+        device: str = "cpu",
     ) -> _Tensor:
         """Create a tensor filled with value"""
         tensor = Tensor(dtype, shape, device=device)

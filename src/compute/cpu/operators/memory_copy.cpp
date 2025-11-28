@@ -8,7 +8,7 @@ namespace cpu {
 namespace operators {
 
 core::Status MemoryCopy(const core::Context &ctx, void *dst, const void *src,
-                  size_t num_bytes) {
+                        size_t num_bytes) {
   // 使用上下文参数避免警告
   (void)ctx; // 标记为已使用
 
@@ -32,7 +32,8 @@ core::Status MemoryCopy(const core::Context &ctx, void *dst, const void *src,
   return core::Status::OK;
 }
 
-core::Status MemorySet(const core::Context &ctx, void *dst, int value, size_t num_bytes) {
+core::Status MemorySet(const core::Context &ctx, void *dst, int value,
+                       size_t num_bytes) {
   // 使用所有参数避免警告
   (void)ctx;
   (void)dst;
@@ -43,7 +44,7 @@ core::Status MemorySet(const core::Context &ctx, void *dst, int value, size_t nu
   return core::Status::UNSUPPORTED_TYPE;
 }
 
-} 
-}
-}
-}
+} // namespace operators
+} // namespace cpu
+} // namespace compute
+} // namespace axono

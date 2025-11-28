@@ -42,8 +42,8 @@ class TestMatmul(unittest.TestCase):
 
         self.assertTrue(np.allclose(expected, actual))
         self.assertEqual(result.shape, [3, 4])
-    
-    @unittest.skipIf(os.getenv('axono_default_device', 'cpu') != "cpu", '暂不支持 CUDA')
+
+    @unittest.skipIf(os.getenv("axono_default_device", "cpu") != "cpu", "暂不支持 CUDA")
     def test_matmul_large(self):
         """测试大矩阵乘法"""
         a = Tensor(DataType.FLOAT32, [10, 20])

@@ -9,7 +9,7 @@ class Sequential(Module):
     def __init__(self, layers: List[Module]):
         super().__init__()
         self.layers = layers
-        
+
         # Register layers as submodules
         for i, layer in enumerate(layers):
             self.add_module(f"layer_{i}", layer)

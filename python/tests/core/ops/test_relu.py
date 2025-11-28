@@ -14,7 +14,10 @@ from axono.core.ops import relu
 
 class TestRelu(unittest.TestCase):
     """ReLU 算子的单元测试"""
-    @unittest.skipIf(os.getenv('axono_default_device', 'cpu') != "cpu", '暂不支持 CUDA。')
+
+    @unittest.skipIf(
+        os.getenv("axono_default_device", "cpu") != "cpu", "暂不支持 CUDA。"
+    )
     def test_relu_basic(self):
         """基础 ReLU：负值变 0，正值不变"""
         input_tensor = Tensor(dtype=DataType.FLOAT32, shape=[1, 6])
@@ -28,7 +31,10 @@ class TestRelu(unittest.TestCase):
         for i in range(6):
             with self.subTest(i=i):
                 self.assertAlmostEqual(output_data[0, i], expected[i], places=3)
-    @unittest.skipIf(os.getenv('axono_default_device', 'cpu') != "cpu", '暂不支持 CUDA。')
+
+    @unittest.skipIf(
+        os.getenv("axono_default_device", "cpu") != "cpu", "暂不支持 CUDA。"
+    )
     def test_relu_inplace(self):
         """原地 ReLU：数据被正确修改，对象可接受拷贝"""
         tensor = Tensor(dtype=DataType.FLOAT32, shape=[2, 3])
@@ -47,8 +53,10 @@ class TestRelu(unittest.TestCase):
             for j in range(3):
                 with self.subTest(i=i, j=j):
                     self.assertAlmostEqual(tensor_data[i, j], expected[i][j], places=3)
-    
-    @unittest.skipIf(os.getenv('axono_default_device', 'cpu') != "cpu", '暂不支持 CUDA。')
+
+    @unittest.skipIf(
+        os.getenv("axono_default_device", "cpu") != "cpu", "暂不支持 CUDA。"
+    )
     def test_relu_large(self):
         """大 tensor：确保所有输出 ≥ 0"""
         shape = (10, 10)

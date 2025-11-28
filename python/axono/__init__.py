@@ -8,6 +8,7 @@ __version__ = "0.1.0"
 __author__ = "ByteRainLab"
 __description__ = "High performance computing library for big data processing"
 
+
 def welcome():
     text = '''                                                                                                                                                   
        db         8b        d8  ,ad8888ba,    888b      88    ,ad8888ba,                                              88                           
@@ -29,6 +30,6 @@ Axono的官方团队为您送上诚挚的问候!
 
 Best regards,
 {__author__}'''
-    text = text.replace("{__version__}",__version__)
-    text = text.replace("{__author__}",__author__)
+    text = text.replace("{__version__}", __version__)
+    text = text.replace("{__author__}", __author__)
     print(text)

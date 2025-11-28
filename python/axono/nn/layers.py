@@ -15,30 +15,31 @@ class Conv2d(Module):
         stride: Union[int, Tuple[int, int]] = 1,
         padding: Union[int, Tuple[int, int]] = 0,
         bias: bool = True,
-        device: str = "cpu"
+        device: str = "cpu",
     ):
         super().__init__()
-        
+
         if isinstance(kernel_size, int):
             kernel_size = (kernel_size, kernel_size)
         if isinstance(stride, int):
             stride = (stride, stride)
         if isinstance(padding, int):
             padding = (padding, padding)
-            
+
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size
         self.stride = stride
         self.padding = padding
-        
+
         # 初始化权重
         scale = np.sqrt(2.0 / (in_channels * kernel_size[0] * kernel_size[1]))
-        weight_data = np.random.normal(0, scale, 
-            (out_channels, in_channels, kernel_size[0], kernel_size[1]))
-        
+        weight_data = np.random.normal(
+            0, scale, (out_channels, in_channels, kernel_size[0], kernel_size[1])
+        )
+
         self._parameters["weight"] = Tensor.from_numpy(weight_data).to(device)
-        
+
         if bias:
             bias_data = np.zeros(out_channels)
             self._parameters["bias"] = Tensor.from_numpy(bias_data).to(device)
@@ -48,9 +49,14 @@ class Conv2d(Module):
     def forward(self, x: Tensor) -> Tensor:
         # 使用CUDA kernel或优化的CPU实现
         from ..core.ops import conv2d
-        return conv2d(x, self._parameters["weight"], 
-                     self._parameters.get("bias"),
-                     self.stride, self.padding)
+
+        return conv2d(
+            x,
+            self._parameters["weight"],
+            self._parameters.get("bias"),
+            self.stride,
+            self.padding,
+        )
 
 
 class Linear(Module):
@@ -59,16 +65,16 @@ class Linear(Module):
         in_features: int,
         out_features: int,
         bias: bool = True,
-        device: str = "cpu"
+        device: str = "cpu",
     ):
         super().__init__()
-        
+
         # 初始化权重
         scale = np.sqrt(2.0 / in_features)
         weight_data = np.random.normal(0, scale, (out_features, in_features))
-        
+
         self._parameters["weight"] = Tensor.from_numpy(weight_data).to(device)
-        
+
         if bias:
             bias_data = np.zeros(out_features)
             self._parameters["bias"] = Tensor.from_numpy(bias_data).to(device)
@@ -88,26 +94,26 @@ class BatchNorm2d(Module):
         num_features: int,
         eps: float = 1e-5,
         momentum: float = 0.1,
-        device: str = "cpu"
+        device: str = "cpu",
     ):
         super().__init__()
-        
+
         self.num_features = num_features
         self.eps = eps
         self.momentum = momentum
-        
+
         # 可学习参数
-        self._parameters["weight"] = Tensor.from_numpy(
-            np.ones(num_features)).to(device)
-        self._parameters["bias"] = Tensor.from_numpy(
-            np.zeros(num_features)).to(device)
-        
+        self._parameters["weight"] = Tensor.from_numpy(np.ones(num_features)).to(device)
+        self._parameters["bias"] = Tensor.from_numpy(np.zeros(num_features)).to(device)
+
         # 运行时统计量
-        self.register_buffer("running_mean", 
-            Tensor.from_numpy(np.zeros(num_features)).to(device))
-        self.register_buffer("running_var", 
-            Tensor.from_numpy(np.ones(num_features)).to(device))
-        
+        self.register_buffer(
+            "running_mean", Tensor.from_numpy(np.zeros(num_features)).to(device)
+        )
+        self.register_buffer(
+            "running_var", Tensor.from_numpy(np.ones(num_features)).to(device)
+        )
+
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -121,28 +127,34 @@ class BatchNorm2d(Module):
             # 计算批次统计量
             mean = x.mean(dim=(0, 2, 3))
             var = x.var(dim=(0, 2, 3), unbiased=False)
-            
+
             # 更新运行时统计量
-            self.running_mean = (1 - self.momentum) * self.running_mean + \
-                              self.momentum * mean
-            self.running_var = (1 - self.momentum) * self.running_var + \
-                             self.momentum * var
+            self.running_mean = (
+                1 - self.momentum
+            ) * self.running_mean + self.momentum * mean
+            self.running_var = (
+                1 - self.momentum
+            ) * self.running_var + self.momentum * var
         else:
             mean = self.running_mean
             var = self.running_var
-        
+
         # 标准化
-        x_normalized = (x - mean[None, :, None, None]) / \
-                      (torch.sqrt(var[None, :, None, None] + self.eps))
-        
+        x_normalized = (x - mean[None, :, None, None]) / (
+            torch.sqrt(var[None, :, None, None] + self.eps)
+        )
+
         # 缩放和平移
-        return self._parameters["weight"][None, :, None, None] * x_normalized + \
-               self._parameters["bias"][None, :, None, None]
+        return (
+            self._parameters["weight"][None, :, None, None] * x_normalized
+            + self._parameters["bias"][None, :, None, None]
+        )
 
 
 class ReLU(Module):
     def forward(self, x: Tensor) -> Tensor:
         from ..core.ops import relu
+
         return relu(x)
 
 
@@ -151,10 +163,10 @@ class MaxPool2d(Module):
         self,
         kernel_size: Union[int, Tuple[int, int]],
         stride: Optional[Union[int, Tuple[int, int]]] = None,
-        padding: Union[int, Tuple[int, int]] = 0
+        padding: Union[int, Tuple[int, int]] = 0,
     ):
         super().__init__()
-        
+
         if isinstance(kernel_size, int):
             kernel_size = (kernel_size, kernel_size)
         if stride is None:
@@ -163,15 +175,15 @@ class MaxPool2d(Module):
             stride = (stride, stride)
         if isinstance(padding, int):
             padding = (padding, padding)
-            
+
         self.kernel_size = kernel_size
         self.stride = stride
         self.padding = padding
 
     def forward(self, x: Tensor) -> Tensor:
         from ..core.ops import max_pool2d
-        return max_pool2d(x, self.kernel_size, 
-                         self.stride, self.padding)
+
+        return max_pool2d(x, self.kernel_size, self.stride, self.padding)
 
 
 class Dropout(Module):
