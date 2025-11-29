@@ -36,12 +36,7 @@ Axono 是一个轻量级的人工智能算法库，旨在为教学、研究与�
 
 ## 安装（Linux）
 ```bash
-sh build_env.sh
-mkdir -p build
-cd build
-cmake .. -Dpybind11_DIR=$(python3 -m pybind11 --cmakedir)
-make -j$(nproc)
-python setup.py install
+sh build.sh
 ```
 
 ## 快速示例
