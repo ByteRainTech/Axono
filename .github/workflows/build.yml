@@ -47,7 +47,7 @@ jobs:
         fi
 
   build:
-    name: Build And Test (CPU)
+    name: Build (CPU)
     runs-on: ubuntu-latest
     
     steps:
@@ -66,6 +66,9 @@ jobs:
         pip3 install -r requirements.txt
         pip3 install setuptools
 
-    - name: Build And Test
+    - name: Build And Install
       run: |
         echo -e "y\nn\ny\ny\ny" | bash build.sh 2>&1 | tee build_output.log
+
+    - name: Run Unittest
+        cd python/tests/ && python run.py
