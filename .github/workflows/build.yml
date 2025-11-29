@@ -64,7 +64,8 @@ jobs:
     - name: Install Dependencies
       run: |
         pip3 install -r requirements.txt
+        pip3 install setuptools
 
     - name: Build And Test
       run: |
-        echo -e "y\nn\ny\ny\ny" | bash build.sh
+        echo -e "y\nn\ny\ny\ny" | bash build.sh 2>&1 | tee build_output.log
