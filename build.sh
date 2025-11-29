@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-CMAKE_ARGS='-Dpybind11_DIR=$(python3 -m pybind11 --cmakedir)'
-BUILD_ARGS='-j4'
+CMAKE_ARGS="-Dpybind11_DIR=$(python3 -m pybind11 --cmakedir)"
+BUILD_ARGS="-j4"
 
 cat <<-'EOF'
        db         8b        d8  ,ad8888ba,    888b      88    ,ad8888ba,    
