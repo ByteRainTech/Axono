@@ -9,7 +9,6 @@ if(WITH_CUDA)
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cu
     )
-    target_compile_definitions(axono PRIVATE COMPILED_WITH_CUDA)
 else()
     file(GLOB_RECURSE CORE_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp
@@ -23,6 +22,10 @@ pybind11_add_module(axonolib
     ${CORE_SOURCES}
 )
 
+if(WITH_CUDA)
+target_compile_definitions(axonolib PRIVATE COMPILED_WITH_CUDA)
+endif()
+
 target_include_directories(axonolib PRIVATE 
     ${CMAKE_SOURCE_DIR}/include
 )
@@ -34,8 +37,8 @@ target_include_directories(axonolib PRIVATE
 # Set output properties
 set_target_properties(axonolib PROPERTIES
     OUTPUT_NAME "axonolib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/library"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/axono/library"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/python/axono/library"
     PREFIX ""
     SUFFIX "${PYTHON_MODULE_EXTENSION}"
 )

@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.15)
 project(axono LANGUAGES CXX)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/axono/library)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/axono/library)
 
 foreach(cfg IN LISTS CMAKE_CONFIGURATION_TYPES)
     string(TOUPPER ${cfg} CFG_UC)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UC} ${CMAKE_SOURCE_DIR}/python/library)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UC} ${CMAKE_SOURCE_DIR}/python/library)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UC} ${CMAKE_SOURCE_DIR}/python/axono/library)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UC} ${CMAKE_SOURCE_DIR}/python/axono/library)
 endforeach()
 
 set(CMAKE_CXX_STANDARD 17)
