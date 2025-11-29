@@ -50,7 +50,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],
-    data_files=data_files,
+    data_files=data_files,  # type: ignore
     include_package_data=True,
     zip_safe=False,
 )
