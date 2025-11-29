@@ -1,38 +1,38 @@
 from pathlib import Path
 from setuptools import Extension, find_packages, setup
-​
+
 ext = Extension(
     name="axono._pseudo",
     sources=["python/axono/_pseudo.c"],
 )
-​
-​
+
+
 def load_req(fn: str):
     return [
         r.strip()
         for r in Path(fn).read_text(encoding="utf8").splitlines()
         if r.strip() and not r.startswith("#")
     ]
-​
-​
+
+
 root = Path(__file__).parent
 lib = root / "python" / "axono" / "library"
-​
+
 print(lib)
-​
+
 lib_files = [
     str(p.relative_to(root / "python")).replace("\\", "/")
     for p in lib.rglob("*")
     if p.suffix in {".dll", ".so", ".pyd"}
 ]
-​
+
 print("Library Files:")
 print(lib_files)
-​
+
 data_files = [
     "python/"+str(f) for f in lib_files
 ]
-​
+
 setup(
     name="axono",
     version="0.1.0",
@@ -54,5 +54,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
 )
-​
+
 print(data_files)
