@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 CMAKE_ARGS="-Dpybind11_DIR=$(python3 -m pybind11 --cmakedir)"
 BUILD_ARGS="-j4"
