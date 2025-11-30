@@ -68,7 +68,7 @@ jobs:
 
     - name: Build And Install
       run: |
-        echo -e "y\nn\ny\ny\ny" | bash build.sh 2>&1 | tee build_output.log
+        echo -e "ynyy" | bash build.sh 2>&1 | tee build_output.log
 
     - name: Run Unittest
       run: | 
