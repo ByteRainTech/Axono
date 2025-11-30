@@ -13,8 +13,34 @@ endforeach()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 查找 OpenMP 包
+find_package(OpenMP REQUIRED)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Wall -Wextra -O3 -march=native -fPIC)
+    add_compile_options(-Wall -Wextra -O3 -march=native -fPIC -ffast-math -fopenmp -DNDEBUG)
+    # 添加链接选项
+    add_link_options(-fopenmp)
+endif()
+
+# 检测CPU架构并自动定义宏
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|i386|i686" OR 
+   CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|amd64" OR
+   CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64|i386|i686")
+    message(STATUS "Detected x86 architecture, enabling AVX optimizations")
+    add_compile_definitions(AXONO_USE_X86_INTRINSICS=1)
+    
+    # 检查AVX2支持
+    include(CheckCXXCompilerFlag)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        check_cxx_compiler_flag("-mavx2" COMPILER_SUPPORTS_AVX2)
+        if(COMPILER_SUPPORTS_AVX2)
+            add_compile_options(-mavx2 -mfma)
+            add_link_options(-mavx2 -mfma)
+        endif()
+    endif()
+else()
+    message(STATUS "Non-x86 architecture, using generic implementation")
+    add_compile_definitions(AXONO_USE_X86_INTRINSICS=0)
 endif()
 
 # Find Python with the correct components
