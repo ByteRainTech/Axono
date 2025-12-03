@@ -11,8 +11,7 @@ sys.path.insert(
 from axono.core import DataType, Tensor
 from axono.core.operators import add
 
-# TODO: 广播加法
-
+device = os.getenv("axono_default_device", "cpu")
 
 class TestAdd(unittest.TestCase):
     """逐元素加法单元测试"""
@@ -29,12 +28,12 @@ class TestAdd(unittest.TestCase):
 
         self.assertTrue(np.allclose(expected, actual))
 
-    @unittest.skipIf(os.getenv("axono_default_device", "cpu") != "cpu", "暂不支持 CUDA")
+    
     def test_add_large(self):
         """测试大 tensor 逐元素加法"""
         shape = [100, 200]
-        a = Tensor(DataType.FLOAT32, shape)
-        b = Tensor(DataType.FLOAT32, shape)
+        a = Tensor(DataType.FLOAT32, shape, device="cpu")
+        b = Tensor(DataType.FLOAT32, shape, device="cpu")
 
         # 填充随机数据
         a_data = a._tensor.data_float32()
@@ -42,7 +41,15 @@ class TestAdd(unittest.TestCase):
         a_data[:] = np.random.rand(*shape).astype(np.float32)
         b_data[:] = np.random.rand(*shape).astype(np.float32)
 
+        if "cuda" in device:
+            a = a.to(device)
+            b = b.to(device)
+
         result = add(a, b)
+
+        if "cuda" in device:
+            a_data = a._tensor.data_float32()
+            b_data = b._tensor.data_float32()
 
         self.assertEqual(result.shape, shape)
 
