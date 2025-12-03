@@ -8,10 +8,9 @@ version = "0.1.0"
 description = "Deep learning framework with tensor operations and neural network modules"
 readme = "README.md"
 requires-python = ">=3.8"
-license = { text = "Apache-2.0" }
+license-files = ["LICENSE"]
 authors = []
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -37,6 +36,8 @@ packages = [
     "axono.nn",
     "axono.train",
     "axono.viz",
+    "axono.core.operators",
+    "axono.core.ops"
 ]
 include-package-data = true
 zip-safe = false
