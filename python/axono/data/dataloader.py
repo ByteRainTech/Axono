@@ -114,7 +114,7 @@ class ImageFolder(Dataset):
 
     def _is_image_file(self, filename: str) -> bool:
         """Check if a file is an image"""
-        IMG_EXTENSIONS = (
+        img_extensions = (
             ".jpg",
             ".jpeg",
             ".png",
@@ -124,7 +124,7 @@ class ImageFolder(Dataset):
             ".tif",
             ".tiff",
         )
-        return filename.lower().endswith(IMG_EXTENSIONS)
+        return filename.lower().endswith(img_extensions)
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
         """

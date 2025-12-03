@@ -3,13 +3,13 @@ import os
 import sys
 import unittest
 
+from axono.core import DataType, Tensor
+from axono.core.ops import relu
+
 _project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 )
 sys.path.insert(0, _project_root)
-
-from axono.core import DataType, Tensor
-from axono.core.ops import relu
 
 
 class TestRelu(unittest.TestCase):
@@ -41,11 +41,8 @@ class TestRelu(unittest.TestCase):
         tensor_data = tensor._tensor.data_float32()
         tensor_data[:] = [[-2, -0.5, 0], [0.5, 1, 2]]
 
-        # 记录改之前的 id，仅做日志
-        original_id = id(tensor)
-
         # 原地调用
-        result = relu(tensor, inplace=True)
+        relu(tensor, inplace=True)
 
         # 不再强制要求同一对象，只验证数据被改掉
         expected = [[0, 0, 0], [0.5, 1, 2]]

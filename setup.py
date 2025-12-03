@@ -1,8 +1,8 @@
 # Please use `pyproject.toml` instead of `setup.py`
 
 from pathlib import Path
-from setuptools import Extension, find_packages, setup
 
+from setuptools import Extension, find_packages, setup
 
 ext = Extension(  # 加载 C 模块
     name="axono._pseudo",

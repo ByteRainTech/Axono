@@ -152,7 +152,7 @@ class BatchNorm2d(Module):
 
         # 标准化
         x_normalized = (x - mean[None, :, None, None]) / (
-            torch.sqrt(var[None, :, None, None] + self.eps)
+            np.sqrt(var[None, :, None, None] + self.eps)
         )
 
         # 缩放和平移
