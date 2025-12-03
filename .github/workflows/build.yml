@@ -68,8 +68,8 @@ jobs:
 
     - name: Build And Install
       run: |
-        echo -e "ynyy" | bash build.sh 2>&1 | tee build_output.log
+        rm -rf build && echo -e "ynyy" | bash build.sh 2>&1 | tee build_output.log
 
     - name: Run Unittest
-      run: | 
+      run: |
         cd python/tests/ && python run.py

@@ -1,6 +1,4 @@
 // Axono/src/core/cpu/tensor/kernel.cpp
-#pragma once
-
 #include "axono/core/cpu/tensor/kernel.h"
 
 #include "axono/core/macros.h"

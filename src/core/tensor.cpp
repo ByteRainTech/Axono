@@ -43,14 +43,45 @@ Tensor::Tensor(DataType dtype, const Shape &shape, void *data)
 }
 
 Tensor::Tensor(const Tensor &other)
-    : dtype_(other.dtype_), shape_(other.shape_),
-      num_elements_(other.num_elements_) {
-  if (other.data_) {
-    InitializeStorage();
-    std::memcpy(data_.get(), other.data_.get(), num_bytes());
-  }
+    : dtype_(other.dtype_), 
+      shape_(other.shape_),
+      num_elements_(other.num_elements_),
+      device_(other.device_) {  // 必须复制device_！
+    
+    if (other.data_) {
+        // 根据设备类型初始化存储
+        if (device_ == other.device_) {
+            // 相同设备，分配内存并拷贝
+            InitializeStorage();
+            if (device_.substr(0, 4) == "cuda") {
+                // CUDA设备间的拷贝
+#ifdef COMPILED_WITH_CUDA
+                cuda::detail::cuda_memcpy_d2d(data_.get(), other.data_.get(), num_bytes());
+#endif
+            } else {
+                // CPU设备间的拷贝
+                std::memcpy(data_.get(), other.data_.get(), num_bytes());
+            }
+        } else {
+            // 不同设备，需要转换
+            InitializeStorage();
+            if (other.device_.substr(0, 4) == "cuda" && device_.substr(0, 3) == "cpu") {
+#ifdef COMPILED_WITH_CUDA
+                // CUDA -> CPU
+                cuda::detail::cuda_memcpy_d2h(data_.get(), other.data_.get(), num_bytes());
+#endif
+            } else if (other.device_.substr(0, 3) == "cpu" && device_.substr(0, 4) == "cuda") {
+                // CPU -> CUDA
+#ifdef COMPILED_WITH_CUDA
+                cuda::detail::cuda_memcpy_h2d(data_.get(), other.data_.get(), num_bytes());
+#endif
+            } else {
+                // 其他情况
+                throw std::runtime_error("Unsupported device copy");
+            }
+        }
+    }
 }
-
 Tensor &Tensor::operator=(const Tensor &other) {
   if (this != &other) {
     dtype_ = other.dtype_;
@@ -68,10 +99,16 @@ Tensor &Tensor::operator=(const Tensor &other) {
 }
 
 Tensor::Tensor(Tensor &&other) noexcept
-    : dtype_(other.dtype_), shape_(std::move(other.shape_)),
-      num_elements_(other.num_elements_), data_(std::move(other.data_)) {
-  other.num_elements_ = 0;
-  other.shape_.clear();
+    : dtype_(other.dtype_), 
+      shape_(std::move(other.shape_)),
+      num_elements_(other.num_elements_),
+      device_(std::move(other.device_)),  // 必须移动device_！
+      data_(std::move(other.data_)) {
+    
+    other.dtype_ = DataType::FLOAT32;
+    other.shape_.clear();
+    other.num_elements_ = 0;
+    other.device_ = "cpu";
 }
 
 Tensor &Tensor::operator=(Tensor &&other) noexcept {
@@ -99,6 +136,42 @@ Tensor Tensor::CreateLike(const Tensor &other) {
 
 Tensor Tensor::FromData(DataType dtype, const Shape &shape, void *data) {
   return Tensor(dtype, shape, data);
+}
+
+Tensor Tensor::to(const std::string& target_device) const {
+    
+    if (device_ == target_device) {
+        Tensor copy(*this);
+        return copy;
+    }
+
+    Tensor result(dtype_, shape_, target_device);
+    
+    // 执行内存拷贝
+    if (is_cuda() && target_device.substr(0, 3) == "cpu") {
+#ifdef COMPILED_WITH_CUDA
+        cuda::detail::cuda_memcpy_d2h(result.data<void*>(), data<void*>(), num_bytes());
+#endif
+    } else if (!is_cuda() && target_device.substr(0, 4) == "cuda") {
+#ifdef COMPILED_WITH_CUDA
+        cuda::detail::cuda_memcpy_h2d(result.data<void*>(), data<void*>(), num_bytes());
+#endif
+    } else if (target_device.substr(0, 4) == "cuda") {
+#ifdef COMPILED_WITH_CUDA
+        cuda::detail::cuda_memcpy_d2d(result.data<void*>(), data<void*>(), num_bytes());
+#endif
+    } else {
+        std::memcpy(result.data<void*>(), data<void*>(), num_bytes());
+    }
+    
+    return result;
+}
+
+Status Tensor::to_(const std::string& target_device) {
+    // 原地迁移：通过to()创建新张量后交换内部数据
+    Tensor temp = to(target_device);
+    std::swap(*this, temp);
+    return Status::OK;
 }
 
 void Tensor::InitializeStorage() {
