@@ -1,6 +1,8 @@
-import axono
+from typing import Dict
+
 import numpy as np
-from typing import List, Dict
+
+import axono
 
 
 def tokenize_text(text: str, vocab: Dict[str, int], max_len: int) -> np.ndarray:

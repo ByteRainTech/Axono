@@ -1,6 +1,7 @@
-import axono
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+
+import axono
 
 
 def create_sequences(data, seq_length):

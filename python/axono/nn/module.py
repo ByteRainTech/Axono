@@ -10,9 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Optional
-
-import numpy as np
+from typing import List
 
 from ..core import Tensor
 

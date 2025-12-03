@@ -9,9 +9,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Dict, List, Optional, Union, Tuple
-import numpy as np
+from typing import Dict, List, Tuple
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 from ..core import Tensor
 from ..nn import Module
 

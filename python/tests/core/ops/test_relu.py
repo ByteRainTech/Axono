@@ -1,14 +1,14 @@
 # test_relu.py
-import unittest
 import os
 import sys
+import unittest
 
 _project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 )
 sys.path.insert(0, _project_root)
 
-from axono.core import Tensor, DataType
+from axono.core import DataType, Tensor
 from axono.core.ops import relu
 
 

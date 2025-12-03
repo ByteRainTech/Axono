@@ -1,6 +1,7 @@
 """
 C 扩展模块配置
 """
+
 from setuptools import Extension
 
 ext = Extension(

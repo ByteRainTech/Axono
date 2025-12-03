@@ -17,7 +17,6 @@ import ctypes
 import os
 
 import numpy as np
-
 from axonolib import DataType, Status
 from axonolib import Tensor as _Tensor
 
