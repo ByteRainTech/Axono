@@ -16,13 +16,11 @@ def load_requirements(file_name: str):
         pkg_name.strip()  # 去掉两端的空格
         for pkg_name in (
             # 读取文件内容，按行分割
-            Path(file_name)
-            .read_text(encoding="utf8")
-            .splitlines()
+            Path(file_name).read_text(encoding="utf8").splitlines()
         )
         if (
-            pkg_name.strip() and  # 处理空行
-            not pkg_name.startswith("#")  # 处理注释行
+            pkg_name.strip()  # 处理空行
+            and not pkg_name.startswith("#")  # 处理注释行
         )
     ]
 
