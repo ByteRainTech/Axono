@@ -46,6 +46,9 @@ class Tensor:
             self._tensor = _Tensor(dtype, shape, device=default_device)
         else:
             self._tensor = _Tensor(dtype, shape, device=device)
+    
+    def is_cuda(self):
+        return self._tensor.is_cuda
 
     @classmethod
     def create(cls, dtype: DataType, shape: list[int]) -> "Tensor":
@@ -64,6 +67,9 @@ class Tensor:
         obj = cls.__new__(cls)
         obj._tensor = raw_tensor
         return obj
+
+    def to(self, device):
+        return self.from_raw(self._tensor.to(device))
 
     @classmethod
     def from_numpy(cls, array: np.ndarray) -> "Tensor":
@@ -107,7 +113,8 @@ class Tensor:
 
         # Copy the numpy array data into the tensor's data
         tensor_data[:] = array
-
+        if "cuda" in os.getenv("axono_default_device", "cpu"):
+            tensor_obj = tensor_obj.to(os.getenv("axono_default_device", "cpu"))
         return tensor_obj
 
     def __matmul__(self, other) -> "Tensor":
