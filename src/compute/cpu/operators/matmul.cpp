@@ -93,18 +93,22 @@ extern "C" void sgemm_kernel_16x6(const float *A, const float *B, float *C,
   c##row = _mm256_fmadd_ps(va, vb4, c##row); \
   c##row = _mm256_fmadd_ps(va, vb5, c##row);
 
+    // clang-format off
     COMPUTE_ROW(0)
     COMPUTE_ROW(1)
     COMPUTE_ROW(2)
     COMPUTE_ROW(3)
     COMPUTE_ROW(4)
     COMPUTE_ROW(5)
-    COMPUTE_ROW(6) COMPUTE_ROW(7) COMPUTE_ROW(8) COMPUTE_ROW(9) COMPUTE_ROW(10)
-        COMPUTE_ROW(11) COMPUTE_ROW(12) COMPUTE_ROW(13) COMPUTE_ROW(14)
-            COMPUTE_ROW(15)
+    COMPUTE_ROW(6)
+    COMPUTE_ROW(7)
+    COMPUTE_ROW(8)
+    COMPUTE_ROW(9) COMPUTE_ROW(10) COMPUTE_ROW(11) COMPUTE_ROW(12)
+        COMPUTE_ROW(13) COMPUTE_ROW(14) COMPUTE_ROW(15)
+  //clang-format on
 #undef COMPUTE_ROW
 
-                A += 1;  // A 下一列
+            A += 1;  // A 下一列
   }
 
   /* 把 16×6 结果写回 C，带 alpha/beta scaling */
