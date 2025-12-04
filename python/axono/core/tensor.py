@@ -17,7 +17,6 @@ import ctypes
 import os
 
 import numpy as np
-
 from axonolib import DataType, Status
 from axonolib import Tensor as _Tensor
 
@@ -46,7 +45,7 @@ class Tensor:
             self._tensor = _Tensor(dtype, shape, device=default_device)
         else:
             self._tensor = _Tensor(dtype, shape, device=device)
-    
+
     def is_cuda(self):
         return self._tensor.is_cuda
 

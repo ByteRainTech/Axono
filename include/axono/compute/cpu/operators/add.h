@@ -1,9 +1,10 @@
 #pragma once
 
-#include "axono/core/macros.h"
-#include "axono/core/tensor.h"
 #include <cstddef>
 #include <cstring>
+
+#include "axono/core/macros.h"
+#include "axono/core/tensor.h"
 
 namespace axono {
 namespace compute {
@@ -16,7 +17,7 @@ AXONO_FORCE_INLINE void AddBroadcastKernel(const T *a, const T *b, T *out,
                                            size_t M, size_t K) {
   for (size_t m = 0; m < M; ++m) {
     for (size_t k = 0; k < K; ++k) {
-      out[m * K + k] = a[m * K + k] + b[k]; // b 被广播
+      out[m * K + k] = a[m * K + k] + b[k];  // b 被广播
     }
   }
 }
@@ -55,22 +56,23 @@ AXONO_FORCE_INLINE core::Status DispatchAdd(const core::Tensor &a,
   if (a.IsSameShape(b) && a.IsSameShape(result)) {
     const size_t num = a.num_elements();
     switch (a.dtype()) {
-    case core::DataType::FLOAT32:
-      AddKernel(a.data<float>(), b.data<float>(), result.data<float>(), num);
-      return core::Status::OK;
-    case core::DataType::FLOAT64:
-      AddKernel(a.data<double>(), b.data<double>(), result.data<double>(), num);
-      return core::Status::OK;
-    case core::DataType::INT32:
-      AddKernel(a.data<int32_t>(), b.data<int32_t>(), result.data<int32_t>(),
-                num);
-      return core::Status::OK;
-    case core::DataType::INT64:
-      AddKernel(a.data<int64_t>(), b.data<int64_t>(), result.data<int64_t>(),
-                num);
-      return core::Status::OK;
-    default:
-      return core::Status::UNSUPPORTED_TYPE;
+      case core::DataType::FLOAT32:
+        AddKernel(a.data<float>(), b.data<float>(), result.data<float>(), num);
+        return core::Status::OK;
+      case core::DataType::FLOAT64:
+        AddKernel(a.data<double>(), b.data<double>(), result.data<double>(),
+                  num);
+        return core::Status::OK;
+      case core::DataType::INT32:
+        AddKernel(a.data<int32_t>(), b.data<int32_t>(), result.data<int32_t>(),
+                  num);
+        return core::Status::OK;
+      case core::DataType::INT64:
+        AddKernel(a.data<int64_t>(), b.data<int64_t>(), result.data<int64_t>(),
+                  num);
+        return core::Status::OK;
+      default:
+        return core::Status::UNSUPPORTED_TYPE;
     }
   }
 
@@ -80,24 +82,24 @@ AXONO_FORCE_INLINE core::Status DispatchAdd(const core::Tensor &a,
     const size_t M = a_shape[0];
     const size_t K = a_shape[1];
     switch (a.dtype()) {
-    case core::DataType::FLOAT32:
-      AddBroadcastKernel(a.data<float>(), b.data<float>(), result.data<float>(),
-                         M, K);
-      return core::Status::OK;
-    case core::DataType::FLOAT64:
-      AddBroadcastKernel(a.data<double>(), b.data<double>(),
-                         result.data<double>(), M, K);
-      return core::Status::OK;
-    case core::DataType::INT32:
-      AddBroadcastKernel(a.data<int32_t>(), b.data<int32_t>(),
-                         result.data<int32_t>(), M, K);
-      return core::Status::OK;
-    case core::DataType::INT64:
-      AddBroadcastKernel(a.data<int64_t>(), b.data<int64_t>(),
-                         result.data<int64_t>(), M, K);
-      return core::Status::OK;
-    default:
-      return core::Status::UNSUPPORTED_TYPE;
+      case core::DataType::FLOAT32:
+        AddBroadcastKernel(a.data<float>(), b.data<float>(),
+                           result.data<float>(), M, K);
+        return core::Status::OK;
+      case core::DataType::FLOAT64:
+        AddBroadcastKernel(a.data<double>(), b.data<double>(),
+                           result.data<double>(), M, K);
+        return core::Status::OK;
+      case core::DataType::INT32:
+        AddBroadcastKernel(a.data<int32_t>(), b.data<int32_t>(),
+                           result.data<int32_t>(), M, K);
+        return core::Status::OK;
+      case core::DataType::INT64:
+        AddBroadcastKernel(a.data<int64_t>(), b.data<int64_t>(),
+                           result.data<int64_t>(), M, K);
+        return core::Status::OK;
+      default:
+        return core::Status::UNSUPPORTED_TYPE;
     }
   }
 
@@ -123,41 +125,41 @@ AXONO_FORCE_INLINE core::Status DispatchAddScalar(const core::Tensor &a,
 
   // 根据数据类型选择内核
   switch (a.dtype()) {
-  case core::DataType::FLOAT32: {
-    float scalar_value = 0.0f;
-    if (scalar_size >= sizeof(float)) {
-      memcpy(&scalar_value, scalar, sizeof(float));
+    case core::DataType::FLOAT32: {
+      float scalar_value = 0.0f;
+      if (scalar_size >= sizeof(float)) {
+        memcpy(&scalar_value, scalar, sizeof(float));
+      }
+      AddScalarKernel(a.data<float>(), scalar_value, result.data<float>(),
+                      num_elements);
+      break;
     }
-    AddScalarKernel(a.data<float>(), scalar_value, result.data<float>(),
-                    num_elements);
-    break;
-  }
-  case core::DataType::FLOAT64: {
-    double scalar_value = 0.0;
-    if (scalar_size >= sizeof(double)) {
-      memcpy(&scalar_value, scalar, sizeof(double));
+    case core::DataType::FLOAT64: {
+      double scalar_value = 0.0;
+      if (scalar_size >= sizeof(double)) {
+        memcpy(&scalar_value, scalar, sizeof(double));
+      }
+      AddScalarKernel(a.data<double>(), scalar_value, result.data<double>(),
+                      num_elements);
+      break;
     }
-    AddScalarKernel(a.data<double>(), scalar_value, result.data<double>(),
-                    num_elements);
-    break;
-  }
-  case core::DataType::INT32: {
-    int32_t scalar_value = 0;
-    if (scalar_size >= sizeof(int32_t)) {
-      memcpy(&scalar_value, scalar, sizeof(int32_t));
+    case core::DataType::INT32: {
+      int32_t scalar_value = 0;
+      if (scalar_size >= sizeof(int32_t)) {
+        memcpy(&scalar_value, scalar, sizeof(int32_t));
+      }
+      AddScalarKernel(a.data<int32_t>(), scalar_value, result.data<int32_t>(),
+                      num_elements);
+      break;
     }
-    AddScalarKernel(a.data<int32_t>(), scalar_value, result.data<int32_t>(),
-                    num_elements);
-    break;
-  }
-  default:
-    return core::Status::UNSUPPORTED_TYPE;
+    default:
+      return core::Status::UNSUPPORTED_TYPE;
   }
 
   return core::Status::OK;
 }
 
-} // namespace operators
-} // namespace cpu
-} // namespace compute
-} // namespace axono
+}  // namespace operators
+}  // namespace cpu
+}  // namespace compute
+}  // namespace axono

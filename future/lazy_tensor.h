@@ -1,22 +1,23 @@
 #pragma once
 
-#include "axono/core/tensor.h"
 #include <functional>
 #include <memory>
 #include <vector>
+
+#include "axono/core/tensor.h"
 
 namespace axono {
 namespace core {
 
 class LazyOp {
-public:
+ public:
   virtual ~LazyOp() = default;
   virtual void execute() = 0;
   virtual bool can_fuse() const = 0;
 };
 
 class LazyTensor {
-public:
+ public:
   LazyTensor(const Tensor &tensor);
 
   void add_op(std::shared_ptr<LazyOp> op);
@@ -26,7 +27,7 @@ public:
   Tensor &get_tensor() { return tensor_; }
   const Tensor &get_tensor() const { return tensor_; }
 
-private:
+ private:
   Tensor tensor_;
   std::vector<std::shared_ptr<LazyOp>> pending_ops_;
   bool needs_eval_ = false;
@@ -34,32 +35,32 @@ private:
 
 // 基本算子的Lazy实现
 class LazyAdd : public LazyOp {
-public:
+ public:
   LazyAdd(LazyTensor &a, LazyTensor &b, LazyTensor &out)
       : a_(a), b_(b), out_(out) {}
 
   void execute() override;
   bool can_fuse() const override { return true; }
 
-private:
+ private:
   LazyTensor &a_;
   LazyTensor &b_;
   LazyTensor &out_;
 };
 
 class LazyMatMul : public LazyOp {
-public:
+ public:
   LazyMatMul(LazyTensor &a, LazyTensor &b, LazyTensor &out)
       : a_(a), b_(b), out_(out) {}
 
   void execute() override;
   bool can_fuse() const override { return false; }
 
-private:
+ private:
   LazyTensor &a_;
   LazyTensor &b_;
   LazyTensor &out_;
 };
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

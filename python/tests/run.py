@@ -17,20 +17,17 @@ import unittest
 sys.path.append("../")
 sys.path.append("../../")
 
-welcome = (
-    """                                                                            
-       db         8b        d8  ,ad8888ba,    888b      88    ,ad8888ba,    
-      d88b         Y8,    ,8P  d8"'    `"8b   8888b     88   d8"'    `"8b   
-     d8'`8b         `8b  d8'  d8'        `8b  88 `8b    88  d8'        `8b  
-    d8'  `8b          Y88P    88          88  88  `8b   88  88          88  
-   d8YaaaaY8b         d88b    88          88  88   `8b  88  88          88  
-  d8"""
-    """""8b      ,8P  Y8,  Y8,        ,8P  88    `8b 88  Y8,        ,8P  
- d8'        `8b    d8'    `8b  Y8a.    .a8P   88     `8888   Y8a.    .a8P   
-d8'          `8b  8P        Y8  `"Y8888Y"'    88      `888    `"Y8888Y"'    
-                                                                            
-                                                                            """
-)
+welcome = """
+       db         8b        d8  ,ad8888ba,    888b      88    ,ad8888ba,
+      d88b         Y8,    ,8P  d8"'    `"8b   8888b     88   d8"'    `"8b
+     d8'`8b         `8b  d8'  d8'        `8b  88 `8b    88  d8'        `8b
+    d8'  `8b          Y88P    88          88  88  `8b   88  88          88
+   d8YaaaaY8b         d88b    88          88  88   `8b  88  88          88
+  d8        8b      ,8P  Y8,  Y8,        ,8P  88    `8b 88  Y8,        ,8P
+ d8'        `8b    d8'    `8b  Y8a.    .a8P   88     `8888   Y8a.    .a8P
+d8'          `8b  8P        Y8  `"Y8888Y"'    88      `888    `"Y8888Y"'
+
+"""
 print(welcome)
 print("为您运行 单元测试。")
 print("正发生")

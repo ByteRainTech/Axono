@@ -9,7 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import List, Tuple, Union, Optional
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -152,7 +152,7 @@ class BatchNorm2d(Module):
 
         # 标准化
         x_normalized = (x - mean[None, :, None, None]) / (
-            torch.sqrt(var[None, :, None, None] + self.eps)
+            np.sqrt(var[None, :, None, None] + self.eps)
         )
 
         # 缩放和平移

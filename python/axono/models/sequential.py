@@ -9,10 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Tuple, List
+from typing import List, Tuple
 
 from ..core import Tensor
-from ..nn import Module, Conv2d, Linear, ReLU, MaxPool2d, BatchNorm2d, Dropout
+from ..nn import BatchNorm2d, Conv2d, Dropout, Linear, MaxPool2d, Module, ReLU
 from .container import Sequential
 
 

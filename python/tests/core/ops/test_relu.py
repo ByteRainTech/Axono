@@ -10,22 +10,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # test_relu.py
-import unittest
 import os
 import sys
+import unittest
+
+from axono.core import DataType, Tensor
+from axono.core.ops import relu
 
 _project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 )
 sys.path.insert(0, _project_root)
 
-from axono.core import Tensor, DataType
-from axono.core.ops import relu
-
 device = os.getenv("axono_default_device", "cpu")
+
 
 class TestRelu(unittest.TestCase):
     """ReLU 算子的单元测试"""
+
     def test_relu_basic(self):
         """基础 ReLU：负值变 0，正值不变"""
         input_tensor = Tensor(dtype=DataType.FLOAT32, shape=[1, 6], device="cpu")
@@ -53,10 +55,10 @@ class TestRelu(unittest.TestCase):
             tensor = tensor.to(device)
 
         # 记录改之前的 id，仅做日志
-        original_id = id(tensor)
+        id(tensor)
 
         # 原地调用
-        result = relu(tensor, inplace=True)
+        relu(tensor, inplace=True)
 
         if "cuda" in device:
             tensor_data = tensor._tensor.data_float32()

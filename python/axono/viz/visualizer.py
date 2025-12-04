@@ -9,9 +9,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Dict, List, Optional, Union, Tuple
-import numpy as np
+from typing import Dict, List, Tuple
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 from ..core import Tensor
 from ..nn import Module
 
@@ -45,14 +47,14 @@ class ModelVisualizer:
         """Plot model architecture"""
         import networkx as nx
 
-        G = nx.DiGraph()
+        graph = nx.DiGraph()
         pos = {}
         labels = {}
 
         # Add nodes and edges
         y_offset = 0
         for name, info in self.graph.items():
-            G.add_node(name)
+            graph.add_node(name)
             pos[name] = (len(name.split(".")), y_offset)
             labels[name] = f"{info['type']}\n{name}"
             y_offset += 1
@@ -60,11 +62,11 @@ class ModelVisualizer:
             # Add edges between parent and child modules
             parent = ".".join(name.split(".")[:-1])
             if parent in self.graph:
-                G.add_edge(parent, name)
+                graph.add_edge(parent, name)
 
         plt.figure(figsize=figsize)
         nx.draw(
-            G,
+            graph,
             pos,
             labels=labels,
             with_labels=True,

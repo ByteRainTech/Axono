@@ -1,15 +1,16 @@
-import axono
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+
+import axono
 
 
 def create_sequences(data, seq_length):
     """创建时序序列"""
-    X, y = [], []
+    x, y = [], []
     for i in range(len(data) - seq_length):
-        X.append(data[i : (i + seq_length)])
+        x.append(data[i : (i + seq_length)])
         y.append(data[i + seq_length])
-    return np.array(X), np.array(y)
+    return np.array(x), np.array(y)
 
 
 def main():
@@ -24,24 +25,24 @@ def main():
 
     # 创建序列数据
     seq_length = 10
-    X, y = create_sequences(scaled_data, seq_length)
+    x, y = create_sequences(scaled_data, seq_length)
 
     # 创建数据集和加载器
     class TimeSeriesDataset(axono.data.Dataset):
-        def __init__(self, X, y):
-            self.X = X
+        def __init__(self, x, y):
+            self.x = x
             self.y = y
 
         def __getitem__(self, index):
             return {
-                "inputs": axono.core.Tensor.from_numpy(self.X[index]),
+                "inputs": axono.core.Tensor.from_numpy(self.x[index]),
                 "targets": axono.core.Tensor.from_numpy(self.y[index]),
             }
 
         def __len__(self):
-            return len(self.X)
+            return len(self.x)
 
-    dataset = TimeSeriesDataset(X, y)
+    dataset = TimeSeriesDataset(x, y)
     data_loader = axono.data.DataLoader(dataset, batch_size=32, shuffle=True)
 
     # 创建LSTM模型
@@ -71,7 +72,7 @@ def main():
     model.eval()
     with axono.no_grad():
         # 获取最后一个序列作为输入
-        last_seq = X[-1:]
+        last_seq = x[-1:]
         last_seq_tensor = axono.core.Tensor.from_numpy(last_seq).to("cuda:0")
 
         # 预测下一个值

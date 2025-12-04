@@ -9,10 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Optional, List
+from typing import Optional
 
 from ..core import Tensor
-from ..nn import Module, Linear, LayerNorm, Dropout
+from ..nn import Dropout, LayerNorm, Linear, Module
 from .container import Sequential
 
 

@@ -1,9 +1,10 @@
 // Axono/src/core/cuda/detail.cuh
 #pragma once
 
-#include "axono/core/tensor.h"
 #include <memory>
 #include <string>
+
+#include "axono/core/tensor.h"
 
 namespace axono {
 namespace core {
@@ -27,7 +28,7 @@ std::shared_ptr<void> make_shared_cuda_memory(size_t bytes);
 
 std::shared_ptr<void> deep_copy_cuda_memory(const void *src, size_t bytes);
 
-} // namespace detail
-} // namespace cuda
-} // namespace core
-} // namespace axono
+}  // namespace detail
+}  // namespace cuda
+}  // namespace core
+}  // namespace axono

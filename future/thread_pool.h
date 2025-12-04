@@ -12,14 +12,15 @@ namespace axono {
 namespace core {
 
 class ThreadPool {
-public:
+ public:
   static ThreadPool &getInstance() {
     static ThreadPool instance;
     return instance;
   }
 
   // 提交任务到线程池
-  template <typename F, typename... Args> auto submit(F &&f, Args &&...args);
+  template <typename F, typename... Args>
+  auto submit(F &&f, Args &&...args);
 
   // 等待所有任务完成
   void wait_all();
@@ -30,7 +31,7 @@ public:
   // 获取线程池大小
   size_t size() const { return threads_.size(); }
 
-private:
+ private:
   ThreadPool(size_t num_threads = std::thread::hardware_concurrency());
   ~ThreadPool();
 
@@ -107,5 +108,5 @@ void parallel_for(Index start, Index end, Index step, Func &&f) {
   }
 }
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

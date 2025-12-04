@@ -1,7 +1,8 @@
-import axono
-from datasets import load_dataset
 import numpy as np
+from datasets import load_dataset
 from tqdm import tqdm
+
+import axono
 
 
 def main():

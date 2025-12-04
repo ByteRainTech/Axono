@@ -20,22 +20,22 @@ enum class DataType { INT8, INT16, INT32, INT64, FLOAT32, FLOAT64, BOOLEAN };
 // 获取数据类型大小
 inline size_t GetDataTypeSize(DataType dtype) {
   switch (dtype) {
-  case DataType::INT8:
-    return 1;
-  case DataType::INT16:
-    return 2;
-  case DataType::INT32:
-    return 4;
-  case DataType::INT64:
-    return 8;
-  case DataType::FLOAT32:
-    return 4;
-  case DataType::FLOAT64:
-    return 8;
-  case DataType::BOOLEAN:
-    return 1;
-  default:
-    return 0;
+    case DataType::INT8:
+      return 1;
+    case DataType::INT16:
+      return 2;
+    case DataType::INT32:
+      return 4;
+    case DataType::INT64:
+      return 8;
+    case DataType::FLOAT32:
+      return 4;
+    case DataType::FLOAT64:
+      return 8;
+    case DataType::BOOLEAN:
+      return 1;
+    default:
+      return 0;
   }
 }
 
@@ -62,8 +62,7 @@ using Shape = std::vector<size_t>;
 
 // 计算总元素数量
 inline size_t CalculateNumElements(const Shape &shape) {
-  if (shape.empty())
-    return 0;
+  if (shape.empty()) return 0;
   size_t num_elements = 1;
   for (auto dim : shape) {
     num_elements *= dim;
@@ -71,5 +70,5 @@ inline size_t CalculateNumElements(const Shape &shape) {
   return num_elements;
 }
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

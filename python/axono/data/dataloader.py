@@ -9,9 +9,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional
+
 import numpy as np
 from PIL import Image
+
 from ..core import Tensor
 
 
@@ -112,7 +114,7 @@ class ImageFolder(Dataset):
 
     def _is_image_file(self, filename: str) -> bool:
         """Check if a file is an image"""
-        IMG_EXTENSIONS = (
+        img_extensions = (
             ".jpg",
             ".jpeg",
             ".png",
@@ -122,7 +124,7 @@ class ImageFolder(Dataset):
             ".tif",
             ".tiff",
         )
-        return filename.lower().endswith(IMG_EXTENSIONS)
+        return filename.lower().endswith(img_extensions)
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
         """

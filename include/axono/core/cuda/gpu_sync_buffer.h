@@ -1,23 +1,24 @@
 #ifndef GPU_SYNC_BUFFER_H
 #define GPU_SYNC_BUFFER_H
 
-#include "axono/core/tensor.h"
 #include <memory>
 #include <vector>
+
+#include "axono/core/tensor.h"
 
 namespace pybind11 {
 class array;
 class capsule;
-} // namespace pybind11
+}  // namespace pybind11
 
 class GPUSyncBuffer {
-private:
+ private:
   float *host_data_;
   axono::core::Tensor gpu_tensor_;
   bool modified_;
   size_t num_elems_;
 
-public:
+ public:
   // 构造函数：初始化并同步数据从GPU到CPU
   GPUSyncBuffer(const axono::core::Tensor &tensor);
 
@@ -59,4 +60,4 @@ public:
 // Attention：这里只声明，实现在.cu文件中
 pybind11::array tensor_to_sync_numpy(const axono::core::Tensor &tensor);
 
-#endif // GPU_SYNC_BUFFER_H
+#endif  // GPU_SYNC_BUFFER_H

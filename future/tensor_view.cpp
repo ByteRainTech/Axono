@@ -1,4 +1,5 @@
 #include "axono/core/tensor_view.h"
+
 #include <numeric>
 #include <stdexcept>
 
@@ -50,7 +51,8 @@ int TensorView::size() const {
                          std::multiplies<int>());
 }
 
-template <typename T> T &TensorView::at(const std::vector<int> &indices) {
+template <typename T>
+T &TensorView::at(const std::vector<int> &indices) {
   validate_indices(indices);
   int offset = calculate_offset(indices);
   return tensor_.data<T>()[offset];
@@ -70,23 +72,23 @@ void TensorView::copy_to(Tensor &dest) const {
 
   // 根据数据类型选择适当的拷贝方式
   switch (tensor_.dtype()) {
-  case DataType::FLOAT32: {
-    float *src_data = tensor_.data<float>();
-    float *dst_data = dest.data<float>();
-    for (int i = 0; i < size(); ++i) {
-      std::vector<int> indices(shape_.size());
-      int temp = i;
-      for (int j = shape_.size() - 1; j >= 0; --j) {
-        indices[j] = temp % shape_[j];
-        temp /= shape_[j];
+    case DataType::FLOAT32: {
+      float *src_data = tensor_.data<float>();
+      float *dst_data = dest.data<float>();
+      for (int i = 0; i < size(); ++i) {
+        std::vector<int> indices(shape_.size());
+        int temp = i;
+        for (int j = shape_.size() - 1; j >= 0; --j) {
+          indices[j] = temp % shape_[j];
+          temp /= shape_[j];
+        }
+        dst_data[i] = at<float>(indices);
       }
-      dst_data[i] = at<float>(indices);
+      break;
     }
-    break;
-  }
-  // 添加其他数据类型的支持...
-  default:
-    throw std::runtime_error("Unsupported data type");
+    // 添加其他数据类型的支持...
+    default:
+      throw std::runtime_error("Unsupported data type");
   }
 }
 
@@ -128,5 +130,5 @@ TensorView create_reshape_view(Tensor &tensor, const std::vector<int> &shape) {
   return TensorView(tensor, shape);
 }
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

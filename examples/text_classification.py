@@ -1,6 +1,8 @@
-import axono
+from typing import Dict
+
 import numpy as np
-from typing import List, Dict
+
+import axono
 
 
 def tokenize_text(text: str, vocab: Dict[str, int], max_len: int) -> np.ndarray:
@@ -37,35 +39,35 @@ def main():
     # 生成示例数据
     num_samples = 1000
     max_len = 50
-    X = []
+    x = []
     y = []
 
     for _ in range(num_samples):
         category = np.random.choice(len(categories))
         # 生成随机文本
         text = f"this is {categories[category]} news " * 5
-        X.append(tokenize_text(text, vocab, max_len))
+        x.append(tokenize_text(text, vocab, max_len))
         y.append(category)
 
-    X = np.array(X)
+    x = np.array(x)
     y = np.array(y)
 
     # 创建数据集
     class TextDataset(axono.data.Dataset):
-        def __init__(self, X, y):
-            self.X = X
+        def __init__(self, x, y):
+            self.x = x
             self.y = y
 
         def __getitem__(self, index):
             return {
-                "inputs": axono.core.Tensor.from_numpy(self.X[index]),
+                "inputs": axono.core.Tensor.from_numpy(self.x[index]),
                 "targets": axono.core.Tensor.from_numpy(np.array(self.y[index])),
             }
 
         def __len__(self):
-            return len(self.X)
+            return len(self.x)
 
-    dataset = TextDataset(X, y)
+    dataset = TextDataset(x, y)
     data_loader = axono.data.DataLoader(dataset, batch_size=16, shuffle=True)
 
     # 创建Transformer模型

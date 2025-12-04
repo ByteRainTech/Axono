@@ -1,14 +1,15 @@
 #pragma once
 
-#include "axono/core/tensor.h"
 #include <memory>
 #include <vector>
+
+#include "axono/core/tensor.h"
 
 namespace axono {
 namespace core {
 
 class TensorView {
-public:
+ public:
   TensorView(Tensor &tensor, const std::vector<int> &shape);
   TensorView(Tensor &tensor, const std::vector<int> &shape,
              const std::vector<int> &strides);
@@ -18,9 +19,15 @@ public:
   void copy_from(const Tensor &src);
 
   // 访问原始数据
-  template <typename T> T *data() { return tensor_.data<T>(); }
+  template <typename T>
+  T *data() {
+    return tensor_.data<T>();
+  }
 
-  template <typename T> const T *data() const { return tensor_.data<T>(); }
+  template <typename T>
+  const T *data() const {
+    return tensor_.data<T>();
+  }
 
   // 属性访问
   const std::vector<int> &shape() const { return shape_; }
@@ -29,11 +36,13 @@ public:
   int size() const;
 
   // 索引操作
-  template <typename T> T &at(const std::vector<int> &indices);
+  template <typename T>
+  T &at(const std::vector<int> &indices);
 
-  template <typename T> const T &at(const std::vector<int> &indices) const;
+  template <typename T>
+  const T &at(const std::vector<int> &indices) const;
 
-private:
+ private:
   Tensor &tensor_;
   std::vector<int> shape_;
   std::vector<int> strides_;
@@ -52,5 +61,5 @@ TensorView create_transpose_view(Tensor &tensor, int dim0, int dim1);
 // 创建重塑视图
 TensorView create_reshape_view(Tensor &tensor, const std::vector<int> &shape);
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono
