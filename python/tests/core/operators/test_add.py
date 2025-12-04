@@ -24,6 +24,7 @@ from axono.core.operators import add
 
 device = os.getenv("axono_default_device", "cpu")
 
+
 class TestAdd(unittest.TestCase):
     """逐元素加法单元测试"""
 
@@ -38,7 +39,6 @@ class TestAdd(unittest.TestCase):
         actual = result.to_numpy()
 
         self.assertTrue(np.allclose(expected, actual))
-
 
     def test_add_large(self):
         """测试大 tensor 逐元素加法"""

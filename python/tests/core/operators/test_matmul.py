@@ -24,6 +24,7 @@ from axono.core.operators import matmul
 
 device = os.getenv("axono_default_device", "cpu")
 
+
 class TestMatmul(unittest.TestCase):
     """矩阵乘法单元测试"""
 

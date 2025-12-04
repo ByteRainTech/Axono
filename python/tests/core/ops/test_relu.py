@@ -24,8 +24,10 @@ sys.path.insert(0, _project_root)
 
 device = os.getenv("axono_default_device", "cpu")
 
+
 class TestRelu(unittest.TestCase):
     """ReLU 算子的单元测试"""
+
     def test_relu_basic(self):
         """基础 ReLU：负值变 0，正值不变"""
         input_tensor = Tensor(dtype=DataType.FLOAT32, shape=[1, 6], device="cpu")
