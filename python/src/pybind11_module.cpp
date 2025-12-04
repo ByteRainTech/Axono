@@ -14,9 +14,8 @@
 #include "axono/compute/cuda/ops/relu.h"
 #endif
 
-#include "axono/core/cuda/tensor/kernel.h"
-
 #include "axono/core/cuda/gpu_sync_buffer.h"
+#include "axono/core/cuda/tensor/kernel.h"
 #include "axono/core/tensor.h"
 
 namespace py = pybind11;
@@ -71,10 +70,13 @@ void init_tensor(py::module &m) {
       .def_static("create_like", &axono::core::Tensor::CreateLike)
       .def("reshape", &axono::core::Tensor::Reshape)
       .def("resize", &axono::core::Tensor::Resize)
-      .def("to", [](const axono::core::Tensor &self, const std::string &device) {
+      .def(
+          "to",
+          [](const axono::core::Tensor &self, const std::string &device) {
             auto result = self.to(device);
             return result;
-      }, py::arg("device"), py::return_value_policy::move)
+          },
+          py::arg("device"), py::return_value_policy::move)
       .def_property_readonly("is_cuda", &axono::core::Tensor::is_cuda)
       .def("to_", &axono::core::Tensor::to_, py::arg("device"))
       .def("fill_zero", &axono::core::Tensor::FillZero)
@@ -323,7 +325,8 @@ void init_matmul_operations(py::module &m) {
 #ifdef COMPILED_WITH_CUDA
           size_t m = a.shape()[0];
           size_t n = b.shape()[1];
-          auto result = axono::core::Tensor(a.dtype(), std::vector<size_t>{m, n}, a.device());
+          auto result = axono::core::Tensor(
+              a.dtype(), std::vector<size_t>{m, n}, a.device());
           status = axono::compute::cuda::operators::MatMul(ctx, a, b, result);
           return result;
 #endif
@@ -421,7 +424,8 @@ void init_activation_operations(py::module &m) {
         // axono::core::Tensor output = axono::core::Tensor(input.dtype(),
         // input.shape(), input.device());
         // axono::core::Tensor output = axono::core::Tensor::CreateLike(input);
-        axono::core::Tensor output = axono::core::Tensor(input.dtype(), input.shape(), input.device());
+        axono::core::Tensor output =
+            axono::core::Tensor(input.dtype(), input.shape(), input.device());
 
         axono::core::Status status;
         if (input.is_cuda()) {

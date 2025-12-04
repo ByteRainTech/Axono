@@ -13,16 +13,16 @@
 #define AXONO_EXPORT
 #define AXONO_API
 
-#define AXONO_DISALLOW_COPY(ClassName)                                         \
-  ClassName(const ClassName &) = delete;                                       \
+#define AXONO_DISALLOW_COPY(ClassName)   \
+  ClassName(const ClassName &) = delete; \
   ClassName &operator=(const ClassName &) = delete
 
-#define AXONO_DISALLOW_MOVE(ClassName)                                         \
-  ClassName(ClassName &&) = delete;                                            \
+#define AXONO_DISALLOW_MOVE(ClassName) \
+  ClassName(ClassName &&) = delete;    \
   ClassName &operator=(ClassName &&) = delete
 
-#define AXONO_DISALLOW_COPY_AND_MOVE(ClassName)                                \
-  AXONO_DISALLOW_COPY(ClassName);                                              \
+#define AXONO_DISALLOW_COPY_AND_MOVE(ClassName) \
+  AXONO_DISALLOW_COPY(ClassName);               \
   AXONO_DISALLOW_MOVE(ClassName)
 
 #if defined(__CUDACC__) || defined(__NVCC__)

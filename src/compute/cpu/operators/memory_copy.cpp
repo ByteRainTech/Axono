@@ -1,4 +1,5 @@
 #include "axono/compute/cpu/operators/memory_copy.h"
+
 #include "axono/compute/cpu/operators.h"
 #include "axono/core/macros.h"
 
@@ -10,7 +11,7 @@ namespace operators {
 core::Status MemoryCopy(const core::Context &ctx, void *dst, const void *src,
                         size_t num_bytes) {
   // 使用上下文参数避免警告
-  (void)ctx; // 标记为已使用
+  (void)ctx;  // 标记为已使用
 
   // 参数检查
   if (AXONO_UNLIKELY(dst == nullptr || src == nullptr)) {
@@ -44,7 +45,7 @@ core::Status MemorySet(const core::Context &ctx, void *dst, int value,
   return core::Status::UNSUPPORTED_TYPE;
 }
 
-} // namespace operators
-} // namespace cpu
-} // namespace compute
-} // namespace axono
+}  // namespace operators
+}  // namespace cpu
+}  // namespace compute
+}  // namespace axono

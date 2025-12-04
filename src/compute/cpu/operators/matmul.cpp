@@ -1,13 +1,15 @@
 #include "axono/compute/cpu/operators/matmul.h"
-#include "axono/compute/cpu/operators.h"
-#include "axono/core/macros.h"
-#include "axono/core/tensor.h"
+
 #include <cstddef>
 #include <cstring>
 #include <thread>
 #include <vector>
 
-#if defined(__x86_64__) || defined(__i386__) || defined(_M_IX86) ||            \
+#include "axono/compute/cpu/operators.h"
+#include "axono/core/macros.h"
+#include "axono/core/tensor.h"
+
+#if defined(__x86_64__) || defined(__i386__) || defined(_M_IX86) || \
     defined(_M_X64)
 #define AXONO_USE_X86_INTRINSICS 1
 #include <immintrin.h>
@@ -24,11 +26,11 @@ constexpr size_t BLOCK_SIZE_K = 256;
 // 寄存器分块大小
 constexpr size_t REGISTER_BLOCK = 4;
 
-constexpr size_t MR = 8;   // 微内核高
-constexpr size_t NR = 8;   // 微内核宽
-constexpr size_t KC = 256; // 沿 K 方向的 pack 长度
+constexpr size_t MR = 8;    // 微内核高
+constexpr size_t NR = 8;    // 微内核宽
+constexpr size_t KC = 256;  // 沿 K 方向的 pack 长度
 
-alignas(64) static float packA_buf[MR * KC]; // 静态缓冲区
+alignas(64) static float packA_buf[MR * KC];  // 静态缓冲区
 alignas(64) static float packB_buf[NR * KC];
 
 inline void pack_a_block(const float *a, size_t lda, size_t i0, size_t p0,
@@ -79,26 +81,27 @@ extern "C" void sgemm_kernel_16x6(const float *A, const float *B, float *C,
     vb3 = _mm256_set1_ps(B[3]);
     vb4 = _mm256_set1_ps(B[4]);
     vb5 = _mm256_set1_ps(B[5]);
-    B += ldb; // B 下一行
+    B += ldb;  // B 下一行
 
 /* 16 行 × 6 列累加，完全展开 */
-#define COMPUTE_ROW(row)                                                       \
-  va = _mm256_loadu_ps(A + row * lda);                                         \
-  c##row = _mm256_fmadd_ps(va, vb0, c##row);                                   \
-  c##row = _mm256_fmadd_ps(va, vb1, c##row);                                   \
-  c##row = _mm256_fmadd_ps(va, vb2, c##row);                                   \
-  c##row = _mm256_fmadd_ps(va, vb3, c##row);                                   \
-  c##row = _mm256_fmadd_ps(va, vb4, c##row);                                   \
+#define COMPUTE_ROW(row)                     \
+  va = _mm256_loadu_ps(A + row * lda);       \
+  c##row = _mm256_fmadd_ps(va, vb0, c##row); \
+  c##row = _mm256_fmadd_ps(va, vb1, c##row); \
+  c##row = _mm256_fmadd_ps(va, vb2, c##row); \
+  c##row = _mm256_fmadd_ps(va, vb3, c##row); \
+  c##row = _mm256_fmadd_ps(va, vb4, c##row); \
   c##row = _mm256_fmadd_ps(va, vb5, c##row);
 
     COMPUTE_ROW(0)
-    COMPUTE_ROW(1) COMPUTE_ROW(2) COMPUTE_ROW(3) COMPUTE_ROW(4) COMPUTE_ROW(5)
-        COMPUTE_ROW(6) COMPUTE_ROW(7) COMPUTE_ROW(8) COMPUTE_ROW(9)
-            COMPUTE_ROW(10) COMPUTE_ROW(11) COMPUTE_ROW(12) COMPUTE_ROW(13)
-                COMPUTE_ROW(14) COMPUTE_ROW(15)
+    COMPUTE_ROW(1)
+    COMPUTE_ROW(2) COMPUTE_ROW(3) COMPUTE_ROW(4) COMPUTE_ROW(5) COMPUTE_ROW(6)
+        COMPUTE_ROW(7) COMPUTE_ROW(8) COMPUTE_ROW(9) COMPUTE_ROW(10)
+            COMPUTE_ROW(11) COMPUTE_ROW(12) COMPUTE_ROW(13) COMPUTE_ROW(14)
+                COMPUTE_ROW(15)
 #undef COMPUTE_ROW
 
-                    A += 1; // A 下一列
+                    A += 1;  // A 下一列
   }
 
   /* 把 16×6 结果写回 C，带 alpha/beta scaling */
@@ -146,8 +149,8 @@ void MatMulBasicOptimized(const T *a, const T *b, T *result, size_t m, size_t n,
   // 初始化结果为0
   std::fill(result, result + m * n, T(0));
 
-  const size_t lda = k; // A的行主序步长
-  const size_t ldb = n; // B的行主序步长
+  const size_t lda = k;  // A的行主序步长
+  const size_t ldb = n;  // B的行主序步长
 
   for (size_t i = 0; i < m; i += BLOCK_SIZE_M) {
     size_t i_end = std::min(i + BLOCK_SIZE_M, m);
@@ -239,7 +242,7 @@ void MatMulBasicOptimized(const T *a, const T *b, T *result, size_t m, size_t n,
 template <>
 void MatMulBasicOptimized<float>(const float *a, const float *b, float *result,
                                  size_t m, size_t n, size_t k) {
-  constexpr size_t SIMD_WIDTH = 8; // AVX2: 8个float
+  constexpr size_t SIMD_WIDTH = 8;  // AVX2: 8个float
 
   // 初始化结果为0
   std::fill(result, result + m * n, 0.0f);
@@ -368,16 +371,16 @@ void MatMulOptimizedKernel(const T *a, const T *b, T *result, size_t m,
 #endif
 
   // 根据矩阵大小选择不同策略
-  if (m * n * k > 2000000) { // 大矩阵用多线程
+  if (m * n * k > 2000000) {  // 大矩阵用多线程
     MatMulParallelOptimized(a, b, result, m, n, k);
-  } else if (m * n * k > 500000) { // 中等矩阵用优化单线程
+  } else if (m * n * k > 500000) {  // 中等矩阵用优化单线程
     MatMulBasicOptimized(a, b, result, m, n, k);
-  } else { // 小矩阵用基础版本
+  } else {  // 小矩阵用基础版本
     MatMulBasicOptimized(a, b, result, m, n, k);
   }
 }
 
-} // namespace axono::compute::cpu::operators
+}  // namespace axono::compute::cpu::operators
 namespace axono {
 namespace compute {
 namespace cpu {
@@ -385,7 +388,7 @@ namespace operators {
 
 core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
                     const core::Tensor &b, core::Tensor &result) {
-  (void)ctx; // 暂时未使用
+  (void)ctx;  // 暂时未使用
 
   // 基本参数检查
   if (a.ndim() != 2 || b.ndim() != 2) {
@@ -415,8 +418,7 @@ core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
   // 设置结果的数据类型
   if (result.dtype() != a.dtype()) {
     result = core::Tensor(a.dtype(), result_shape);
-    if (!result.data())
-      return core::Status::OUT_OF_MEMORY;
+    if (!result.data()) return core::Status::OUT_OF_MEMORY;
   }
 
   // 获取数据指针
@@ -426,31 +428,32 @@ core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
 
   // 根据数据类型调用优化的矩阵乘法内核
   switch (a.dtype()) {
-  case core::DataType::FLOAT32:
-    MatMulOptimizedKernel<float>(
-        static_cast<const float *>(a_data), static_cast<const float *>(b_data),
-        static_cast<float *>(result_data), a_shape[0], b_shape[1], a_shape[1]);
-    break;
-  case core::DataType::FLOAT64:
-    MatMulOptimizedKernel<double>(static_cast<const double *>(a_data),
-                                  static_cast<const double *>(b_data),
-                                  static_cast<double *>(result_data),
-                                  a_shape[0], b_shape[1], a_shape[1]);
-    break;
-  case core::DataType::INT32:
-    MatMulOptimizedKernel<int32_t>(static_cast<const int32_t *>(a_data),
-                                   static_cast<const int32_t *>(b_data),
-                                   static_cast<int32_t *>(result_data),
+    case core::DataType::FLOAT32:
+      MatMulOptimizedKernel<float>(static_cast<const float *>(a_data),
+                                   static_cast<const float *>(b_data),
+                                   static_cast<float *>(result_data),
                                    a_shape[0], b_shape[1], a_shape[1]);
-    break;
-  default:
-    return core::Status::UNSUPPORTED_TYPE;
+      break;
+    case core::DataType::FLOAT64:
+      MatMulOptimizedKernel<double>(static_cast<const double *>(a_data),
+                                    static_cast<const double *>(b_data),
+                                    static_cast<double *>(result_data),
+                                    a_shape[0], b_shape[1], a_shape[1]);
+      break;
+    case core::DataType::INT32:
+      MatMulOptimizedKernel<int32_t>(static_cast<const int32_t *>(a_data),
+                                     static_cast<const int32_t *>(b_data),
+                                     static_cast<int32_t *>(result_data),
+                                     a_shape[0], b_shape[1], a_shape[1]);
+      break;
+    default:
+      return core::Status::UNSUPPORTED_TYPE;
   }
 
   return core::Status::OK;
 }
 
-} // namespace operators
-} // namespace cpu
-} // namespace compute
-} // namespace axono
+}  // namespace operators
+}  // namespace cpu
+}  // namespace compute
+}  // namespace axono

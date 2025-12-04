@@ -15,7 +15,7 @@
 namespace axono {
 namespace core {
 class Tensor {
-public:
+ public:
   // 构造函数
   Tensor();
   explicit Tensor(DataType dtype);
@@ -47,10 +47,11 @@ public:
   size_t ndim() const { return shape_.size(); }
   size_t num_elements() const { return num_elements_; }
   size_t num_bytes() const { return num_elements_ * GetDataTypeSize(dtype_); }
-  bool is_contiguous() const { return true; } // TODO
+  bool is_contiguous() const { return true; }  // TODO
 
   // 数据访问
-  template <typename T> T *data() {
+  template <typename T>
+  T *data() {
     if (is_cuda()) {
       // 确保返回的是设备指针
       return static_cast<T *>(data_.get());
@@ -58,17 +59,17 @@ public:
     return static_cast<T *>(data_.get());
   }
 
-  template <typename T> const T *data() const {
-    if (is_cuda())
-      return reinterpret_cast<const T *>(data_.get());
+  template <typename T>
+  const T *data() const {
+    if (is_cuda()) return reinterpret_cast<const T *>(data_.get());
     return reinterpret_cast<const T *>(data_.get());
   }
 
   void *raw_data() { return data_.get(); }
   const void *raw_data() const { return data_.get(); }
 
-  Tensor to(const std::string& target_device) const;
-  Status to_(const std::string& target_device);
+  Tensor to(const std::string &target_device) const;
+  Status to_(const std::string &target_device);
 
   // 形状操作
   Status Reshape(const Shape &new_shape);
@@ -85,16 +86,16 @@ public:
   void *data() { return raw_data(); }
   const void *data() const { return raw_data(); }
 
-private:
+ private:
   DataType dtype_ = DataType::FLOAT32;
   Shape shape_;
   std::string device_ =
-      "cpu"; // 设备看这里喵，后续会出一个文档方便你们理解底层运行逻辑~希望越来越多人PR哦~
+      "cpu";  // 设备看这里喵，后续会出一个文档方便你们理解底层运行逻辑~希望越来越多人PR哦~
   size_t num_elements_ = 0;
   std::shared_ptr<void> data_;
 
   // 初始化数据存储
   void InitializeStorage();
 };
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

@@ -14,7 +14,7 @@ AXONO_EXPORT core::Status Relu(const core::Context &ctx,
 
 AXONO_EXPORT core::Status ReluInplace(const core::Context &ctx,
                                       core::Tensor &tensor);
-} // namespace ops
-} // namespace cuda
-} // namespace compute
-} // namespace axono
+}  // namespace ops
+}  // namespace cuda
+}  // namespace compute
+}  // namespace axono

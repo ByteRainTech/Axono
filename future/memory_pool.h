@@ -9,7 +9,7 @@ namespace axono {
 namespace core {
 
 class MemoryPool {
-public:
+ public:
   static MemoryPool &getInstance() {
     static MemoryPool instance;
     return instance;
@@ -19,7 +19,7 @@ public:
   void deallocate(void *ptr);
   void clear();
 
-private:
+ private:
   MemoryPool() = default;
   ~MemoryPool();
 
@@ -36,8 +36,8 @@ private:
   std::unordered_map<void *, size_t> ptr_to_block_;
 
   static constexpr size_t MIN_BLOCK_SIZE = 256;
-  static constexpr size_t MAX_POOL_SIZE = 1024 * 1024 * 1024; // 1GB
+  static constexpr size_t MAX_POOL_SIZE = 1024 * 1024 * 1024;  // 1GB
 };
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

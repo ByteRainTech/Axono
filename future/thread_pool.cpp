@@ -71,5 +71,5 @@ void ThreadPool::worker_thread() {
   }
 }
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

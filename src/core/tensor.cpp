@@ -1,13 +1,13 @@
+#include "axono/core/tensor.h"
+
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
-#include <stdexcept> // std::runtime_error
+#include <stdexcept>  // std::runtime_error
 
 #include "./cuda/detail.h"
-
 #include "axono/core/cpu/tensor/kernel.h"
 #include "axono/core/cuda/tensor/kernel.h"
-#include "axono/core/tensor.h"
 #include "axono/core/types.h"
 
 namespace {
@@ -15,7 +15,7 @@ namespace {
 struct FreeDeleter {
   void operator()(void *ptr) const { std::free(ptr); }
 };
-} // namespace
+}  // namespace
 namespace axono {
 namespace core {
 
@@ -30,7 +30,7 @@ Tensor::Tensor(DataType dtype, const Shape &shape)
 }
 
 Tensor::Tensor(DataType dtype, const Shape &shape,
-               const std::string &device) // 设备在这里喵
+               const std::string &device)  // 设备在这里喵
     : dtype_(dtype), shape_(shape), device_(device) {
   num_elements_ = CalculateNumElements(shape_);
   InitializeStorage();
@@ -43,44 +43,49 @@ Tensor::Tensor(DataType dtype, const Shape &shape, void *data)
 }
 
 Tensor::Tensor(const Tensor &other)
-    : dtype_(other.dtype_), 
+    : dtype_(other.dtype_),
       shape_(other.shape_),
       num_elements_(other.num_elements_),
       device_(other.device_) {  // 必须复制device_！
-    
-    if (other.data_) {
-        // 根据设备类型初始化存储
-        if (device_ == other.device_) {
-            // 相同设备，分配内存并拷贝
-            InitializeStorage();
-            if (device_.substr(0, 4) == "cuda") {
-                // CUDA设备间的拷贝
+
+  if (other.data_) {
+    // 根据设备类型初始化存储
+    if (device_ == other.device_) {
+      // 相同设备，分配内存并拷贝
+      InitializeStorage();
+      if (device_.substr(0, 4) == "cuda") {
+        // CUDA设备间的拷贝
 #ifdef COMPILED_WITH_CUDA
-                cuda::detail::cuda_memcpy_d2d(data_.get(), other.data_.get(), num_bytes());
+        cuda::detail::cuda_memcpy_d2d(data_.get(), other.data_.get(),
+                                      num_bytes());
 #endif
-            } else {
-                // CPU设备间的拷贝
-                std::memcpy(data_.get(), other.data_.get(), num_bytes());
-            }
-        } else {
-            // 不同设备，需要转换
-            InitializeStorage();
-            if (other.device_.substr(0, 4) == "cuda" && device_.substr(0, 3) == "cpu") {
+      } else {
+        // CPU设备间的拷贝
+        std::memcpy(data_.get(), other.data_.get(), num_bytes());
+      }
+    } else {
+      // 不同设备，需要转换
+      InitializeStorage();
+      if (other.device_.substr(0, 4) == "cuda" &&
+          device_.substr(0, 3) == "cpu") {
 #ifdef COMPILED_WITH_CUDA
-                // CUDA -> CPU
-                cuda::detail::cuda_memcpy_d2h(data_.get(), other.data_.get(), num_bytes());
+        // CUDA -> CPU
+        cuda::detail::cuda_memcpy_d2h(data_.get(), other.data_.get(),
+                                      num_bytes());
 #endif
-            } else if (other.device_.substr(0, 3) == "cpu" && device_.substr(0, 4) == "cuda") {
-                // CPU -> CUDA
+      } else if (other.device_.substr(0, 3) == "cpu" &&
+                 device_.substr(0, 4) == "cuda") {
+        // CPU -> CUDA
 #ifdef COMPILED_WITH_CUDA
-                cuda::detail::cuda_memcpy_h2d(data_.get(), other.data_.get(), num_bytes());
+        cuda::detail::cuda_memcpy_h2d(data_.get(), other.data_.get(),
+                                      num_bytes());
 #endif
-            } else {
-                // 其他情况
-                throw std::runtime_error("Unsupported device copy");
-            }
-        }
+      } else {
+        // 其他情况
+        throw std::runtime_error("Unsupported device copy");
+      }
     }
+  }
 }
 Tensor &Tensor::operator=(const Tensor &other) {
   if (this != &other) {
@@ -99,16 +104,15 @@ Tensor &Tensor::operator=(const Tensor &other) {
 }
 
 Tensor::Tensor(Tensor &&other) noexcept
-    : dtype_(other.dtype_), 
+    : dtype_(other.dtype_),
       shape_(std::move(other.shape_)),
       num_elements_(other.num_elements_),
       device_(std::move(other.device_)),  // 必须移动device_！
       data_(std::move(other.data_)) {
-    
-    other.dtype_ = DataType::FLOAT32;
-    other.shape_.clear();
-    other.num_elements_ = 0;
-    other.device_ = "cpu";
+  other.dtype_ = DataType::FLOAT32;
+  other.shape_.clear();
+  other.num_elements_ = 0;
+  other.device_ = "cpu";
 }
 
 Tensor &Tensor::operator=(Tensor &&other) noexcept {
@@ -138,48 +142,48 @@ Tensor Tensor::FromData(DataType dtype, const Shape &shape, void *data) {
   return Tensor(dtype, shape, data);
 }
 
-Tensor Tensor::to(const std::string& target_device) const {
-    
-    if (device_ == target_device) {
-        Tensor copy(*this);
-        return copy;
-    }
+Tensor Tensor::to(const std::string &target_device) const {
+  if (device_ == target_device) {
+    Tensor copy(*this);
+    return copy;
+  }
 
-    Tensor result(dtype_, shape_, target_device);
-    
-    // 执行内存拷贝
-    if (is_cuda() && target_device.substr(0, 3) == "cpu") {
+  Tensor result(dtype_, shape_, target_device);
+
+  // 执行内存拷贝
+  if (is_cuda() && target_device.substr(0, 3) == "cpu") {
 #ifdef COMPILED_WITH_CUDA
-        cuda::detail::cuda_memcpy_d2h(result.data<void*>(), data<void*>(), num_bytes());
+    cuda::detail::cuda_memcpy_d2h(result.data<void *>(), data<void *>(),
+                                  num_bytes());
 #endif
-    } else if (!is_cuda() && target_device.substr(0, 4) == "cuda") {
+  } else if (!is_cuda() && target_device.substr(0, 4) == "cuda") {
 #ifdef COMPILED_WITH_CUDA
-        cuda::detail::cuda_memcpy_h2d(result.data<void*>(), data<void*>(), num_bytes());
+    cuda::detail::cuda_memcpy_h2d(result.data<void *>(), data<void *>(),
+                                  num_bytes());
 #endif
-    } else if (target_device.substr(0, 4) == "cuda") {
+  } else if (target_device.substr(0, 4) == "cuda") {
 #ifdef COMPILED_WITH_CUDA
-        cuda::detail::cuda_memcpy_d2d(result.data<void*>(), data<void*>(), num_bytes());
+    cuda::detail::cuda_memcpy_d2d(result.data<void *>(), data<void *>(),
+                                  num_bytes());
 #endif
-    } else {
-        std::memcpy(result.data<void*>(), data<void*>(), num_bytes());
-    }
-    
-    return result;
+  } else {
+    std::memcpy(result.data<void *>(), data<void *>(), num_bytes());
+  }
+
+  return result;
 }
 
-Status Tensor::to_(const std::string& target_device) {
-    // 原地迁移：通过to()创建新张量后交换内部数据
-    Tensor temp = to(target_device);
-    std::swap(*this, temp);
-    return Status::OK;
+Status Tensor::to_(const std::string &target_device) {
+  // 原地迁移：通过to()创建新张量后交换内部数据
+  Tensor temp = to(target_device);
+  std::swap(*this, temp);
+  return Status::OK;
 }
 
 void Tensor::InitializeStorage() {
-  if (num_elements_ == 0)
-    return;
+  if (num_elements_ == 0) return;
   size_t bytes = num_bytes();
-  if (bytes == 0)
-    return;
+  if (bytes == 0) return;
 
   if (device_.substr(0, 4) == "cuda") {
 #ifdef COMPILED_WITH_CUDA
@@ -217,82 +221,80 @@ Status Tensor::Resize(const Shape &new_shape) {
 }
 
 Status Tensor::FillZero() {
-  if (!data_)
-    return Status::INVALID_ARGUMENT;
+  if (!data_) return Status::INVALID_ARGUMENT;
 
   switch (dtype_) {
-  case DataType::INT8:
-    if (this->is_cuda()) {
+    case DataType::INT8:
+      if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-      cuda::tensor::DispatchZero(*this);
-      break;
+        cuda::tensor::DispatchZero(*this);
+        break;
 #endif
-    }
-    cpu::tensor::TensorZeroKernel(data<int8_t>(), num_elements_);
-    break;
-  case DataType::INT16:
-    if (this->is_cuda()) {
+      }
+      cpu::tensor::TensorZeroKernel(data<int8_t>(), num_elements_);
+      break;
+    case DataType::INT16:
+      if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-      cuda::tensor::DispatchZero(*this);
-      break;
+        cuda::tensor::DispatchZero(*this);
+        break;
 #endif
-    }
-    cpu::tensor::TensorZeroKernel(data<int16_t>(), num_elements_);
-    break;
-  case DataType::INT32:
-    if (this->is_cuda()) {
+      }
+      cpu::tensor::TensorZeroKernel(data<int16_t>(), num_elements_);
+      break;
+    case DataType::INT32:
+      if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-      cuda::tensor::DispatchZero(*this);
-      break;
+        cuda::tensor::DispatchZero(*this);
+        break;
 #endif
-    }
-    cpu::tensor::TensorZeroKernel(data<int32_t>(), num_elements_);
-    break;
-  case DataType::INT64:
-    if (this->is_cuda()) {
+      }
+      cpu::tensor::TensorZeroKernel(data<int32_t>(), num_elements_);
+      break;
+    case DataType::INT64:
+      if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-      cuda::tensor::DispatchZero(*this);
-      break;
+        cuda::tensor::DispatchZero(*this);
+        break;
 #endif
-    }
-    cpu::tensor::TensorZeroKernel(data<int64_t>(), num_elements_);
-    break;
-  case DataType::FLOAT32:
-    if (this->is_cuda()) {
+      }
+      cpu::tensor::TensorZeroKernel(data<int64_t>(), num_elements_);
+      break;
+    case DataType::FLOAT32:
+      if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-      cuda::tensor::DispatchZero(*this);
-      break;
+        cuda::tensor::DispatchZero(*this);
+        break;
 #endif
-    }
-    cpu::tensor::TensorZeroKernel(data<float>(), num_elements_);
-    break;
-  case DataType::FLOAT64:
-    if (this->is_cuda()) {
+      }
+      cpu::tensor::TensorZeroKernel(data<float>(), num_elements_);
+      break;
+    case DataType::FLOAT64:
+      if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-      cuda::tensor::DispatchZero(*this);
-      break;
+        cuda::tensor::DispatchZero(*this);
+        break;
 #endif
-    }
-    cpu::tensor::TensorZeroKernel(data<double>(), num_elements_);
-    break;
-  case DataType::BOOLEAN:
-    if (this->is_cuda()) {
+      }
+      cpu::tensor::TensorZeroKernel(data<double>(), num_elements_);
+      break;
+    case DataType::BOOLEAN:
+      if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-      cuda::tensor::DispatchZero(*this);
-      break;
+        cuda::tensor::DispatchZero(*this);
+        break;
 #endif
-    }
-    cpu::tensor::TensorZeroKernel(data<bool>(), num_elements_);
-    break;
-  default:
-    return Status::UNSUPPORTED_TYPE;
+      }
+      cpu::tensor::TensorZeroKernel(data<bool>(), num_elements_);
+      break;
+    default:
+      return Status::UNSUPPORTED_TYPE;
   }
   return Status::OK;
 }
 
 Status Tensor::Fill(void *value, size_t value_size) {
-  if (!data_)
-    return Status::INVALID_ARGUMENT;
+  if (!data_) return Status::INVALID_ARGUMENT;
   if (this->is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
     return cuda::tensor::DispatchFill(*this, value, value_size);
@@ -309,41 +311,40 @@ std::string Tensor::ToString() const {
   std::ostringstream oss;
   oss << "Tensor(shape=[";
   for (size_t i = 0; i < shape_.size(); ++i) {
-    if (i > 0)
-      oss << ", ";
+    if (i > 0) oss << ", ";
     oss << shape_[i];
   }
   oss << "], dtype=";
 
   switch (dtype_) {
-  case DataType::INT8:
-    oss << "int8";
-    break;
-  case DataType::INT16:
-    oss << "int16";
-    break;
-  case DataType::INT32:
-    oss << "int32";
-    break;
-  case DataType::INT64:
-    oss << "int64";
-    break;
-  case DataType::FLOAT32:
-    oss << "float32";
-    break;
-  case DataType::FLOAT64:
-    oss << "float64";
-    break;
-  case DataType::BOOLEAN:
-    oss << "bool";
-    break;
-  default:
-    oss << "unknown";
-    break;
+    case DataType::INT8:
+      oss << "int8";
+      break;
+    case DataType::INT16:
+      oss << "int16";
+      break;
+    case DataType::INT32:
+      oss << "int32";
+      break;
+    case DataType::INT64:
+      oss << "int64";
+      break;
+    case DataType::FLOAT32:
+      oss << "float32";
+      break;
+    case DataType::FLOAT64:
+      oss << "float64";
+      break;
+    case DataType::BOOLEAN:
+      oss << "bool";
+      break;
+    default:
+      oss << "unknown";
+      break;
   }
   oss << ", device=" << device_ << ")";
   return oss.str();
 }
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono

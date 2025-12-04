@@ -20,8 +20,8 @@ AXONO_EXPORT void TensorCopyKernel(void *dst, const void *src,
 template <typename T>
 AXONO_EXPORT core::Status TensorReadKernel(const T *device_data, T *host_data,
                                            size_t num_elements);
-} // namespace tensor
+}  // namespace tensor
 
-} // namespace cuda
-} // namespace core
-} // namespace axono
+}  // namespace cuda
+}  // namespace core
+}  // namespace axono

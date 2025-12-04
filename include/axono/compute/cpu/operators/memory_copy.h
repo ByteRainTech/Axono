@@ -1,9 +1,10 @@
 #pragma once
 
-#include "axono/core/macros.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+
+#include "axono/core/macros.h"
 
 namespace axono {
 namespace compute {
@@ -53,7 +54,7 @@ AXONO_FORCE_INLINE void MemoryCopyKernel(void *__restrict dst,
   std::memcpy(dst, src, num_bytes);
 }
 
-} // namespace operators
-} // namespace cpu
-} // namespace compute
-} // namespace axono
+}  // namespace operators
+}  // namespace cpu
+}  // namespace compute
+}  // namespace axono

@@ -12,7 +12,7 @@ namespace tensor {
 
 AXONO_EXPORT core::Status DispatchFill(core::Tensor &tensor, void *value,
                                        size_t value_size);
-AXONO_EXPORT core::Status DispatchZero(Tensor &tensor); // 改成非内联
+AXONO_EXPORT core::Status DispatchZero(Tensor &tensor);  // 改成非内联
 
 AXONO_EXPORT void TensorCopyKernel(void *dst, const void *src,
                                    size_t num_bytes);
@@ -21,7 +21,7 @@ AXONO_EXPORT void TensorCopyKernel(void *dst, const void *src,
 template <typename T>
 AXONO_EXPORT void TensorZeroKernel(T *data, size_t num_elements);
 
-} // namespace tensor
-} // namespace cpu
-} // namespace core
-} // namespace axono
+}  // namespace tensor
+}  // namespace cpu
+}  // namespace core
+}  // namespace axono

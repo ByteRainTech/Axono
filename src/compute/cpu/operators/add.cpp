@@ -1,5 +1,6 @@
 // Axono/src/compute/cpu/operators/add.cpp
 #include "axono/compute/cpu/operators/add.h"
+
 #include "axono/compute/cpu/operators.h"
 #include "axono/core/macros.h"
 
@@ -10,7 +11,7 @@ namespace operators {
 
 core::Status Add(const core::Context &ctx, const core::Tensor &a,
                  const core::Tensor &b, core::Tensor &result) {
-  (void)ctx; // 暂时未使用
+  (void)ctx;  // 暂时未使用
 
   // 检查数据类型一致性
   if (a.dtype() != b.dtype()) {
@@ -34,7 +35,7 @@ core::Status Add(const core::Context &ctx, const core::Tensor &a,
 
 core::Status AddScalar(const core::Context &ctx, const core::Tensor &a,
                        void *scalar, size_t scalar_size, core::Tensor &result) {
-  (void)ctx; // 暂时未使用
+  (void)ctx;  // 暂时未使用
 
   // 设置结果张量的形状
   core::Status status = result.Resize(a.shape());
@@ -51,7 +52,7 @@ core::Status AddScalar(const core::Context &ctx, const core::Tensor &a,
   return DispatchAddScalar(a, scalar, scalar_size, result);
 }
 
-} // namespace operators
-} // namespace cpu
-} // namespace compute
-} // namespace axono
+}  // namespace operators
+}  // namespace cpu
+}  // namespace compute
+}  // namespace axono

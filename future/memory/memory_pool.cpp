@@ -1,4 +1,5 @@
 #include "axono/core/memory/memory_pool.h"
+
 #include <algorithm>
 #include <stdexcept>
 
@@ -32,8 +33,7 @@ void *MemoryPool::allocate(size_t size) {
 }
 
 void MemoryPool::deallocate(void *ptr) {
-  if (!ptr)
-    return;
+  if (!ptr) return;
 
   auto it = ptr_to_block_.find(ptr);
   if (it == ptr_to_block_.end()) {
@@ -46,8 +46,7 @@ void MemoryPool::deallocate(void *ptr) {
 
   // Coalesce adjacent free blocks
   for (size_t i = 0; i < blocks_.size(); ++i) {
-    if (i == index || blocks_[i].in_use)
-      continue;
+    if (i == index || blocks_[i].in_use) continue;
 
     char *ptr1 = static_cast<char *>(blocks_[i].ptr);
     char *ptr2 = static_cast<char *>(blocks_[index].ptr);
@@ -80,5 +79,5 @@ void MemoryPool::clear() {
 
 MemoryPool::~MemoryPool() { clear(); }
 
-} // namespace core
-} // namespace axono
+}  // namespace core
+}  // namespace axono
