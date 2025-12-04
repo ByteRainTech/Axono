@@ -71,13 +71,18 @@ void init_tensor(py::module &m) {
       .def_static("create_like", &axono::core::Tensor::CreateLike)
       .def("reshape", &axono::core::Tensor::Reshape)
       .def("resize", &axono::core::Tensor::Resize)
+      .def("to", [](const axono::core::Tensor &self, const std::string &device) {
+            auto result = self.to(device);
+            return result;
+      }, py::arg("device"), py::return_value_policy::move)
+      .def_property_readonly("is_cuda", &axono::core::Tensor::is_cuda)
+      .def("to_", &axono::core::Tensor::to_, py::arg("device"))
       .def("fill_zero", &axono::core::Tensor::FillZero)
       .def("fill", &axono::core::Tensor::Fill)
       .def("is_same_shape", &axono::core::Tensor::IsSameShape)
       .def("__repr__", &axono::core::Tensor::ToString)
       .def("__str__", &axono::core::Tensor::ToString)
-      .def("device", &axono::core::Tensor::device)
-      .def("is_cuda", &axono::core::Tensor::is_cuda)
+      .def_property_readonly("device", &axono::core::Tensor::device)
       .def_property_readonly("dtype", &axono::core::Tensor::dtype)
       .def_property_readonly("shape", &axono::core::Tensor::shape)
       .def_property_readonly("ndim", &axono::core::Tensor::ndim)
@@ -312,12 +317,15 @@ void init_matmul_operations(py::module &m) {
       [](const axono::core::Tensor &a, const axono::core::Tensor &b) {
         axono::core::Context ctx;
         axono::core::Tensor result;
-
         axono::core::Status status;
 
         if (a.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
+          size_t m = a.shape()[0];
+          size_t n = b.shape()[1];
+          auto result = axono::core::Tensor(a.dtype(), std::vector<size_t>{m, n}, a.device());
           status = axono::compute::cuda::operators::MatMul(ctx, a, b, result);
+          return result;
 #endif
         } else {
           status = axono::compute::cpu::operators::MatMul(ctx, a, b, result);
@@ -412,7 +420,8 @@ void init_activation_operations(py::module &m) {
         axono::core::Context ctx;
         // axono::core::Tensor output = axono::core::Tensor(input.dtype(),
         // input.shape(), input.device());
-        axono::core::Tensor output = axono::core::Tensor::CreateLike(input);
+        // axono::core::Tensor output = axono::core::Tensor::CreateLike(input);
+        axono::core::Tensor output = axono::core::Tensor(input.dtype(), input.shape(), input.device());
 
         axono::core::Status status;
         if (input.is_cuda()) {

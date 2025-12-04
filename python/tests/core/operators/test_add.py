@@ -1,3 +1,14 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import os
 import sys
 import unittest
@@ -11,8 +22,7 @@ sys.path.insert(
 from axono.core import DataType, Tensor
 from axono.core.operators import add
 
-# TODO: 广播加法
-
+device = os.getenv("axono_default_device", "cpu")
 
 class TestAdd(unittest.TestCase):
     """逐元素加法单元测试"""
@@ -29,12 +39,12 @@ class TestAdd(unittest.TestCase):
 
         self.assertTrue(np.allclose(expected, actual))
 
-    @unittest.skipIf(os.getenv("axono_default_device", "cpu") != "cpu", "暂不支持 CUDA")
+
     def test_add_large(self):
         """测试大 tensor 逐元素加法"""
         shape = [100, 200]
-        a = Tensor(DataType.FLOAT32, shape)
-        b = Tensor(DataType.FLOAT32, shape)
+        a = Tensor(DataType.FLOAT32, shape, device="cpu")
+        b = Tensor(DataType.FLOAT32, shape, device="cpu")
 
         # 填充随机数据
         a_data = a._tensor.data_float32()
@@ -42,7 +52,15 @@ class TestAdd(unittest.TestCase):
         a_data[:] = np.random.rand(*shape).astype(np.float32)
         b_data[:] = np.random.rand(*shape).astype(np.float32)
 
+        if "cuda" in device:
+            a = a.to(device)
+            b = b.to(device)
+
         result = add(a, b)
+
+        if "cuda" in device:
+            a_data = a._tensor.data_float32()
+            b_data = b._tensor.data_float32()
 
         self.assertEqual(result.shape, shape)
 

@@ -67,6 +67,9 @@ public:
   void *raw_data() { return data_.get(); }
   const void *raw_data() const { return data_.get(); }
 
+  Tensor to(const std::string& target_device) const;
+  Status to_(const std::string& target_device);
+
   // 形状操作
   Status Reshape(const Shape &new_shape);
   Status Resize(const Shape &new_shape);
