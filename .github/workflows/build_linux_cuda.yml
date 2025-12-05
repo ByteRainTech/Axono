@@ -23,6 +23,7 @@ jobs:
       with:
         cuda: '12.5.0'
         sub-packages: '["nvcc"]'
+        method: 'network'
 
     - name: Check CUDA compiler
       run: |
