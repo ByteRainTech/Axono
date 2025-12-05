@@ -1,0 +1,34 @@
+name: Build
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:  # 添加手动触发器
+
+jobs:
+  build:
+    name: Build (CPU)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install Dependencies
+      run: |
+        pip3 install -r requirements.txt
+        pip3 install setuptools
+
+    - name: Build And Install
+      run: |
+        export AUTO_CI=cpu
+        bash build.sh 2>&1 | tee build_output.log
