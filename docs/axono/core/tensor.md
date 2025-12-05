@@ -65,6 +65,14 @@
 
     Check if has same shape as another tensor
 
+## `device`
+
+    Return the device on which the tensor resides.
+
+## `randn`
+
+    Create a tensor filled with random values sampled from a normal distribution
+
 ## `zeros`
 
     Create a tensor filled with zeros
