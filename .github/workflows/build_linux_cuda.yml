@@ -1,0 +1,44 @@
+name: Build (CUDA On Linux)
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:  # 添加手动触发器
+
+jobs:
+  build:
+    name: Build (CPU)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install CUDA Toolkit
+      uses: Jimver/cuda-toolkit@v0.2.18
+      with:
+        cuda: '12.1'
+        method: 'local'
+
+    - name: Check CUDA compiler
+      run: |
+        which nvcc
+        nvcc --version
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install Dependencies
+      run: |
+        pip3 install -r requirements.txt
+        pip3 install setuptools
+
+    - name: Build And Install
+      run: |
+        run: echo 'yyyn' | ./build.sh
