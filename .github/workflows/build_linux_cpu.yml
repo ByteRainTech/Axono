@@ -1,4 +1,4 @@
-name: Build
+name: Build And Run (CPU On Linux)
 
 on:
   push:
