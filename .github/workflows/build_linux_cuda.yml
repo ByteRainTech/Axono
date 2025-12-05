@@ -46,4 +46,4 @@ jobs:
         SKIP_ENV: 1
         AXONO_SKIP_TEST: 1
       run: |
-        run: bash build.sh
+        bash build.sh
