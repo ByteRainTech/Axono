@@ -161,8 +161,9 @@ Tips: 我们编译的文件会在 Axono Python 端的 /library/ 出现。
 EOF
 echo -ne "${NC}"
 
-
-if [ "$AUTO_CI" = "" ]; then
+if [ "$AXONO_SKIP_TEST" = "1" ]; then
+    echo "跳过单元测试 (AXONO_SKIP_TEST=1)"
+elif [ "$AUTO_CI" = "" ]; then
     echo -e"${BLUE}这是一些安全性的询问，您可以按下 ${YELLOW}Ctrl+C${BLUE} 结束安装向导，也可以完成完整的安装流程${NC}"
     echo -ne "${BLUE}是否执行单元测试-CPU? ${GREY}(y/${YELLOW}N${GREY}):${NC} "
     read -n 1 -p "" is_cpu_unittest
@@ -177,7 +178,9 @@ if [ "$is_cpu_unittest" = "y" ] || [ "$is_cpu_unittest" = "Y" ]; then
 fi
 echo
 echo
-if [ "$is_cuda" = "y" ] || [ "$is_cuda" = "Y" ]; then
+if [ "$AXONO_SKIP_TEST" = "1" ]; then
+    echo "跳过单元测试 (AXONO_SKIP_TEST=1)"
+elif [ "$is_cuda" = "y" ] || [ "$is_cuda" = "Y" ]; then
     echo -ne "${BLUE}是否执行单元测试-CUDA? ${GREY}(y/${YELLOW}N${GREY}):${NC} "
     read -n 1 -p "" is_cuda_unittest
     if [ "$is_cuda_unittest" = "y" ] || [ "$is_cuda_unittest" = "Y" ]; then

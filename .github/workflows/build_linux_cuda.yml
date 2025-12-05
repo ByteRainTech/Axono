@@ -1,0 +1,53 @@
+name: Build (CUDA On Linux)
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:  # 添加手动触发器
+
+jobs:
+  build:
+    name: Build (CUDA)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install CUDA Toolkit
+      uses: Jimver/cuda-toolkit@master
+      with:
+        cuda: '12.5.0'
+        sub-packages: '["nvcc"]'
+        method: 'network'
+
+    - name: Install Libcurand
+      run: |
+        sudo apt-get install -y libcurand-dev-12-5
+
+    - name: Check CUDA compiler
+      run: |
+        which nvcc
+        nvcc --version
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install Dependencies
+      run: |
+        pip3 install -r requirements.txt
+        pip3 install setuptools
+
+    - name: Build And Install
+      env:
+        AUTO_CI: cuda
+        SKIP_ENV: 1
+        AXONO_SKIP_TEST: 1
+      run: |
+        bash build.sh
