@@ -5,9 +5,12 @@
 #include <sstream>
 #include <stdexcept>  // std::runtime_error
 
-#include "./cuda/detail.h"
-#include "axono/core/cpu/tensor/kernel.h"
+#ifdef COMPILED_WITH_CUDA
 #include "axono/core/cuda/tensor/kernel.h"
+#include "axono/core/cuda/detail.h"
+#endif
+
+#include "axono/core/cpu/tensor/kernel.h"
 #include "axono/core/types.h"
 
 namespace {
@@ -45,8 +48,8 @@ Tensor::Tensor(DataType dtype, const Shape &shape, void *data)
 Tensor::Tensor(const Tensor &other)
     : dtype_(other.dtype_),
       shape_(other.shape_),
-      num_elements_(other.num_elements_),
-      device_(other.device_) {  // 必须复制device_！
+      device_(other.device_),
+      num_elements_(other.num_elements_) {  
 
   if (other.data_) {
     // 根据设备类型初始化存储
@@ -106,8 +109,8 @@ Tensor &Tensor::operator=(const Tensor &other) {
 Tensor::Tensor(Tensor &&other) noexcept
     : dtype_(other.dtype_),
       shape_(std::move(other.shape_)),
+      device_(std::move(other.device_)),
       num_elements_(other.num_elements_),
-      device_(std::move(other.device_)),  // 必须移动device_！
       data_(std::move(other.data_)) {
   other.dtype_ = DataType::FLOAT32;
   other.shape_.clear();

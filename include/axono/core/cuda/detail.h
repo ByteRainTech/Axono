@@ -1,4 +1,4 @@
-// Axono/src/core/cuda/detail.cuh
+// Axono/src/core/cuda/detail.h
 #pragma once
 
 #include <memory>
