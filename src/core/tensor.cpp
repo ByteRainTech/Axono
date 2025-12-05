@@ -6,11 +6,13 @@
 #include <stdexcept>  // std::runtime_error
 
 #ifdef COMPILED_WITH_CUDA
-#include "axono/core/cuda/detail.h"
 #include "axono/core/cuda/tensor/kernel.h"
+#include "axono/compute/cuda/operators/randn.h"
+#include "axono/core/cuda/detail.h"
 #endif
 
 #include "axono/core/cpu/tensor/kernel.h"
+#include "axono/compute/cpu/operators/randn.h"
 #include "axono/core/types.h"
 
 namespace {
@@ -45,11 +47,39 @@ Tensor::Tensor(DataType dtype, const Shape &shape, void *data)
   data_ = std::shared_ptr<void>(data, FreeDeleter());
 }
 
+Tensor Tensor::randn(
+    const std::vector<size_t>& shape,
+    DataType dtype,
+    const std::string& device,
+    float mean,
+    float stddev
+) {
+    Tensor out(dtype, shape, device);
+    core::Context ctx;
+    core::Status status;
+
+    if (out.is_cuda()) {
+#ifdef COMPILED_WITH_CUDA
+        status = compute::cuda::operators::Randn(ctx, out, mean, stddev);
+#else
+        status = core::Status::DEVICE_ERROR;
+#endif
+    } else {
+        status = compute::cpu::operators::Randn(ctx, out, mean, stddev);
+    }
+
+    if (status != core::Status::OK) {
+        throw std::runtime_error("Failed to generate randn tensor");
+    }
+    return out;
+}
+
 Tensor::Tensor(const Tensor &other)
     : dtype_(other.dtype_),
       shape_(other.shape_),
       device_(other.device_),
-      num_elements_(other.num_elements_) {
+      num_elements_(other.num_elements_) {  
+
   if (other.data_) {
     // 根据设备类型初始化存储
     if (device_ == other.device_) {
