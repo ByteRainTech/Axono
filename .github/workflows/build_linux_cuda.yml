@@ -22,7 +22,7 @@ jobs:
       uses: Jimver/cuda-toolkit@master
       with:
         cuda: '12.5.0'
-        sub-packages: '["nvcc", "curand"]'
+        sub-packages: '["nvcc", "libcurand"]'
         method: 'network'
 
     - name: Check CUDA compiler
