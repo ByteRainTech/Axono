@@ -1,4 +1,6 @@
 #include "axono/core/macros.h"
+#include "axono/core/types.h"
+#include "axono/core/tensor.h"
 
 namespace axono {
 namespace compute {
