@@ -21,7 +21,7 @@ jobs:
     - name: Install CUDA Toolkit
       uses: Jimver/cuda-toolkit@master
       with:
-        cuda: '12.3'
+        cuda: '12.5.0'
         sub-packages: '["nvcc"]'
 
     - name: Check CUDA compiler
