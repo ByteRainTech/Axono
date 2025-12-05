@@ -19,10 +19,9 @@ jobs:
         fetch-depth: 0
 
     - name: Install CUDA Toolkit
-      uses: Jimver/cuda-toolkit@v0.2.18
+      uses: Jimver/cuda-toolkit@master
       with:
         cuda: '13.0.2'
-        method: 'local'
 
     - name: Check CUDA compiler
       run: |
