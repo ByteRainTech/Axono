@@ -22,8 +22,12 @@ jobs:
       uses: Jimver/cuda-toolkit@master
       with:
         cuda: '12.5.0'
-        sub-packages: '["nvcc", "libcurand"]'
+        sub-packages: '["nvcc"]'
         method: 'network'
+
+    - name: Install Libcurand
+      run: |
+        sudo apt-get install -y libcurand-dev-12-5
 
     - name: Check CUDA compiler
       run: |
