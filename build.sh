@@ -171,8 +171,9 @@ else
     is_cpu_unittest="y"
     is_cuda_unittest="y"
 fi
+cd ./python/tests/
 if [ "$is_cpu_unittest" = "y" ] || [ "$is_cpu_unittest" = "Y" ]; then
-    cd ./python/tests/ && $PYTHON_ENV run.py
+    $PYTHON_ENV run.py
 fi
 echo
 echo

@@ -5,7 +5,6 @@
 #include <thread>
 #include <vector>
 
-#include "axono/compute/cpu/operators.h"
 #include "axono/core/macros.h"
 #include "axono/core/tensor.h"
 
