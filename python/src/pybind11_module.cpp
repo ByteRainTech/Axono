@@ -8,14 +8,13 @@
 #include "axono/compute/cpu/ops/relu.h"
 
 #ifdef COMPILED_WITH_CUDA
+#include "axono/core/cuda/tensor/kernel.h"
 #include "axono/compute/cuda/operators.h"
 #include "axono/compute/cuda/operators/add.h"
 #include "axono/compute/cuda/ops.h"
 #include "axono/compute/cuda/ops/relu.h"
 #endif
 
-#include "axono/core/cuda/gpu_sync_buffer.h"
-#include "axono/core/cuda/tensor/kernel.h"
 #include "axono/core/tensor.h"
 
 namespace py = pybind11;
