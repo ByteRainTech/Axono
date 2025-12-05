@@ -1,7 +1,8 @@
 // Axono/src/compute/cpu/operators/add.cpp
+#include "axono/compute/cpu/operators/add.h"
+
 #include <cstring>
 
-#include "axono/compute/cpu/operators/add.h"
 #include "axono/core/macros.h"
 
 namespace axono {

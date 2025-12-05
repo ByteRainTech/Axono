@@ -2,10 +2,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "axono/pybind/core/tensor.h"
+#include "axono/pybind/compute/operators/add.h"
 #include "axono/pybind/compute/operators/matmul.h"
 #include "axono/pybind/compute/ops/relu.h"
-#include "axono/pybind/compute/operators/add.h"
+#include "axono/pybind/core/tensor.h"
 
 namespace py = pybind11;
 

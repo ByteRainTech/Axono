@@ -6,8 +6,8 @@
 #include <stdexcept>  // std::runtime_error
 
 #ifdef COMPILED_WITH_CUDA
-#include "axono/core/cuda/tensor/kernel.h"
 #include "axono/core/cuda/detail.h"
+#include "axono/core/cuda/tensor/kernel.h"
 #endif
 
 #include "axono/core/cpu/tensor/kernel.h"
@@ -49,8 +49,7 @@ Tensor::Tensor(const Tensor &other)
     : dtype_(other.dtype_),
       shape_(other.shape_),
       device_(other.device_),
-      num_elements_(other.num_elements_) {  
-
+      num_elements_(other.num_elements_) {
   if (other.data_) {
     // 根据设备类型初始化存储
     if (device_ == other.device_) {

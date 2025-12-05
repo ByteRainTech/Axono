@@ -15,6 +15,6 @@ AXONO_EXPORT core::Status AddScalar(const core::Context &ctx,
                                     size_t scalar_size, core::Tensor &result);
 
 }  // namespace operators
-}  // namespace cuda
+}  // namespace cpu
 }  // namespace compute
 }  // namespace axono
