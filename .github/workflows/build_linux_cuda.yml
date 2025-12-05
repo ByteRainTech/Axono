@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build (CPU)
+    name: Build (CUDA)
     runs-on: ubuntu-latest
     
     steps:
@@ -21,7 +21,7 @@ jobs:
     - name: Install CUDA Toolkit
       uses: Jimver/cuda-toolkit@v0.2.18
       with:
-        cuda: '12.1'
+        cuda: '13.0.2'
         method: 'local'
 
     - name: Check CUDA compiler
