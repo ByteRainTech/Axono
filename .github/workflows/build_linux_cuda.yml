@@ -41,5 +41,9 @@ jobs:
         pip3 install setuptools
 
     - name: Build And Install
+    env:
+      AUTO_CI: cuda
+      SKIP_ENV: 1
+      AXONO_SKIP_TEST: 1
       run: |
-        run: echo 'yyyn' | ./build.sh
+        run: bash build.sh
