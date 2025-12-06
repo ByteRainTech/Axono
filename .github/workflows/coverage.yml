@@ -1,0 +1,41 @@
+name: Coverage Test (Python)
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:  # 添加手动触发器
+
+jobs:
+  build:
+    name: Coverage Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install Dependencies
+      run: |
+        pip3 install -r requirements.txt
+        pip3 install setuptools
+
+    - name: Install Coverage Test Library
+      run: pip install pytest pytest-cov
+
+    - name: Run Coverage Test
+      run: pytest --cov --cov-branch --cov-report=xml
+
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: ByteRainTech/Axono
