@@ -33,14 +33,26 @@ class TestTensorRandn(unittest.TestCase):
         for shape in shapes:
             for dtype in dtypes:
                 tensor = Tensor.randn(shape=shape, dtype=dtype, device=device)
-                self.assertEqual(tensor.shape, shape, 
-                                f"形状不匹配: 预期 {shape}, 实际 {tensor.shape}")
-                self.assertEqual(tensor.dtype, dtype,
-                                f"数据类型不匹配: 预期 {dtype}, 实际 {tensor.dtype}")
-                self.assertEqual(tensor.device, device,
-                                f"设备不匹配: 预期 {device}, 实际 {tensor.device}")
-                self.assertEqual(tensor.num_elements, np.prod(shape),
-                                f"元素数量错误: 预期 {np.prod(shape)}, 实际 {tensor.num_elements}")
+                self.assertEqual(
+                    tensor.shape,
+                    shape,
+                    f"形状不匹配: 预期 {shape}, 实际 {tensor.shape}",
+                )
+                self.assertEqual(
+                    tensor.dtype,
+                    dtype,
+                    f"数据类型不匹配: 预期 {dtype}, 实际 {tensor.dtype}",
+                )
+                self.assertEqual(
+                    tensor.device,
+                    device,
+                    f"设备不匹配: 预期 {device}, 实际 {tensor.device}",
+                )
+                self.assertEqual(
+                    tensor.num_elements,
+                    np.prod(shape),
+                    f"元素数量错误: 预期 {np.prod(shape)}, 实际 {tensor.num_elements}",
+                )
 
     def test_randn_distribution_properties(self):
         """测试正态分布的统计特性（均值和标准差）"""
@@ -56,10 +68,18 @@ class TestTensorRandn(unittest.TestCase):
         actual_std = np.std(data)
 
         # 均值误差允许在 0.05 以内，标准差误差允许在 0.05 以内
-        self.assertAlmostEqual(actual_mean, mean, delta=0.05,
-                              msg=f"均值不符合预期: 预期 {mean}, 实际 {actual_mean}")
-        self.assertAlmostEqual(actual_std, stddev, delta=0.05,
-                              msg=f"标准差不符合预期: 预期 {stddev}, 实际 {actual_std}")
+        self.assertAlmostEqual(
+            actual_mean,
+            mean,
+            delta=0.05,
+            msg=f"均值不符合预期: 预期 {mean}, 实际 {actual_mean}",
+        )
+        self.assertAlmostEqual(
+            actual_std,
+            stddev,
+            delta=0.05,
+            msg=f"标准差不符合预期: 预期 {stddev}, 实际 {actual_std}",
+        )
 
     def test_randn_device_compatibility(self):
         """测试不同设备（CPU/CUDA）上的生成功能"""

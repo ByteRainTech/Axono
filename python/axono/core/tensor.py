@@ -231,7 +231,7 @@ class Tensor:
     @property
     def dtype(self) -> DataType:
         return self._tensor.dtype
-    
+
     @property
     def device(self) -> str:
         """Return the device on which the tensor resides."""
@@ -258,17 +258,19 @@ class Tensor:
 
     def __str__(self) -> str:
         return self._tensor.__str__()
-    
+
     @staticmethod
     def randn(
         shape: list[int],
         dtype: DataType = DataType.FLOAT32,
         device: str = "cpu",
         mean: float = 0.0,
-        stddev: float = 1.0
+        stddev: float = 1.0,
     ) -> "Tensor":
         """Create a tensor filled with random values sampled from a normal distribution"""
-        tensor = _Tensor.randn(shape, dtype=dtype, device=device, mean=mean, stddev=stddev)
+        tensor = _Tensor.randn(
+            shape, dtype=dtype, device=device, mean=mean, stddev=stddev
+        )
         return Tensor.from_raw(tensor)
 
     @staticmethod

@@ -1,6 +1,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #include "axono/core/tensor.h"
 #ifdef COMPILED_WITH_CUDA
 #include "axono/core/cuda/tensor/kernel.h"
@@ -267,14 +268,11 @@ void init_tensor(py::module &m) {
                 py::capsule(self.data<void *>(), [](void *) {}));
           },
           "Get data as bool numpy array")
-      .def_static("randn", 
-                    &axono::core::Tensor::randn,
-                    py::arg("shape"),
-                    py::arg("dtype") = axono::core::DataType::FLOAT32,
-                    py::arg("device") = "cpu",
-                    py::arg("mean") = 0.0f,
-                    py::arg("stddev") = 1.0f,
-                    "Create a tensor with values from normal distribution")
+      .def_static("randn", &axono::core::Tensor::randn, py::arg("shape"),
+                  py::arg("dtype") = axono::core::DataType::FLOAT32,
+                  py::arg("device") = "cpu", py::arg("mean") = 0.0f,
+                  py::arg("stddev") = 1.0f,
+                  "Create a tensor with values from normal distribution")
       .def("__copy__",
            [](const axono::core::Tensor &self) {
              return axono::core::Tensor(self.dtype(), self.shape(),

@@ -80,13 +80,10 @@ class Tensor {
   Status Fill(void *value, size_t value_size);
 
   // 正太分布
-  static Tensor randn(
-      const std::vector<size_t>& shape,
-      DataType dtype = DataType::FLOAT32,
-      const std::string& device = "cpu",
-      float mean = 0.0f,
-      float stddev = 1.0f
-  );
+  static Tensor randn(const std::vector<size_t> &shape,
+                      DataType dtype = DataType::FLOAT32,
+                      const std::string &device = "cpu", float mean = 0.0f,
+                      float stddev = 1.0f);
 
   // 工具函数
   bool IsSameShape(const Tensor &other) const;
