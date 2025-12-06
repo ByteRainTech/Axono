@@ -23,4 +23,4 @@ jobs:
 
       - name: License-Header Check
         run: |
-          licenseheaders -t apache2 -d . -E py --dry
+          licenseheaders -t .github/.license-header.tmpl -d . -E py --dry
