@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build Whl And Install
+    name: Build Wheel And Install
     runs-on: ubuntu-latest
     
     steps:
@@ -57,7 +57,7 @@ jobs:
         export AUTO_CI=cpu
         bash build.sh 2>&1 | tee build_output.log
         
-    - name: Build wheel
+    - name: Build wheel package
       run: |
         cat > setup.py <<EOF
         from setuptools import setup
@@ -66,3 +66,9 @@ jobs:
         python setup.py bdist_wheel \
           --plat-name ${{ steps.info.outputs.plat }} \
           --python-tag ${{ steps.info.outputs.pytag }}
+
+    - name: Install wheel package
+      run: pip install ./dist/*.whl
+
+    - name: Final Test
+      run: python -c "import axono;axono.welcome()"
