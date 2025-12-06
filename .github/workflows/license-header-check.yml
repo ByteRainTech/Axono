@@ -25,8 +25,5 @@ jobs:
         run: |
           licenseheaders \
             -t .github/.license-header.tmpl \
-            -d . \
-            -E py \
-            --dry \
-            -y "$(date +%Y)" \
-            -o "${{ github.repository_owner }}"
+            -d python/axono \
+            -d python/tests
