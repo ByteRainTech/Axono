@@ -23,4 +23,10 @@ jobs:
 
       - name: License-Header Check
         run: |
-          licenseheaders -t .github/.license-header.tmpl -d . -E py --dry
+          licenseheaders \
+            -t .github/.license-header.tmpl \
+            -d . \
+            -E py \
+            --dry \
+            -y "$(date +%Y)" \
+            -o "${{ github.repository_owner }}"
