@@ -46,7 +46,7 @@ jobs:
           windows) PLAT="win_amd64" ;;
           *) echo "unsupported OS"; exit 1 ;;
         esac
-        PYTAG="cp$(python -c 'import sys;print(f\"{sys.version_info.major}{sys.version_info.minor}\")')"
+        PYTAG="cp$(python -c 'import sys;print(f"{sys.version_info.major}{sys.version_info.minor}")')"
 
         echo "plat=$PLAT" >> $GITHUB_OUTPUT
         echo "pytag=$PYTAG" >> $GITHUB_OUTPUT
