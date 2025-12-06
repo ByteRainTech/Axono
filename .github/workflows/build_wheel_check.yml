@@ -68,7 +68,7 @@ jobs:
           --python-tag ${{ steps.info.outputs.pytag }}
 
     - name: Install wheel package
-      run: pip install ./dist/*.whl --force-reinstall
+      run: pip install ./dist/*.whl --force-reinstall && pip show axono
 
     - name: Final Test
       run: python -c "import axono;axono.welcome()"
