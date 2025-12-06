@@ -23,8 +23,4 @@ jobs:
 
       - name: License-Header Check
         run: |
-          licenseheaders \
-            --tmpl=apache \
-            --ext=py \
-            --dry-run \
-            --error
+          licenseheaders -t apache -d . -E py --dry
