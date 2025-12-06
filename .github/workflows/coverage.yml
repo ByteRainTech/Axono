@@ -31,6 +31,11 @@ jobs:
     - name: Install Coverage Test Library
       run: pip install pytest pytest-cov
 
+    - name: Build And Install Axono
+      run: |
+        export AUTO_CI=cpu
+        bash build.sh 2>&1 | tee build_output.log
+
     - name: Run Coverage Test
       run: pytest --cov --cov-branch --cov-report=xml
 
