@@ -69,7 +69,7 @@ jobs:
           cd build
           PYTHON_BIN=/opt/python/cp312-cp312/bin/python
           $PYTHON_BIN -m pip install -U pip pybind11
-          cmake .. -DPython_INCLUDE_DIR=/opt/python/cp312-cp312/include/python3.12 -DPython Development.Module=OFF -DPython_EXECUTABLE=$PYTHON_BIN -Dpybind11_DIR=$($PYTHON_BIN -m pybind11 --cmakedir)
+          cmake .. -DPython_INCLUDE_DIR=/opt/python/cp312-cp312/include/python3.12 -DPython_Development_MODULE=OFF -DPython_EXECUTABLE=$PYTHON_BIN -Dpybind11_DIR=$($PYTHON_BIN -m pybind11 --cmakedir)
           make -j${nproc)
 
     - uses: actions/upload-artifact@v4
