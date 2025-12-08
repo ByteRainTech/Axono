@@ -61,6 +61,12 @@ jobs:
         CIBW_BUILD: cp312-*
         CIBW_SKIP: "*musllinux*"
         CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
+        CIBW_BEFORE_BUILD: |
+          set -e
+          rm -rf build python/library/*.so
+          yum install -y gcc-c++ cmake
+          export AUTO_CI=cpu
+          bash build.sh 2>&1 | tee build_output.log
 
     - uses: actions/upload-artifact@v4
       with:
