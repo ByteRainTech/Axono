@@ -55,9 +55,6 @@ zip-safe = false
 [[tool.setuptools.ext-modules]]
 name = "axono.core.libaxono"
 sources = []
-library_dirs = ["axono/library"]
-libraries = ["axono"]
-runtime_library_dirs = ["$ORIGIN"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = "requirements.txt" }
