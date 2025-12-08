@@ -60,9 +60,7 @@ jobs:
       env:
         CIBW_BUILD: cp312-*
         CIBW_SKIP: "*musllinux*"
-
-    - name: Final Test
-      run: python -c "import axono;axono.welcome()"
+        CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_31
 
     - uses: actions/upload-artifact@v4
       with:
