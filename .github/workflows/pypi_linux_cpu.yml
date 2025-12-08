@@ -55,18 +55,11 @@ jobs:
         export AUTO_CI=cpu
         bash build.sh 2>&1 | tee build_output.log
         
-    - name: Build wheel package
-      run: |
-        cat > setup.py <<EOF
-        from setuptools import setup
-        setup()
-        EOF
-        python setup.py bdist_wheel \
-          --plat-name ${{ steps.info.outputs.plat }} \
-          --python-tag ${{ steps.info.outputs.pytag }}
-
-    - name: Install wheel package
-      run: pip install ./dist/*.whl --force-reinstall && pip show axono
+    - name: Build manylinux wheels
+      uses: pypa/cibuildwheel@v2.16.2
+      env:
+        CIBW_BUILD: cp312-*
+        CIBW_SKIP: "*musllinux*"
 
     - name: Final Test
       run: python -c "import axono;axono.welcome()"
@@ -74,7 +67,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: wheels-linux
-        path: ./dist/*.whl
+        path: ./wheelhouse/*.whl
   upload_pypi:
     needs: build
     runs-on: ubuntu-latest
