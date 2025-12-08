@@ -52,7 +52,6 @@ zip-safe = false
     "python/axono/library/*.pyd",
 ]
 
-[tool.setuptools.ext-modules]
 [[tool.setuptools.ext-modules]]
 name = "axono.core.libaxono"
 sources = []
