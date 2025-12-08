@@ -13,6 +13,7 @@
 import os
 import sys
 import unittest
+import numpy as np
 
 from axono.core import DataType, Tensor
 from axono.core.ops import relu
