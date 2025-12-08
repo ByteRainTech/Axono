@@ -40,6 +40,17 @@ class TestAdd(unittest.TestCase):
 
         self.assertTrue(np.allclose(expected, actual))
 
+    def test_add_basic_availability(self):
+        """测试逐元素加法是否有效"""
+        a = Tensor.from_numpy(np.array([[1, 2], [3, 4]], dtype=np.float32))
+        b = Tensor.from_numpy(np.array([[5, 6], [7, 8]], dtype=np.float32))
+        c = a.to_numpy()
+        d = b.to_numpy()
+
+        result = a + b
+
+        self.assertTrue(np.allclose(np.add(c, d), result.to_numpy()))
+
     def test_add_large(self):
         """测试大 tensor 逐元素加法"""
         shape = [100, 200]
