@@ -13,6 +13,7 @@
 import os
 import sys
 import unittest
+import numpy as np
 
 from axono.core import DataType, Tensor
 from axono.core.ops import relu
@@ -45,6 +46,15 @@ class TestRelu(unittest.TestCase):
             with self.subTest(i=i):
                 self.assertAlmostEqual(output_data[0, i], expected[i], places=3)
 
+    def test_relu_basic_availability(self):
+        """使用 NumPy 实现 ReLU，并与 Axono 结果对比"""
+        def np_relu(x):
+            return np.maximum(0, x)
+        a = Tensor.randn(device=device, shape=[2, 2])
+        b = a.to_numpy()
+        result = relu(a)
+        np.testing.assert_array_equal(result.to_numpy(), np_relu(b))
+    
     def test_relu_inplace(self):
         """原地 ReLU：数据被正确修改，对象可接受拷贝"""
         tensor = Tensor(dtype=DataType.FLOAT32, shape=[2, 3], device="cpu")
