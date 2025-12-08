@@ -52,6 +52,14 @@ zip-safe = false
     "python/axono/library/*.pyd",
 ]
 
+[tool.setuptools.ext-modules]
+[[tool.setuptools.ext-modules]]
+name = "axono.core.libaxono"
+sources = []
+library_dirs = ["axono/library"]
+libraries = ["axono"]
+runtime_library_dirs = ["$ORIGIN"]
+
 [tool.setuptools.dynamic]
 dependencies = { file = "requirements.txt" }
 
