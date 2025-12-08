@@ -46,7 +46,7 @@ class TestMatmul(unittest.TestCase):
         b = Tensor.randn(device=device, shape=[2, 2])
         c = a.to_numpy()
         d = b.to_numpy()
-        result = a + b
+        result = a @ b
         np.testing.assert_array_equal(np.matmul(c, d), result.to_numpy())
 
     def test_matmul_different_sizes(self):
