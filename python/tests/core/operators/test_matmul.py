@@ -40,6 +40,15 @@ class TestMatmul(unittest.TestCase):
 
         self.assertTrue(np.allclose(expected, actual))
 
+    def test_matmul_basic_availability(self):
+        """测试基础矩阵相乘是否有效"""
+        a = Tensor.randn(device=device, shape=[2, 2])
+        b = Tensor.randn(device=device, shape=[2, 2])
+        c = a.to_numpy()
+        d = b.to_numpy()
+        result = a + b
+        np.testing.assert_array_equal(np.matmul(c, d), result.to_numpy())
+
     def test_matmul_different_sizes(self):
         """测试不同大小的矩阵乘法：3x2 * 2x4 = 3x4"""
         a = Tensor.from_numpy(np.array([[1, 2], [3, 4], [5, 6]], dtype=np.float32))
