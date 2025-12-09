@@ -62,7 +62,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.16.2
       env:
         CIBW_BUILD: cp312-*
-        CIBW_SKIP: "*musllinux*"
+        CIBW_SKIP: "*musllinux* *i686*"
         CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
 
     - uses: actions/upload-artifact@v4
