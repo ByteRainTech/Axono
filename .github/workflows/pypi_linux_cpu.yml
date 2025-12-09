@@ -15,7 +15,7 @@ on:
 jobs:
   build:
     name: Build Wheel And Install
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - name: Checkout code
@@ -68,20 +68,6 @@ jobs:
         CIBW_BUILD: cp312-*
         CIBW_SKIP: "*musllinux*"
         CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
-        CIBW_BEFORE_BUILD: |
-          set -e
-          rm -rf build python/library/*.so
-          yum install -y gcc-c++ cmake
-          PY_ROOT=/opt/python/cp312-cp312
-          $PY_ROOT/bin/python -m pip install pybind11
-          ls -l $PY_ROOT/lib/
-          ls -l $PY_ROOT/include/
-          mkdir build
-          cd build
-          cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
-            -Dpybind11_DIR=$($PY_ROOT/bin/python -m pybind11 --cmakedir)
-          cmake --build build -j$(nproc)
 
     - uses: actions/upload-artifact@v4
       with:
