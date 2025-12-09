@@ -76,6 +76,8 @@ jobs:
           $PY_ROOT/bin/python -m pip install pybind11
           ls -l $PY_ROOT/lib/
           ls -l $PY_ROOT/include/
+          mkdir build
+          cd build
           cmake .. \
             -DCMAKE_BUILD_TYPE=Release \
             -Dpybind11_DIR=$($PY_ROOT/bin/python -m pybind11 --cmakedir)
