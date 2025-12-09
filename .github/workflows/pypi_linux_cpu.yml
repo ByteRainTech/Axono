@@ -40,7 +40,7 @@ jobs:
         CIBW_BUILD_VERBOSITY: 1
         CIBW_BEFORE_BUILD: pip install -r requirements.txt
         CIBW_BEFORE_BUILD_LINUX: |
-          yum install -y gcc-c++ cmake python3-devel || apt-get update && apt-get install -y g++ cmake python3-dev
+          yum install -y gcc-c++ cmake python3-devel
         CIBW_BEFORE_ALL_LINUX: |
           echo "Setting up Linux build environment"
         CIBW_ENVIRONMENT_LINUX: |
