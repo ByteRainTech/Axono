@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-13]
+        os: [ubuntu-22.04]
 
     steps:
     - name: Checkout code
@@ -36,12 +36,12 @@ jobs:
       uses: pypa/cibuildwheel@v2.16.2
       env:
         CIBW_SKIP: "*-musllinux_* pp* *-win32"
+        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
         CIBW_BUILD_VERBOSITY: 1
         CIBW_BEFORE_BUILD: pip install -r requirements.txt
         CIBW_BEFORE_BUILD_LINUX: |
           yum install -y gcc-c++ cmake python3-devel || apt-get update && apt-get install -y g++ cmake python3-dev
         CIBW_BEFORE_ALL_LINUX: |
-          # 为Linux系统设置构建环境
           echo "Setting up Linux build environment"
         CIBW_ENVIRONMENT_LINUX: |
           AUTO_CI=cpu
