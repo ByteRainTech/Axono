@@ -8,8 +8,11 @@ version = "0.1.0"
 description = "Deep learning framework with tensor operations and neural network modules"
 readme = "README.md"
 requires-python = ">=3.8"
-license-files = ["LICENSE"]
-authors = []
+license = {file = "LICENSE"}
+authors = [
+    { name = "ByteRainTech", email = "offical@byterain.co" },
+    { name = "aztice", email = "offical@byterain.co" }
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
