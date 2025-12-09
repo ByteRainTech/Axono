@@ -72,7 +72,7 @@ jobs:
       env:
         CIBW_BUILD: cp${{ matrix.tag }}-*
         CIBW_SKIP: "*musllinux* *i686*"
-        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
+        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64
 
     - uses: actions/upload-artifact@v4
       with:
@@ -93,3 +93,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
