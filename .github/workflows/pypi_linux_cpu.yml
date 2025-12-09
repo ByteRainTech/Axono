@@ -1,4 +1,4 @@
-name: Build Wheel Check
+name: Publis PyPi
 
 on:
   push:
@@ -6,87 +6,100 @@ on:
       - 'v*'
 
 jobs:
-  build:
-    name: Build Wheel And Install
-    runs-on: ubuntu-latest
-    
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-13]
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
 
-    - name: Install Dependencies
+    - name: Install build dependencies
       run: |
-        pip3 install -r requirements.txt
-        pip3 install setuptools
+        python -m pip install -U pip setuptools wheel build
 
-    - name: Install build tools
+    - name: Build sdist
       run: |
-        python -m pip install -U pip wheel setuptools build
+        python -m build --sdist
 
-    - name: Detect platform & python tag
-      id: info
-      shell: bash
-      run: |
-        OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
-        ARCH=$(uname -m)
-        case "$OS" in
-          linux)  PLAT="linux_$ARCH" ;;
-          macos)
-            [[ "$ARCH" == "arm64" ]] && PLAT="macosx_11_0_arm64" || PLAT="macosx_10_9_x86_64"
-            ;;
-          windows) PLAT="win_amd64" ;;
-          *) echo "unsupported OS"; exit 1 ;;
-        esac
-        PYTAG="cp$(python -c 'import sys;print(f"{sys.version_info.major}{sys.version_info.minor}")')"
-
-        echo "plat=$PLAT" >> $GITHUB_OUTPUT
-        echo "pytag=$PYTAG" >> $GITHUB_OUTPUT
-        echo "==> detected --plat-name=$PLAT --python-tag=$PYTAG"
-
-    - name: Build Library
-      run: |
-        export AUTO_CI=cpu
-        bash build.sh 2>&1 | tee build_output.log
-        
-    - name: Build manylinux wheels
+    - name: Build wheels
       uses: pypa/cibuildwheel@v2.16.2
       env:
-        CIBW_BUILD: cp312-*
-        CIBW_SKIP: "*musllinux*"
-        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
-        CIBW_BEFORE_BUILD: |
-          set -e
-          rm -rf build python/library/*.so
-          yum install -y gcc-c++ cmake python3-devel
-          mkdir build
-          cd build
-          PYTHON_BIN=/opt/python/cp312-cp312/bin/python
-          $PYTHON_BIN -m pip install -U pip pybind11
-          cmake .. -DPython_INCLUDE_DIR=/opt/python/cp312-cp312/include/python3.12 -DPython_Development_MODULE=OFF -DPython_EXECUTABLE=$PYTHON_BIN -Dpybind11_DIR=$($PYTHON_BIN -m pybind11 --cmakedir)
-          make -j${nproc)
+        CIBW_SKIP: "*-musllinux_* pp* *-win32"
+        CIBW_BUILD_VERBOSITY: 1
+        CIBW_BEFORE_BUILD: pip install -r requirements.txt
+        CIBW_BEFORE_BUILD_LINUX: |
+          yum install -y gcc-c++ cmake python3-devel || apt-get update && apt-get install -y g++ cmake python3-dev
+        CIBW_BEFORE_ALL_LINUX: |
+          # 为Linux系统设置构建环境
+          echo "Setting up Linux build environment"
+        CIBW_ENVIRONMENT_LINUX: |
+          AUTO_CI=cpu
+          CMAKE_ARGS="-DPython_EXECUTABLE=$PYTHON_EXECUTABLE"
+        CIBW_ENVIRONMENT_WINDOWS: |
+          AUTO_CI=cpu
+        CIBW_ENVIRONMENT_MACOS: |
+          AUTO_CI=cpu
 
-    - uses: actions/upload-artifact@v4
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
       with:
-        name: wheels-linux
+        name: wheels-${{ matrix.os }}
         path: ./wheelhouse/*.whl
-  upload_pypi:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: wheels-*
-          merge-multiple: true
-          path: dist
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+  build-sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install -U pip setuptools wheel build
+
+    - name: Build sdist
+      run: |
+        python -m build --sdist
+
+    - name: Upload sdist
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdist
+        path: dist/*.tar.gz
+
+  upload-pypi:
+    needs: [build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+
+    - name: List files
+      run: |
+        find dist -type f -name "*.whl" -o -name "*.tar.gz" | sort
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
