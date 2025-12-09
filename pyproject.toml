@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
-    { name = "ByteRainTech", email = "offical@byterain.co" }
+    { name = "ByteRainTech", email = "offical@byterain.co" },
     { name = "aztice", email = "offical@byterain.co" }
 ]
 classifiers = [
