@@ -1,4 +1,3 @@
-find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 REQUIRED)
 
 option(WITH_CUDA "Enable CUDA" OFF)
