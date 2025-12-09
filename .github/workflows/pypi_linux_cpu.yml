@@ -64,13 +64,18 @@ jobs:
         CIBW_BEFORE_BUILD: |
           set -e
           rm -rf build python/library/*.so
-          yum install -y gcc-c++ cmake python3-devel
-          mkdir build
-          cd build
-          PYTHON_BIN=/opt/python/cp312-cp312/bin/python
-          $PYTHON_BIN -m pip install -U pip pybind11
-          cmake .. -DPython_INCLUDE_DIR=/opt/python/cp312-cp312/include/python3.12 -DPython_Development_MODULE=OFF -DPython_EXECUTABLE=$PYTHON_BIN -Dpybind11_DIR=$($PYTHON_BIN -m pybind11 --cmakedir)
-          make -j${nproc)
+          yum install -y gcc-c++ cmake
+          PY_ROOT=/opt/python/cp312-cp312
+          cmake -S. -Bbuild \
+            -DPython_ROOT=$PY_ROOT \
+            -DPython_EXECUTABLE=$PY_ROOT/bin/python \
+            -DPython_FIND_STRATEGY=LOCATION \
+            -DPython_FIND_FRAMEWORK=NEVER \
+            -DPython_FIND_REGISTRY=NEVER \
+            -DPython_FIND_VIRTUALENV=ONLY \
+            -DPython_FIND_REQUIRED_Package=Interpreter \
+            -Dpybind11_DIR=$($PY_ROOT/bin/python -m pybind11 --cmakedir)
+          cmake --build build -j$(nproc)
 
     - uses: actions/upload-artifact@v4
       with:
