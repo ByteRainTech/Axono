@@ -32,11 +32,9 @@ jobs:
       run: |
         pip3 install -r requirements.txt
         pip3 install setuptools
-
     - name: Install build tools
       run: |
         python -m pip install -U pip wheel setuptools build
-
     - name: Detect platform & python tag
       id: info
       shell: bash
@@ -52,11 +50,9 @@ jobs:
           *) echo "unsupported OS"; exit 1 ;;
         esac
         PYTAG="cp$(python -c 'import sys;print(f"{sys.version_info.major}{sys.version_info.minor}")')"
-
         echo "plat=$PLAT" >> $GITHUB_OUTPUT
         echo "pytag=$PYTAG" >> $GITHUB_OUTPUT
         echo "==> detected --plat-name=$PLAT --python-tag=$PYTAG"
-
     - name: Build Library
       run: |
         export AUTO_CI=cpu
