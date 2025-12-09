@@ -46,10 +46,6 @@ jobs:
         CIBW_ENVIRONMENT_LINUX: |
           AUTO_CI=cpu
           CMAKE_ARGS="-DPython_EXECUTABLE=$PYTHON_EXECUTABLE"
-        CIBW_ENVIRONMENT_WINDOWS: |
-          AUTO_CI=cpu
-        CIBW_ENVIRONMENT_MACOS: |
-          AUTO_CI=cpu
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
