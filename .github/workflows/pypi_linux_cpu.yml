@@ -16,6 +16,9 @@ jobs:
   build:
     name: Build Wheel And Install
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
     
     steps:
     - name: Checkout code
@@ -23,10 +26,10 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Set up Python
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: ${{ matrix.python-version }}
 
     - name: Install Dependencies
       run: |
@@ -61,21 +64,22 @@ jobs:
     - name: Build manylinux wheels
       uses: pypa/cibuildwheel@v2.16.2
       env:
-        CIBW_BUILD: cp311-*
+        CIBW_BUILD: cp${{ matrix.python-version.replace('.','') }}-*
         CIBW_SKIP: "*musllinux* *i686*"
         CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
 
     - uses: actions/upload-artifact@v4
       with:
-        name: wheels-linux
+        name: wheels-linux-${{ matrix.python-version }}
         path: ./wheelhouse/*.whl
+
   upload_pypi:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: wheels-*
+          pattern: wheels-linux-*
           merge-multiple: true
           path: dist
 
