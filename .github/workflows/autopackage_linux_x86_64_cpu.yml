@@ -1,16 +1,16 @@
 name: Publish Pypi (Linux x86_64 For CPU)
 
-# on:
-#   push:
-#     tags:
-#       - 'v*'
-
 on:
   push:
-    branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
-  workflow_dispatch:  # 添加手动触发器
+    tags:
+      - 'v*'
+
+# on:
+#   push:
+#     branches: [ dev ]
+#   pull_request:
+#     branches: [ dev ]
+#   workflow_dispatch:  # 添加手动触发器
 
 jobs:
   build:
@@ -25,6 +25,8 @@ jobs:
             tag: "311"
           - py: "3.12"
             tag: "312"
+          - py: "3.13"
+            tag: "313"
     
     steps:
     - name: Checkout code
@@ -72,7 +74,9 @@ jobs:
       env:
         CIBW_BUILD: cp${{ matrix.tag }}-*
         CIBW_SKIP: "*musllinux* *i686*"
-        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014
+        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
+        CIBW_PRERELEASE_PYTHONS: 1
+        CIBW_ENABLE: cpython-prerelease
 
     - uses: actions/upload-artifact@v4
       with:
