@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    name: Build Wheel And Install
+    name: Build
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -42,6 +42,18 @@ jobs:
           - py: "3.12"
             tag: "312"
             cuda: "11.8.0"
+            cutag: "cu118"
+          - py: "3.10"
+            tag: "310"
+            cuda: "12.6.0"
+            cutag: "cu118"
+          - py: "3.11"
+            tag: "311"
+            cuda: "12.6.0"
+            cutag: "cu118"
+          - py: "3.12"
+            tag: "312"
+            cuda: "12.6.0"
             cutag: "cu118"
          
     
@@ -148,6 +160,18 @@ jobs:
           - py: "3.12"
             tag: "312"
             cuda: "11.8.0"
+            cutag: "cu118"
+          - py: "3.10"
+            tag: "310"
+            cuda: "12.6.0"
+            cutag: "cu118"
+          - py: "3.11"
+            tag: "311"
+            cuda: "12.6.0"
+            cutag: "cu118"
+          - py: "3.12"
+            tag: "312"
+            cuda: "12.6.0"
             cutag: "cu118"
     steps:
       - uses: actions/download-artifact@v4
