@@ -36,15 +36,16 @@ jobs:
     
     - name: Set up Python ${{ matrix.py }}
       run: |
-       apt-get update -qq
-       apt-get install -y --no-install-recommends \
-       software-properties-common gnupg ca-certificates
-       add-apt-repository ppa:deadsnakes/ppa -y
-       apt-get update -qq
-       apt-get install -y --no-install-recommends \
-       python${{ matrix.py }} python${{ matrix.py }}-dev \
-       python${{ matrix.py }}-venv python${{ matrix.py }}-distutils
-       python${{ matrix.py }} --version
+        apt-get update && apt-get install -y \
+        make build-essential libssl-dev zlib1g-dev \
+        libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+        libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+        curl -fsSL https://pyenv.run | bash
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        eval "$(pyenv init -)"
+        pyenv install 3.11.9
+        pyenv global 3.11.9
+        python --version
 
     - name: Install Dependencies
       run: |
