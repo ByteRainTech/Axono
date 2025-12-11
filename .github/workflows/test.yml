@@ -35,9 +35,12 @@ jobs:
         fetch-depth: 0
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.py }}
+      run: |
+        apt update && apt install -y software-properties-common
+        add-apt-repository ppa:deadsnakes/ppa -y
+        apt update
+        apt install -y python${{ matrix.py }} python${{ matrix.py }}-dev python${{ matrix.py }}-venv python${{ matrix.py }}-distutils
+
 
     - name: Install Dependencies
       run: |
