@@ -94,3 +94,22 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
+
+      - name: Publish to download.axono.org
+        env:
+          URL:   ${{ secrets.AXONO_URL }}
+          PASS:  ${{ secrets.AXONO_PASSWD }}
+          DEV:   cpu
+          PKG:   axono
+        run: |
+          for whl in dist/*; do
+            [[ -f "$whl" ]] || continue
+            echo "Uploading $whl ..."
+            echo
+            curl -s -F "device=$DEV" \
+                    -F "package=$PKG" \
+                    -F "passwd=$PASS" \
+                    -F "file=@$whl" \
+                    "$URL"
+            echo
+          done
