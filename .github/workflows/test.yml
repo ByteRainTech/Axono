@@ -34,13 +34,17 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.py }}
       run: |
-        apt update && apt install -y software-properties-common
-        add-apt-repository ppa:deadsnakes/ppa -y
-        apt update
-        apt install -y python${{ matrix.py }} python${{ matrix.py }}-dev python${{ matrix.py }}-venv python${{ matrix.py }}-distutils
-
+       apt-get update -qq
+       apt-get install -y --no-install-recommends \
+       software-properties-common gnupg ca-certificates
+       add-apt-repository ppa:deadsnakes/ppa -y
+       apt-get update -qq
+       apt-get install -y --no-install-recommends \
+       python${{ matrix.py }} python${{ matrix.py }}-dev \
+       python${{ matrix.py }}-venv python${{ matrix.py }}-distutils
+       python${{ matrix.py }} --version
 
     - name: Install Dependencies
       run: |
