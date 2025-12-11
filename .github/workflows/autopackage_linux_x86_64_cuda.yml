@@ -22,21 +22,27 @@ jobs:
           - py: "3.10"
             tag: "310"
             cuda: "12.5.0"
+            cutag: "cu125"
           - py: "3.11"
             tag: "311"
             cuda: "12.5.0"
+            cutag: "cu125"
           - py: "3.12"
             tag: "312"
             cuda: "12.5.0"
+            cutag: "cu125"
           - py: "3.10"
             tag: "310"
             cuda: "11.8.0"
+            cutag: "cu118"
           - py: "3.11"
             tag: "311"
             cuda: "11.8.0"
+            cutag: "cu118"
           - py: "3.12"
             tag: "312"
             cuda: "11.8.0"
+            cutag: "cu118"
          
     
     steps:
@@ -125,7 +131,7 @@ jobs:
         env:
           URL:   ${{ secrets.AXONO_URL }}
           PASS:  ${{ secrets.AXONO_PASSWD }}
-          DEV:   cu125
+          DEV:   ${{ matrix.cutag }}
           PKG:   axono
         run: |
           for whl in dist/*; do
