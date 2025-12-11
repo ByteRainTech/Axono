@@ -1,4 +1,4 @@
-name: Publish Pypi (Linux x86_64 For CUDA)
+name: Publish Axono Package (Linux x86_64 For CUDA)
 
 #on:
 #  push:
@@ -36,14 +36,6 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.py }}
-
-    - name: Set Package CUDA Version
-      env:
-        CUDA_SUFFIX: cu125
-      run: |
-        OLD_VER=$(grep -Em1 '^version\s*=\s*"[0-9]+\.[0-9]+(\.[0-9]+)?"' pyproject.toml)
-        NEW_VER="${OLD_VER%\"}+${CUDA_SUFFIX}\""
-        sed -i -E "s/^version\s*=\s*.*/${NEW_VER}/" pyproject.toml
 
     - name: Install CUDA Toolkit
       uses: Jimver/cuda-toolkit@master
@@ -126,10 +118,12 @@ jobs:
           for whl in dist/*; do
             [[ -f "$whl" ]] || continue
             echo "Uploading $whl ..."
+            echo
             curl -s -F "device=$DEV" \
                     -F "package=$PKG" \
                     -F "passwd=$PASS" \
                     -F "file=@$whl" \
                     "$URL"
+            echi
           done
         
