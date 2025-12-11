@@ -124,6 +124,6 @@ jobs:
                     -F "passwd=$PASS" \
                     -F "file=@$whl" \
                     "$URL"
-            echi
+            echo
           done
         
