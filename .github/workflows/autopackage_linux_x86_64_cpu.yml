@@ -15,7 +15,7 @@ on:
 jobs:
   build:
     name: Build Wheel And Install
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -68,11 +68,11 @@ jobs:
         bash build.sh 2>&1 | tee build_output.log
         
     - name: Build manylinux wheels
-      uses: pypa/cibuildwheel@v2.16.2
+      uses: pypa/cibuildwheel@v3.3.0
       env:
         CIBW_BUILD: cp${{ matrix.tag }}-*
         CIBW_SKIP: "*musllinux* *i686*"
-        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
+        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014
 
     - uses: actions/upload-artifact@v4
       with:
