@@ -65,7 +65,9 @@ jobs:
 
     - name: Install Libcurand
       run: |
-        sudo apt-get install -y libcurand-dev-12-5
+        CURAND_PKG="libcurand-dev-$(echo ${{ matrix.cuda }} | sed 's/\./-/g' | cut -d- -f1,2)"
+        sudo apt-get update -y
+        sudo apt-get install -y "$CURAND_PKG"
 
     - name: Check CUDA compiler
       run: |
