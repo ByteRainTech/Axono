@@ -135,12 +135,13 @@ jobs:
         bash build.sh 2>&1 | tee build_output.log
         
     - name: Build manylinux wheels
-      uses: pypa/cibuildwheel@v2.16.2
+      uses: pypa/cibuildwheel@v3
       env:
         CIBW_BUILD: cp${{ matrix.tag }}-*
         CIBW_SKIP: "*musllinux* *i686*"
         CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_34_x86_64
         CIBW_PRERELEASE_PYTHONS: 1
+        CIBW_ENABLE: cpython-prerelease
 
     - uses: actions/upload-artifact@v4
       with:
