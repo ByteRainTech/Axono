@@ -1,0 +1,117 @@
+name: Publish Pypi (Linux x86_64 For CPU) Test
+
+#on:
+#  push:
+#    tags:
+#      - 'v*'
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:  # 添加手动触发器
+
+jobs:
+  build:
+    name: Build Wheel And Install
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:18.04
+    strategy:
+      matrix:
+        include:
+          - py: "3.10"
+            tag: "310"
+          - py: "3.11"
+            tag: "311"
+          - py: "3.12"
+            tag: "312"
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.py }}
+
+    - name: Install Dependencies
+      run: |
+        pip3 install -r requirements.txt
+        pip3 install setuptools
+    - name: Install build tools
+      run: |
+        python -m pip install -U pip wheel setuptools build
+    - name: Detect platform & python tag
+      id: info
+      shell: bash
+      run: |
+        OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+        case "$OS" in
+          linux)  PLAT="linux_$ARCH" ;;
+          macos)
+            [[ "$ARCH" == "arm64" ]] && PLAT="macosx_11_0_arm64" || PLAT="macosx_10_9_x86_64"
+            ;;
+          windows) PLAT="win_amd64" ;;
+          *) echo "unsupported OS"; exit 1 ;;
+        esac
+        PYTAG="cp$(python -c 'import sys;print(f"{sys.version_info.major}{sys.version_info.minor}")')"
+        echo "plat=$PLAT" >> $GITHUB_OUTPUT
+        echo "pytag=$PYTAG" >> $GITHUB_OUTPUT
+        echo "==> detected --plat-name=$PLAT --python-tag=$PYTAG"
+    - name: Build Library
+      run: |
+        export AUTO_CI=cpu
+        bash build.sh 2>&1 | tee build_output.log
+        
+    - name: Build manylinux wheels
+      uses: pypa/cibuildwheel@v2.16.2
+      env:
+        CIBW_BUILD: cp${{ matrix.tag }}-*
+        CIBW_SKIP: "*musllinux* *i686*"
+        CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_28_x86_64
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: wheels-linux-${{ matrix.tag }}
+        path: ./wheelhouse/*.whl
+
+  upload_pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-linux-*
+          merge-multiple: true
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
+
+      - name: Publish to download.axono.org
+        env:
+          URL:   ${{ secrets.AXONO_URL }}
+          PASS:  ${{ secrets.AXONO_PASSWD }}
+          DEV:   cpu
+          PKG:   axono
+        run: |
+          for whl in dist/*; do
+            [[ -f "$whl" ]] || continue
+            echo "Uploading $whl ..."
+            echo
+            curl -s -F "device=$DEV" \
+                    -F "package=$PKG" \
+                    -F "passwd=$PASS" \
+                    -F "file=@$whl" \
+                    "$URL"
+            echo
+          done
