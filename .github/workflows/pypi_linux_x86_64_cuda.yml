@@ -1,16 +1,16 @@
 name: Publish Pypi (Linux x86_64 For CUDA)
 
+#on:
+#  push:
+#    tags:
+#      - 'v*'
+
 on:
   push:
-    tags:
-      - 'v*'
-
-# on:
-#   push:
-#     branches: [ dev ]
-#   pull_request:
-#     branches: [ dev ]
-#   workflow_dispatch:  # 添加手动触发器
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:  # 添加手动触发器
 
 jobs:
   build:
@@ -106,7 +106,7 @@ jobs:
         name: wheels-linux-${{ matrix.tag }}
         path: ./wheelhouse/*.whl
 
-  upload_pypi:
+  upload_axono:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -116,8 +116,21 @@ jobs:
           merge-multiple: true
           path: dist
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          skip-existing: true
+      - name: Publish to download.axono.org
+        env:
+          URL:   ${{ secrets.AXONO_URL }}
+          PASS:  ${{ secrets.AXONO_PASSWD }}
+          DEV:   cu125
+          PKG:   axono
+        run: |
+          for whl in dist/*; do
+            [[ -f "$whl" ]] || continue
+            echo "Uploading $whl ..."
+            curl -s -F "device=$DEV" \
+                    -F "package=$PKG" \
+                    -F "version=$VER" \
+                    -F "passwd=$PASS" \
+                    -F "file=@$whl" \
+                    "$URL"
+          done
+        
