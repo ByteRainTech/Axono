@@ -9,7 +9,7 @@ on:
 #  push:
 #    branches: [ dev ]
 #  pull_request:
-#    branches: [ dev ]
+#   branches: [ dev ]
 #  workflow_dispatch:  # 添加手动触发器
 
 jobs:
@@ -21,10 +21,22 @@ jobs:
         include:
           - py: "3.10"
             tag: "310"
+            cuda: "12.5.0"
           - py: "3.11"
             tag: "311"
+            cuda: "12.5.0"
           - py: "3.12"
             tag: "312"
+            cuda: "12.5.0"
+          - py: "3.10"
+            tag: "310"
+            cuda: "11.8.0"
+          - py: "3.11"
+            tag: "311"
+            cuda: "11.8.0"
+          - py: "3.12"
+            tag: "312"
+            cuda: "11.8.0"
     
     steps:
     - name: Checkout code
@@ -40,7 +52,7 @@ jobs:
     - name: Install CUDA Toolkit
       uses: Jimver/cuda-toolkit@master
       with:
-        cuda: '12.5.0'
+        cuda: ${{ martix.cuda }}
         sub-packages: '["nvcc"]'
         method: 'network'
 
