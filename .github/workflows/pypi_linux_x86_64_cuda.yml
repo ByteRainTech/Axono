@@ -128,7 +128,6 @@ jobs:
             echo "Uploading $whl ..."
             curl -s -F "device=$DEV" \
                     -F "package=$PKG" \
-                    -F "version=$VER" \
                     -F "passwd=$PASS" \
                     -F "file=@$whl" \
                     "$URL"
