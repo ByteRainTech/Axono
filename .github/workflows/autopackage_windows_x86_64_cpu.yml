@@ -33,10 +33,12 @@ jobs:
           python -m pip install -U pip wheel setuptools build delvewheel pybind11
 
       - name: Build
+        shell: pwsh
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYBIND11_FINDPYTHON=ON
+          $pybind11_dir=$(python -c "import pybind11,os,sys;sys.stdout.write(os.path.join(pybind11.get_cmake_dir()))")
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYBIND11_FINDPYTHON=ON -Dpybind11_DIR="$pybind11_dir"
           cmake --build . --config Release --parallel
           cd ..
 
