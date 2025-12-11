@@ -36,8 +36,8 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. DCMAKE_BUILD_TYPE=Release
-          build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYBIND11_FINDPYTHON=ON
+          cmake --build . --config Release --parallel
           cd ..
 
       - name: Build wheel
