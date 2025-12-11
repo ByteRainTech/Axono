@@ -41,11 +41,11 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        pip3 install -r requirements.txt
-        pip3 install setuptools
+        python3 -m pip install -r requirements.txt
+        python3 -m pip install setuptools
     - name: Install build tools
       run: |
-        python -m pip install -U pip wheel setuptools build
+        python3 -m pip install -U pip wheel setuptools build
     - name: Detect platform & python tag
       id: info
       shell: bash
