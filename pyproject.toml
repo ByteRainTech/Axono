@@ -5,7 +5,7 @@ requires = [
     "scikit-build-core>=0.5",
     "pybind11>=2.10.0"
 ]
-build-backend = "scikit_build_core.build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "axono"
@@ -86,7 +86,3 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["axono"]
-
-[tool.scikit-build]
-wheel.packages = ["python/axono"]
-wheel.include = ["axono/library/*.pyd"]
