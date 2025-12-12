@@ -35,6 +35,7 @@ jobs:
       - name: Build
         shell: pwsh
         run: |
+          sed -i '/^\[\[tool\.setuptools\.ext-modules\]\]/,/^$/d; /^\[\[tool\.setuptools\.ext-modules\]\]/,/^\[/d' pyproject.toml
           mkdir build
           cd build
           $pybind11_dir=$(python -c "import pybind11,os,sys;sys.stdout.write(os.path.join(pybind11.get_cmake_dir()))")
