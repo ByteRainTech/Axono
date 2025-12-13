@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "axono"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deep learning framework with tensor operations and neural network modules"
 readme = "README.md"
 requires-python = ">=3.8"
