@@ -15,7 +15,7 @@ Axono - High Performance Computing Library
 
 from .core import DataType, Status, Tensor, operators
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "ByteRainLab"
 __description__ = "High performance computing library for big data processing"
 
