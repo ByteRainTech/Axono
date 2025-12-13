@@ -1,47 +1,49 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-from abc import ABC, abstractmethod
-from typing import List
-
+# python/axono/nn/module.py
+from typing import Dict, List
+from libaxono import Module as _Module
+from libaxono import Tensor as _Tensor
 from ..core import Tensor
 
-
-class Module(ABC):
+class Module:
     def __init__(self):
-        self._parameters = {}
+        self._parameters: Dict[str, Tensor] = {}
+        self._cpp_module = _Module()
         self._is_training = True
+        self._name = self.__class__.__name__
 
-    @abstractmethod
-    def forward(self, x: Tensor) -> Tensor:
-        pass
+    def add_weight(self, name: str, tensor: Tensor) -> None:
+        self._parameters[name] = tensor
+        self._cpp_module.add_weight(name, tensor._tensor)
 
-    def __call__(self, x: Tensor) -> Tensor:
-        return self.forward(x)
+    def parameters(self) -> Dict[str, Tensor]:
+        for k, v in self._parameters.items():
+            if type(v) == _Tensor:
+                self._parameters[k] = Tensor.from_raw(v)
+        return dict(self._parameters)
 
-    def train(self, mode: bool = True):
+    def train(self, mode: bool = True) -> "Module":
         self._is_training = mode
         return self
+    def __repr__(self) -> str:
+        cls_name = self.__class__.__name__
+        init_args = []
+        if hasattr(self, '_init_args'):
+            init_args = [f"{k}={v}" for k, v in self._init_args.items()]
 
-    def eval(self):
-        return self.train(False)
+        if not hasattr(self, '_modules') or not self._modules:
+            if init_args:
+                return f"{cls_name}({', '.join(init_args)})"
+            else:
+                return f"{cls_name}()"
 
-    @property
-    def is_training(self) -> bool:
-        return self._is_training
+        lines = [f"{cls_name}("]
+        indent = "  "
+        if init_args:
+            lines.append(f"{indent}{', '.join(init_args)},")
 
-    def parameters(self) -> List[Tensor]:
-        return list(self._parameters.values())
-
-    def to(self, device: str) -> "Module":
-        for name, param in self._parameters.items():
-            self._parameters[name] = param.to(device)
-        return self
+        for name, module in self._modules.items():
+            submodule_repr = repr(module).replace("\n", f"\n{indent}")
+            lines.append(f"{indent}({name}): {submodule_repr}")
+        
+        lines.append(")")
+        return "\n".join(lines)
