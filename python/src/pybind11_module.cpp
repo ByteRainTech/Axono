@@ -9,7 +9,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(axonolib, m) {
+PYBIND11_MODULE(libaxono, m) {
   m.doc() = "Axono Library";
 
   // 数据类型枚举
