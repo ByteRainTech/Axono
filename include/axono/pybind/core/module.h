@@ -10,7 +10,7 @@ void init_module(py::module &m) {
         .def("add_weight", 
              &axono::core::Module::add_weight, 
              py::arg("name"), py::arg("weight"), 
-             "向模块添加权重张量)
+             "向模块添加权重张量")
         .def("get_weight", 
              &axono::core::Module::get_weight, 
              py::arg("name"), 
