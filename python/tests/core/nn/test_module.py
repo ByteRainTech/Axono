@@ -22,7 +22,7 @@ sys.path.insert(
 from axono.core import Tensor
 from axono.nn import Module
 
-device = os.getenv("axono_default_device", "cuda:0")
+device = os.getenv("axono_default_device", "cpu")
 
 
 class TestModule(unittest.TestCase):
