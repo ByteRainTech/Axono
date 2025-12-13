@@ -75,55 +75,73 @@ Tensor::Tensor(const Tensor &other)
       device_(other.device_),
       num_elements_(other.num_elements_) {
   if (other.data_) {
-    // 根据设备类型初始化存储
-    if (device_ == other.device_) {
-      // 相同设备，分配内存并拷贝
-      InitializeStorage();
-      if (device_.substr(0, 4) == "cuda") {
-        // CUDA设备间的拷贝
+    // 总是重新分配存储
+    InitializeStorage();
+    
+    // 执行设备间拷贝
+    if (is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
+      if (other.is_cuda()) {
         cuda::detail::cuda_memcpy_d2d(data_.get(), other.data_.get(),
                                       num_bytes());
-#endif
       } else {
-        // CPU设备间的拷贝
-        std::memcpy(data_.get(), other.data_.get(), num_bytes());
+        cuda::detail::cuda_memcpy_h2d(data_.get(), other.data_.get(),
+                                      num_bytes());
       }
+#endif
     } else {
-      // 不同设备，需要转换
-      InitializeStorage();
-      if (other.device_.substr(0, 4) == "cuda" &&
-          device_.substr(0, 3) == "cpu") {
+      if (other.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        // CUDA -> CPU
         cuda::detail::cuda_memcpy_d2h(data_.get(), other.data_.get(),
                                       num_bytes());
 #endif
-      } else if (other.device_.substr(0, 3) == "cpu" &&
-                 device_.substr(0, 4) == "cuda") {
-        // CPU -> CUDA
-#ifdef COMPILED_WITH_CUDA
-        cuda::detail::cuda_memcpy_h2d(data_.get(), other.data_.get(),
-                                      num_bytes());
-#endif
       } else {
-        // 其他情况
-        throw std::runtime_error("Unsupported device copy");
+        std::memcpy(data_.get(), other.data_.get(), num_bytes());
       }
     }
   }
 }
 Tensor &Tensor::operator=(const Tensor &other) {
   if (this != &other) {
+    // 清理旧数据
+    data_.reset();
+    
+    // 更新所有成员变量
     dtype_ = other.dtype_;
     shape_ = other.shape_;
+    device_ = other.device_;  // 重要：更新设备信息！
     num_elements_ = other.num_elements_;
-
+    
     if (other.data_) {
+      // 重新初始化存储
       InitializeStorage();
-      std::memcpy(data_.get(), other.data_.get(), num_bytes());
-    } else {
-      data_.reset();
+      
+      // 执行设备间正确的拷贝
+      if (device_ == other.device_) {
+        if (is_cuda()) {
+#ifdef COMPILED_WITH_CUDA
+          cuda::detail::cuda_memcpy_d2d(data_.get(), other.data_.get(),
+                                        num_bytes());
+#endif
+        } else {
+          std::memcpy(data_.get(), other.data_.get(), num_bytes());
+        }
+      } else {
+        // 跨设备拷贝
+        if (other.is_cuda() && !is_cuda()) {
+#ifdef COMPILED_WITH_CUDA
+          cuda::detail::cuda_memcpy_d2h(data_.get(), other.data_.get(),
+                                        num_bytes());
+#endif
+        } else if (!other.is_cuda() && is_cuda()) {
+#ifdef COMPILED_WITH_CUDA
+          cuda::detail::cuda_memcpy_h2d(data_.get(), other.data_.get(),
+                                        num_bytes());
+#endif
+        } else {
+          throw std::runtime_error("Unsupported device copy");
+        }
+      }
     }
   }
   return *this;
@@ -211,7 +229,7 @@ void Tensor::InitializeStorage() {
   size_t bytes = num_bytes();
   if (bytes == 0) return;
 
-  if (device_.substr(0, 4) == "cuda") {
+  if (is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
     data_ = cuda::detail::CudaAllocateStorage(bytes, device_);
 #endif

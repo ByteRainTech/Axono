@@ -13,7 +13,7 @@
 Axono Add
 """
 
-from axonolib import add as _add
+from libaxono import add as _add
 
 from ..tensor import Tensor
 

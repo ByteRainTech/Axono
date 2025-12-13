@@ -15,7 +15,7 @@ import sys
 library_path = os.path.dirname(os.path.dirname(__file__)) + "/library/"
 sys.path.append(library_path)
 
-from axonolib import DataType, Status  # noqa: E402
+from libaxono import DataType, Status  # noqa: E402
 
 from . import operators  # noqa: E402
 from .tensor import Tensor  # noqa: E402
