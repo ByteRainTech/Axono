@@ -13,8 +13,8 @@
 core.ops.Relu()
 """
 
-from axonolib import relu as relu_op
-from axonolib import relu_ as relu_op_
+from libaxono import relu as relu_op
+from libaxono import relu_ as relu_op_
 
 from ..tensor import Tensor
 
