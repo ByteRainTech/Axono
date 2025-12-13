@@ -35,6 +35,7 @@ PYBIND11_MODULE(libaxono, m) {
 
   // 初始化 Tensor
   init_tensor(m);
+  init_module(m);
   init_matmul_operations(m);
   init_add_operations(m);
   init_relu_operations(m);
