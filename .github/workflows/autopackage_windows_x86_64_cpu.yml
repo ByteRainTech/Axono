@@ -1,88 +1,88 @@
-name: Publish PyPI (Windows x86_64 For CPU)
+# name: Publish PyPI (Windows x86_64 For CPU)
+
+# # on:
+# #   push:
+# #     tags:
+# #       - 'v*'
+# #   workflow_dispatch:
 
 # on:
 #   push:
-#     tags:
-#       - 'v*'
-#   workflow_dispatch:
+#     branches: [ dev ]
+#   pull_request:
+#     branches: [ dev ]
+#   workflow_dispatch:  # 添加手动触发器
 
-on:
-  push:
-    branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
-  workflow_dispatch:  # 添加手动触发器
+# jobs:
+#   build:
+#     name: Build Windows wheel (CPython 3.12)
+#     runs-on: windows-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-jobs:
-  build:
-    name: Build Windows wheel (CPython 3.12)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+#       - name: Set up Python 3.12
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: "3.12"
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
+#       - name: Install dependencies & build tools
+#         run: |
+#           python -m pip install -U pip wheel setuptools build delvewheel pybind11
 
-      - name: Install dependencies & build tools
-        run: |
-          python -m pip install -U pip wheel setuptools build delvewheel pybind11
+#       - name: Build
+#         shell: pwsh
+#         run: |
+#           sed -i '/^\[\[tool\.setuptools\.ext-modules\]\]/,/^$/d; /^\[\[tool\.setuptools\.ext-modules\]\]/,/^\[/d' pyproject.toml
+#           mkdir build
+#           cd build
+#           $pybind11_dir=$(python -c "import pybind11,os,sys;sys.stdout.write(os.path.join(pybind11.get_cmake_dir()))")
+#           cmake .. -DCMAKE_BUILD_TYPE=Release -DPYBIND11_FINDPYTHON=ON -Dpybind11_DIR="$pybind11_dir"
+#           cmake --build . --config Release --parallel
+#           cd ..
 
-      - name: Build
-        shell: pwsh
-        run: |
-          sed -i '/^\[\[tool\.setuptools\.ext-modules\]\]/,/^$/d; /^\[\[tool\.setuptools\.ext-modules\]\]/,/^\[/d' pyproject.toml
-          mkdir build
-          cd build
-          $pybind11_dir=$(python -c "import pybind11,os,sys;sys.stdout.write(os.path.join(pybind11.get_cmake_dir()))")
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYBIND11_FINDPYTHON=ON -Dpybind11_DIR="$pybind11_dir"
-          cmake --build . --config Release --parallel
-          cd ..
+#       - name: Build wheel
+#         run: python -m build --wheel
 
-      - name: Build wheel
-        run: python -m build --wheel
+#       - name: Repair wheel (delvewheel)
+#         run: delvewheel repair -w dist dist/*.whl
 
-      - name: Repair wheel (delvewheel)
-        run: delvewheel repair -w dist dist/*.whl
+#       - uses: actions/upload-artifact@v4
+#         with:
+#           name: wheels-win-cp312
+#           path: dist/*.whl
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-win-cp312
-          path: dist/*.whl
+#   upload_pypi:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/download-artifact@v4
+#         with:
+#           name: wheels-win-cp312
+#           path: dist
 
-  upload_pypi:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels-win-cp312
-          path: dist
+#       - name: Publish to PyPI
+#         uses: pypa/gh-action-pypi-publish@release/v1
+#         with:
+#           password: ${{ secrets.PYPI_API_TOKEN }}
+#           skip-existing: true
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          skip-existing: true
-
-      - name: Publish to download.axono.org
-        env:
-          URL: ${{ secrets.AXONO_URL }}
-          PASS: ${{ secrets.AXONO_PASSWD }}
-          DEV: cpu
-          PKG: axono
-        run: |
-          for whl in dist/*.whl; do
-            echo "Uploading $whl ..."
-            echo
-            curl -s -F "device=$DEV" \
-                    -F "package=$PKG" \
-                    -F "passwd=$PASS" \
-                    -F "file=@$whl" \
-                    "$URL"
-            echo
-          done
+#       - name: Publish to download.axono.org
+#         env:
+#           URL: ${{ secrets.AXONO_URL }}
+#           PASS: ${{ secrets.AXONO_PASSWD }}
+#           DEV: cpu
+#           PKG: axono
+#         run: |
+#           for whl in dist/*.whl; do
+#             echo "Uploading $whl ..."
+#             echo
+#             curl -s -F "device=$DEV" \
+#                     -F "package=$PKG" \
+#                     -F "passwd=$PASS" \
+#                     -F "file=@$whl" \
+#                     "$URL"
+#             echo
+#           done
