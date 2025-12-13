@@ -6,6 +6,7 @@
 #include "axono/pybind/compute/operators/matmul.h"
 #include "axono/pybind/compute/ops/relu.h"
 #include "axono/pybind/core/tensor.h"
+#include "axono/pybind/core/module.h"
 
 namespace py = pybind11;
 
