@@ -13,7 +13,7 @@
 Axono Matmul
 """
 
-from axonolib import matmul as _matmul
+from libaxono import matmul as _matmul
 
 from ..tensor import Tensor
 
