@@ -39,11 +39,7 @@ package-dir = { "" = "python" }
 packages = [
     "axono",
     "axono.core",
-    "axono.data",
-    "axono.models",
     "axono.nn",
-    "axono.train",
-    "axono.viz",
     "axono.core.operators",
     "axono.core.ops"
 ]
