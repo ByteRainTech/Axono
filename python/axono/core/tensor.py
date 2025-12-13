@@ -17,8 +17,8 @@ import ctypes
 import os
 
 import numpy as np
-from axonolib import DataType, Status
-from axonolib import Tensor as _Tensor
+from libaxono import DataType, Status
+from libaxono import Tensor as _Tensor
 
 default_device = os.getenv("axono_default_device", "cpu")
 
