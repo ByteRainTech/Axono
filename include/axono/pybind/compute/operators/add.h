@@ -53,8 +53,9 @@ REGISTER_OP(add_scalar) {
             status = cuda::operators::AddScalar(ctx, a, &value, sizeof(float), result);
 #endif
         }
-        else
+        else {
             status = cpu::operators::AddScalar(ctx, a, &value, sizeof(float), result);
+        }
     }
     if (status != core::Status::OK) {
         throw std::runtime_error("执行 add_scalar 的时候出现问题，错误代码：" + std::to_string(static_cast<int>(status)));
@@ -65,8 +66,9 @@ REGISTER_OP(add_scalar) {
             status = cuda::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
 #endif
         }
-        else
+        else {
             status = cpu::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
+        }
 
         if (status != core::Status::OK)
             throw std::runtime_error("执行 add_scalar 的时候出现问题，错误代码：" + std::to_string(static_cast<int>(status)));
