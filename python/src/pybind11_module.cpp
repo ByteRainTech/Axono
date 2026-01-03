@@ -7,6 +7,7 @@
 #include "axono/pybind/compute/ops/relu.h"
 #include "axono/pybind/core/tensor.h"
 #include "axono/pybind/core/module.h"
+#include "axono/core/ops.h"
 
 namespace py = pybind11;
 
@@ -37,7 +38,5 @@ PYBIND11_MODULE(libaxono, m) {
   // 初始化 Tensor
   init_tensor(m);
   init_module(m);
-  init_matmul_operations(m);
-  init_add_operations(m);
-  init_relu_operations(m);
+  axono::core::OpRegistry::instance().bind_all(m);
 }
