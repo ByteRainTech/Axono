@@ -25,12 +25,13 @@ REGISTER_OP(add) {
     core::Context ctx;
     core::Tensor result = core::Tensor(a.dtype(), a.shape(), a.device());
     core::Status status;
-    if (a.is_cuda())
+    if (a.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
         status = cuda::operators::Add(ctx, a, b, result);
 #endif
-    else 
+    } else {
         status = cpu::operators::Add(ctx, a, b, result);
+    }
     if (status != core::Status::OK)
         throw std::runtime_error("执行 add 时出现问题，错误代码：" + std::to_string(static_cast<int>(status)));
 
@@ -48,12 +49,11 @@ REGISTER_OP(add_scalar) {
     core::Status status;
     if (a.dtype() == core::DataType::FLOAT32) {
         float value = scalar.cast<float>();
-        if (a.is_cuda()) {
+        if (a.is_cuda()){
 #ifdef COMPILED_WITH_CUDA
             status = cuda::operators::AddScalar(ctx, a, &value, sizeof(float), result);
 #endif
-        }
-        else {
+        } else {
             status = cpu::operators::AddScalar(ctx, a, &value, sizeof(float), result);
         }
     }
@@ -65,8 +65,7 @@ REGISTER_OP(add_scalar) {
 #ifdef COMPILED_WITH_CUDA
             status = cuda::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
 #endif
-        }
-        else {
+        } else {
             status = cpu::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
         }
 
