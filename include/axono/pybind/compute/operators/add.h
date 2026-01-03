@@ -48,10 +48,11 @@ REGISTER_OP(add_scalar) {
     core::Status status;
     if (a.dtype() == core::DataType::FLOAT32) {
         float value = scalar.cast<float>();
-        if (a.is_cuda())
+        if (a.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
             status = cuda::operators::AddScalar(ctx, a, &value, sizeof(float), result);
 #endif
+        }
         else
             status = cpu::operators::AddScalar(ctx, a, &value, sizeof(float), result);
     }
@@ -59,10 +60,11 @@ REGISTER_OP(add_scalar) {
         throw std::runtime_error("执行 add_scalar 的时候出现问题，错误代码：" + std::to_string(static_cast<int>(status)));
     } else if (a.dtype() == core::DataType::INT32) {
         int32_t value = scalar.cast<int32_t>();
-        if (a.is_cuda())
+        if (a.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
             status = cuda::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
 #endif
+        }
         else
             status = cpu::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
 
