@@ -5,11 +5,9 @@
 #include "axono/core/types.h"
 
 namespace axono {
-namespace compute {
-namespace cpu {
 namespace ops {
+namespace cpu {
 
-/* ===== 内核 ===== */
 template <typename T>
 void ReluKernel(const T *input, T *output, size_t n) {
   for (size_t i = 0; i < n; ++i) output[i] = std::max(T(0), input[i]);
@@ -19,7 +17,6 @@ void ReluInplaceKernel(T *data, size_t n) {
   for (size_t i = 0; i < n; ++i) data[i] = std::max(T(0), data[i]);
 }
 
-/* ===== 分派 ===== */
 core::Status DispatchRelu(const core::Tensor &input, core::Tensor &output) {
   if (!input.IsSameShape(output)) return core::Status::SHAPE_MISMATCH;
   if (input.dtype() != output.dtype()) return core::Status::UNSUPPORTED_TYPE;
@@ -59,7 +56,6 @@ core::Status DispatchReluInplace(core::Tensor &tensor) {
   return core::Status::OK;
 }
 
-/* ===== 对外接口实现 ===== */
 core::Status Relu(const core::Context &ctx, const core::Tensor &input,
                   core::Tensor &output) {
   (void)ctx;
@@ -74,7 +70,6 @@ core::Status ReluInplace(const core::Context &ctx, core::Tensor &tensor) {
   return DispatchReluInplace(tensor);
 }
 
-}  // namespace ops
 }  // namespace cpu
-}  // namespace compute
+}  // namespace ops
 }  // namespace axono
