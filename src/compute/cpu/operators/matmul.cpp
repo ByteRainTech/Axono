@@ -1,5 +1,3 @@
-#include "axono/compute/cpu/operators/matmul.h"
-
 #include <cstddef>
 #include <cstring>
 #include <thread>
@@ -16,7 +14,9 @@
 #define AXONO_USE_X86_INTRINSICS 0
 #endif
 
-namespace axono::compute::cpu::operators {
+namespace axono {
+namespace ops {
+namespace cpu {
 
 constexpr size_t BLOCK_SIZE_M = 512;
 constexpr size_t BLOCK_SIZE_N = 512;
@@ -386,12 +386,6 @@ void MatMulOptimizedKernel(const T *a, const T *b, T *result, size_t m,
   }
 }
 
-}  // namespace axono::compute::cpu::operators
-namespace axono {
-namespace compute {
-namespace cpu {
-namespace operators {
-
 core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
                     const core::Tensor &b, core::Tensor &result) {
   (void)ctx;  // 暂时未使用
@@ -459,7 +453,6 @@ core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
   return core::Status::OK;
 }
 
-}  // namespace operators
 }  // namespace cpu
-}  // namespace compute
+}  // namespace ops
 }  // namespace axono
