@@ -1,15 +1,15 @@
-#include "axono/compute/cpu/operators/randn.h"
-
 #include <random>
 #include <vector>
 
 #include "axono/core/macros.h"
 #include "axono/core/tensor.h"
 
-namespace axono::compute::cpu::operators {
+namespace axono {
+namespace ops {
+namespace cpu {
 
 namespace {
-// 线程局部随机数生成器，避免多线程竞争
+// 线程局部随机数生成器
 thread_local std::mt19937 rng(std::random_device{}());
 
 template <typename T>
@@ -43,4 +43,6 @@ core::Status Randn(const core::Context& ctx, core::Tensor& out, float mean,
   return core::Status::OK;
 }
 
-}  // namespace axono::compute::cpu::operators
+}  // namespace cpu
+}  // namespace ops
+}  // namespace axono
