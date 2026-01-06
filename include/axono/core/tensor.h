@@ -14,6 +14,7 @@
 // 遵循 lib, type
 namespace axono {
 namespace core {
+
 class Tensor {
  public:
   // 构造函数
@@ -103,5 +104,6 @@ class Tensor {
   // 初始化数据存储
   void InitializeStorage();
 };
+
 }  // namespace core
 }  // namespace axono

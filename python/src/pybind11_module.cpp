@@ -2,12 +2,14 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "axono/pybind/compute/operators/add.h"
-#include "axono/pybind/compute/operators/matmul.h"
-#include "axono/pybind/compute/ops/relu.h"
+#include "axono/core/ops.h"
+
+#include "axono/pybind/ops/add.h"
+#include "axono/pybind/ops/relu.h"
+#include "axono/pybind/ops/matmul.h"
+
 #include "axono/pybind/core/tensor.h"
 #include "axono/pybind/core/module.h"
-#include "axono/core/ops.h"
 
 namespace py = pybind11;
 
