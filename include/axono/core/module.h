@@ -1,6 +1,10 @@
+#pragma once
+
 #include "tensor.h"
 
-namespace axono::core {
+namespace axono {
+namespace core {
+
 class Module {
 private:
     std::unordered_map<std::string, Tensor> weights_;  // 存储权重张量
@@ -13,4 +17,6 @@ public:
     }
     auto& weights() { return weights_; }
 };
-}
+
+} // namespace core
+} // namespace axono
