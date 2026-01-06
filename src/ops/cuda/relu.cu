@@ -2,17 +2,14 @@
 #include <cuda_runtime.h>
 #include <cstddef>
 
-#include "axono/compute/cuda/ops/relu.h"   // ← 关键：CUDA 自己的头文件
 #include "axono/core/macros.h"
 #include "axono/core/tensor.h"
 #include "axono/core/types.h"
 
 namespace axono {
-namespace compute {
-namespace cuda {
 namespace ops {
+namespace cuda {
 
-/* ================ 内核 ================ */
 template <typename T>
 __global__ void ReluKernel(const T* __restrict__ input,
                           T* __restrict__ output,
@@ -33,7 +30,6 @@ __global__ void ReluInplaceKernel(T* data, int num_elements) {
   }
 }
 
-/* ================ 启动配置 ================ */
 inline dim3 CalculateLaunchConfig(int num_elements) {
   const int block_size = 256;
   int grid_size = (num_elements + block_size - 1) / block_size;
@@ -43,7 +39,6 @@ inline dim3 CalculateLaunchConfig(int num_elements) {
   return dim3(grid_size);
 }
 
-/* ================ 内部分派 ================ */
 core::Status DispatchRelu(const core::Tensor& input, core::Tensor& output) {
   size_t n = input.num_elements();
   if (n > INT_MAX) return core::Status::INVALID_ARGUMENT;
@@ -118,7 +113,6 @@ core::Status DispatchReluInplace(core::Tensor& tensor) {
   return (err == cudaSuccess) ? core::Status::OK : core::Status::DEVICE_ERROR;
 }
 
-/* ================ 对外接口 ================ */
 core::Status Relu(const core::Context& ctx,
                   const core::Tensor& input,
                   core::Tensor& output) {
@@ -133,7 +127,6 @@ core::Status ReluInplace(const core::Context& ctx,
   return DispatchReluInplace(tensor);
 }
 
-} // namespace ops
 } // namespace cuda
-} // namespace compute
+} // namespace ops
 } // namespace axono
