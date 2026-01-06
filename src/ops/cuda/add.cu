@@ -1,14 +1,14 @@
-#include "axono/core/macros.h"
-#include "axono/core/tensor.h"
-#include "axono/core/types.h"
 #include <cuda_runtime.h>
 #include <cstddef>
 #include <cstring>
 
+#include "axono/core/macros.h"
+#include "axono/core/tensor.h"
+#include "axono/core/types.h"
+
 namespace axono {
-namespace compute {
+namespace ops {
 namespace cuda {
-namespace operators {
 
 // CUDA 逐元素加法内核
 template <typename T>
@@ -179,7 +179,6 @@ core::Status AddScalar(const core::Context &ctx, const core::Tensor &a,
   return DispatchAddScalar(a, scalar, scalar_size, result);
 }
 
-} // namespace operators
 } // namespace cuda
-} // namespace compute
+} // namespace ops
 } // namespace axono
