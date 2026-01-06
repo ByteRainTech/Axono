@@ -54,5 +54,6 @@ private:
     }; \
     static RegisterOp_##name register_op_##name; \
     pybind11::object op_impl_##name(const pybind11::args& args)
+
 } // namespace core
 } // namespace axono
