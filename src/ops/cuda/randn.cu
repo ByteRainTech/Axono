@@ -1,13 +1,12 @@
-#include "axono/compute/cuda/operators/randn.h"
-#include "axono/core/cuda/tensor/kernel.h"
-#include "axono/core/types.h"
 #include <curand_kernel.h>
 #include <random>
 
+#include "axono/core/types.h"
+#include "axono/core/tensor.h"
+
 namespace axono {
-namespace compute {
+namespace ops {
 namespace cuda {
-namespace operators {
 
 template <typename T>
 __global__ void RandnKernel(T* data, size_t num_elements, float mean, float stddev, unsigned int seed) {
@@ -53,17 +52,16 @@ core::Status Randn(const core::Context& ctx, core::Tensor& out, float mean, floa
                 return core::Status::UNSUPPORTED_TYPE;
         }
 #else
-        return core::Status::DEVICE_ERROR;  // 修复：使用正确的枚举值
+        return core::Status::DEVICE_ERROR;
 #endif
     } else {
-        return core::Status::DEVICE_ERROR;  // 修复：使用正确的枚举值
+        return core::Status::DEVICE_ERROR;
     }
 }
 
 template core::Status DispatchRandn<float>(const core::Context&, core::Tensor&, float, float);
 template core::Status DispatchRandn<double>(const core::Context&, core::Tensor&, float, float);
 
-}  // namespace operators
-}  // namespace cuda
-}  // namespace compute
-}  // namespace axono
+} // namespace cuda
+} // namespace ops
+} // namespace axono
