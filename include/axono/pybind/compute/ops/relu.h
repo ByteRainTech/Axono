@@ -1,17 +1,16 @@
 #include <pybind11/pybind11.h>
 
-namespace py = pybind11;
-
 #include "axono/core/tensor.h"
 #include "axono/core/ops.h"
 
 #ifdef COMPILED_WITH_CUDA
-#include "axono/compute/cuda/ops/relu.h"
+#include "axono/ops/cuda/relu.h"
 #endif
-#include "axono/compute/cpu/ops/relu.h"
+#include "axono/ops/cpu/relu.h"
+
+namespace py = pybind11;
 
 namespace axono {
-namespace compute {
 namespace ops {
 
 py::object op_impl_relu(const py::args& args);
@@ -30,16 +29,17 @@ REGISTER_OP(relu) {
     
     if (input.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        status = cuda::ops::Relu(ctx, input, output);
+        status = cuda::Relu(ctx, input, output);
 #endif
     } else {
-        status = cpu::ops::Relu(ctx, input, output);
+        status = cpu::Relu(ctx, input, output);
     }
     if (status != core::Status::OK)
         throw std::runtime_error("执行 ReLU 时出现问题，错误代码：" + std::to_string(static_cast<int>(status)));
 
     return pybind11::cast(output);
 }
+
 REGISTER_OP(relu_) {
     core::Context ctx;
     core::Tensor result;
@@ -52,16 +52,16 @@ REGISTER_OP(relu_) {
     
     if (tensor.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        status = cuda::ops::ReluInplace(ctx, tensor);
+        status = cuda::ReluInplace(ctx, tensor);
 #endif
     } else {
-        status = cpu::ops::ReluInplace(ctx, tensor);
+        status = cpu::ReluInplace(ctx, tensor);
     }
     if (status != core::Status::OK)
         throw std::runtime_error("执行 ReLU 时出现问题，错误代码：" + std::to_string(static_cast<int>(status)));
 
     return pybind11::cast(tensor);
 }
-}
-}
-}
+
+} // namespace ops
+} // namespace axono
