@@ -6,14 +6,12 @@
 #include "axono/core/tensor.h"
 
 namespace axono {
-namespace compute {
+namespace ops {
 namespace cpu {
-namespace operators {
 
 core::Status MatMul(const core::Context &ctx, const core::Tensor &a,
                     const core::Tensor &b, core::Tensor &result);
 
-}  // namespace operators
 }  // namespace cpu
-}  // namespace compute
+}  // namespace ops
 }  // namespace axono
