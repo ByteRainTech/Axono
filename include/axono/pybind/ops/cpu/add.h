@@ -1,17 +1,16 @@
 #include <pybind11/pybind11.h>
 
-namespace py = pybind11;
-
 #include "axono/core/ops.h"
 
 #ifdef COMPILED_WITH_CUDA
-#include "axono/compute/cuda/operators/add.h"
+#include "axono/ops/cuda/add.h"
 #endif
-#include "axono/compute/cpu/operators/add.h"
+#include "axono/ops/cpu/add.h"
+
+namespace py = pybind11;
 
 namespace axono {
-namespace compute {
-namespace operators {
+namespace ops {
 
 py::object op_impl_add(const py::args& args);
 py::object op_impl_add_scalar(const py::args& args);
@@ -27,10 +26,10 @@ REGISTER_OP(add) {
     core::Status status;
     if (a.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-        status = cuda::operators::Add(ctx, a, b, result);
+        status = cuda::Add(ctx, a, b, result);
 #endif
     } else {
-        status = cpu::operators::Add(ctx, a, b, result);
+        status = cpu::Add(ctx, a, b, result);
     }
     if (status != core::Status::OK)
         throw std::runtime_error("执行 add 时出现问题，错误代码：" + std::to_string(static_cast<int>(status)));
@@ -51,10 +50,10 @@ REGISTER_OP(add_scalar) {
         float value = scalar.cast<float>();
         if (a.is_cuda()){
 #ifdef COMPILED_WITH_CUDA
-            status = cuda::operators::AddScalar(ctx, a, &value, sizeof(float), result);
+            status = cuda::AddScalar(ctx, a, &value, sizeof(float), result);
 #endif
         } else {
-            status = cpu::operators::AddScalar(ctx, a, &value, sizeof(float), result);
+            status = cpu::AddScalar(ctx, a, &value, sizeof(float), result);
         }
     }
     if (status != core::Status::OK) {
@@ -63,10 +62,10 @@ REGISTER_OP(add_scalar) {
         int32_t value = scalar.cast<int32_t>();
         if (a.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-            status = cuda::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
+            status = cuda::AddScalar(ctx, a, &value, sizeof(int32_t), result);
 #endif
         } else {
-            status = cpu::operators::AddScalar(ctx, a, &value, sizeof(int32_t), result);
+            status = cpu::AddScalar(ctx, a, &value, sizeof(int32_t), result);
         }
 
         if (status != core::Status::OK)
@@ -78,6 +77,5 @@ REGISTER_OP(add_scalar) {
     return pybind11::cast(result);
 }
 
-}
-}
-}
+} // namespace ops
+} // namespace axono
