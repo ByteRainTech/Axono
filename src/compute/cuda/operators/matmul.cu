@@ -1,16 +1,15 @@
-#include "axono/core/macros.h"
-#include "axono/core/tensor.h"
 #include <cuda_runtime.h>
-#include "axono/core/types.h"
 #include <cstddef>
 
+#include "axono/core/macros.h"
+#include "axono/core/tensor.h"
+#include "axono/core/types.h"
+
 namespace axono {
-namespace compute {
+namespace ops {
 namespace cuda {
-namespace operators {
 
-
-// CUDA 矩阵乘法内核 - 使用共享内存优化
+// CUDA 矩阵乘法内核
 template <typename T>
 __global__ void MatMulKernel(const T *a, const T *b, T *result,
                              size_t m, size_t n, size_t k) {
@@ -27,7 +26,7 @@ __global__ void MatMulKernel(const T *a, const T *b, T *result,
   }
 }
 
-// 优化的矩阵乘法内核（使用共享内存）
+// 优化的矩阵乘法内核
 template <typename T, size_t BLOCK_SIZE>
 __global__ void MatMulOptimizedKernel(const T *a, const T *b, T *result,
                                       size_t m, size_t n, size_t k) {
@@ -149,7 +148,6 @@ core::Status MatMul(const core::Context &ctx, const core::Tensor &a, const core:
   return DispatchMatMul(a, b, result);
 }
 
-} // namespace kernel
 } // namespace cuda
-} // namespace compute
+} // namespace ops
 } // namespace axono
