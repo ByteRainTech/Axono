@@ -6,12 +6,12 @@
 #include <stdexcept>  // std::runtime_error
 
 #ifdef COMPILED_WITH_CUDA
-#include "axono/compute/cuda/operators/randn.h"
+#include "axono/ops/cuda/randn.h"
 #include "axono/core/cuda/detail.h"
 #include "axono/core/cuda/tensor/kernel.h"
 #endif
 
-#include "axono/compute/cpu/operators/randn.h"
+#include "axono/ops/cpu/randn.h"
 #include "axono/core/cpu/tensor/kernel.h"
 #include "axono/core/types.h"
 
@@ -55,12 +55,12 @@ Tensor Tensor::randn(const std::vector<size_t> &shape, DataType dtype,
 
   if (out.is_cuda()) {
 #ifdef COMPILED_WITH_CUDA
-    status = compute::cuda::operators::Randn(ctx, out, mean, stddev);
+    status = ops::cuda::Randn(ctx, out, mean, stddev);
 #else
     status = core::Status::DEVICE_ERROR;
 #endif
   } else {
-    status = compute::cpu::operators::Randn(ctx, out, mean, stddev);
+    status = ops::cpu::Randn(ctx, out, mean, stddev);
   }
 
   if (status != core::Status::OK) {
