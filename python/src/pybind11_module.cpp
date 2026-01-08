@@ -2,9 +2,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "axono/pybind/compute/operators/add.h"
-#include "axono/pybind/compute/operators/matmul.h"
-#include "axono/pybind/compute/ops/relu.h"
+#include "axono/core/ops.h"
+
+#include "axono/pybind/ops/add.h"
+#include "axono/pybind/ops/relu.h"
+#include "axono/pybind/ops/matmul.h"
+
 #include "axono/pybind/core/tensor.h"
 #include "axono/pybind/core/module.h"
 
@@ -37,7 +40,5 @@ PYBIND11_MODULE(libaxono, m) {
   // 初始化 Tensor
   init_tensor(m);
   init_module(m);
-  init_matmul_operations(m);
-  init_add_operations(m);
-  init_relu_operations(m);
+  axono::core::OpRegistry::instance().bind_all(m);
 }
