@@ -4,3 +4,4 @@ build
 *.egg-info
 python/axono/library
 images
+.vs/
