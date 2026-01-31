@@ -1,9 +1,9 @@
-#include "axono/core/tensor.h"
-#include "axono/core/types.h"
-
 #include <stdexcept>
 #include <algorithm>
 #include <cstring>
+
+#include "axono/core/tensor.h"
+#include "axono/core/types.h"
 
 namespace axono {
 namespace core {
