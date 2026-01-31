@@ -50,11 +50,6 @@ class Tensor:
         return self._tensor.is_cuda
 
     @classmethod
-    def create(cls, dtype: DataType, shape: list[int]) -> "Tensor":
-        """Create a new tensor"""
-        return cls(dtype, shape)
-
-    @classmethod
     def create_like(cls, other: "Tensor") -> "Tensor":
         """Create a tensor with same shape and dtype as another"""
         tensor = cls()
