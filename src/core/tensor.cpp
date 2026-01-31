@@ -1,19 +1,21 @@
-#include "axono/core/tensor.h"
-
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>  // std::runtime_error
 
+#include "axono/core/tensor.h"
+
 #ifdef COMPILED_WITH_CUDA
 #include "axono/ops/cuda/randn.h"
 #include "axono/core/cuda/detail.h"
 #include "axono/core/cuda/tensor/kernel.h"
+#include "axono/core/cuda/tensor/transpose.h"
 #endif
 
 #include "axono/ops/cpu/randn.h"
 #include "axono/core/cpu/tensor/kernel.h"
 #include "axono/core/types.h"
+#include "axono/core/cpu/tensor/transpose.h"
 
 namespace {
 // 自定义删除器，用于 shared_ptr
@@ -388,6 +390,45 @@ std::string Tensor::ToString() const {
   }
   oss << ", device=" << device_ << ")";
   return oss.str();
+}
+
+Tensor Tensor::Transpose(int dim0, int dim1) {
+    const int n_dim = static_cast<int>(this->ndim());
+    dim0 = (dim0 < 0) ? (n_dim + dim0) : dim0;
+    dim1 = (dim1 < 0) ? (n_dim + dim1) : dim1;
+
+    if (dim0 < 0 || dim0 >= n_dim || dim1 < 0 || dim1 >= n_dim) {
+        throw std::invalid_argument(
+            "Transpose: invalid dims, ndim=" + std::to_string(n_dim) +
+            ", dim0=" + std::to_string(dim0) + ", dim1=" + std::to_string(dim1)
+        );
+    }
+    if (dim0 == dim1) {
+        return *this;
+    }
+
+    Shape dst_shape = this->shape_;
+    std::swap(dst_shape[dim0], dst_shape[dim1]);
+
+    Tensor dst(this->dtype_, dst_shape, this->device_);
+    dst.InitializeStorage();
+
+    Status status;
+    if (this->is_cuda()) {
+#ifdef COMPILED_WITH_CUDA
+        status = cuda::tensor::TransposeKernel(*this, dst, dim0, dim1);
+#else
+        throw std::runtime_error("Transpose: CUDA not compiled, but tensor is on cuda");
+#endif
+    } else {
+        status = cpu::tensor::TransposeKernel(*this, dst, dim0, dim1);
+    }
+
+    if (status != Status::OK) {
+        throw std::runtime_error("Transpose failed, status=" + std::to_string(static_cast<int>(status)));
+    }
+
+    return dst;
 }
 
 }  // namespace core

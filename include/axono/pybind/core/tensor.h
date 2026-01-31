@@ -33,6 +33,7 @@ void init_tensor(py::module &m) {
            py::arg("dtype"), py::arg("shape"), py::arg("device"))
       .def_static("create", &axono::core::Tensor::Create)
       .def_static("create_like", &axono::core::Tensor::CreateLike)
+      .def("transpose", &axono::core::Tensor::Transpose)
       .def("reshape", &axono::core::Tensor::Reshape)
       .def("resize", &axono::core::Tensor::Resize)
       .def(

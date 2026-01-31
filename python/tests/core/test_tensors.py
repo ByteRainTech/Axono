@@ -45,6 +45,13 @@ class TestTensor(unittest.TestCase):
         for dtype in dtypes:
             tensor = Tensor(dtype=dtype, shape=[2, 2])
             self.assertEqual(tensor.dtype, dtype)
+    
+    def test_tensor_transpose(self):
+        """测试 Tensor 转置"""
+        tensor = Tensor(dtype=DataType.FLOAT32, shape=[2, 3])
+        tensor.fill(1.0)
+        transposed_tensor = tensor.transpose()
+        self.assertEqual(transposed_tensor.shape, [3, 2])
 
     def test_tensor_fill(self):
         """测试 Tensor 填充"""

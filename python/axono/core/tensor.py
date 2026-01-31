@@ -125,6 +125,10 @@ class Tensor:
         from .operators import add
 
         return add(self, other)
+    
+    def transpose(self, dim0: int = -2, dim1: int = -1) -> "Tensor":
+        new = self._tensor.transpose(dim0, dim1)
+        return Tensor.from_raw(new)
 
     def to_numpy(self) -> np.ndarray:
         """Convert tensor to numpy array - FIXED VERSION"""

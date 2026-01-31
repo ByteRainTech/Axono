@@ -76,6 +76,9 @@ class Tensor {
   Status Reshape(const Shape &new_shape);
   Status Resize(const Shape &new_shape);
 
+  // Transpose
+  Tensor Transpose(int dim0 = -2, int dim1 = -1);
+
   // 填充操作
   Status FillZero();
   Status Fill(void *value, size_t value_size);
