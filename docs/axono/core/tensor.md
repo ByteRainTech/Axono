@@ -12,10 +12,6 @@
         dtype: Data type of tensor
         shape: Shape of tensor, if None creates empty tensor
 
-## `create`
-
-    Create a new tensor
-
 ## `create_like`
 
     Create a tensor with same shape and dtype as another
