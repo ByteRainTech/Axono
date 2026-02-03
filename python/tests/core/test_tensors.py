@@ -29,6 +29,25 @@ class TestTensor(unittest.TestCase):
         for shape in shapes:
             tensor = Tensor(shape=shape)
             self.assertEqual(tensor.shape, shape)
+    
+    def test_tensor_is_same_shape(self):
+        """测试 Tensor 是否相同形状"""
+        tensor1 = Tensor(dtype=DataType.FLOAT32, shape=[2, 3])
+        tensor2 = Tensor(dtype=DataType.FLOAT32, shape=[2, 3])
+        tensor3 = Tensor(dtype=DataType.FLOAT32, shape=[3, 2])
+        self.assertTrue(tensor1.is_same_shape(tensor2))
+        self.assertFalse(tensor1.is_same_shape(tensor3))
+    
+    def test_tensor_properties(self):
+        """测试 Tensor Properties"""
+        tensor = Tensor(dtype=DataType.FLOAT32, shape=[2, 3])
+        self.assertEqual(tensor.is_cuda(), tensor.device == "cuda")
+        self.assertEqual(type(tensor.num_elements), str)
+        self.assertEqual(type(tensor.num_bytes), str)
+        self.assertEqual(type(ndim), int)
+        self.assertEqual(type(shape), list[int])
+        self.assertEqual(type(device), str)
+        self.assertEqual(type(dtype), DataType)
 
     def test_tensor_data_types(self):
         """测试不同数据类型"""
