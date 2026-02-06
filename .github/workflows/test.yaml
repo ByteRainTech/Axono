@@ -1,0 +1,32 @@
+name: Build with Manylinux
+
+on:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: '开启 tmate SSH 调试'
+        default: false
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup tmate session
+        if: github.event.inputs.debug_enabled == 'true'
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_BUILD: cp310-manylinux_x86_64
