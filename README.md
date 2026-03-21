@@ -13,13 +13,12 @@ d8'          `8b  8P        Y8  `"Y8888Y"'    88      `888    `"Y8888Y"'        
 
 > PS: 官方Q群 1014082546
 
-<img src="logo.png" width="230">
-
 Axono 是一个轻量级的人工智能算法库，旨在为教学、研究与原型开发提供简洁可扩展的张量与算子接口。
 
 > [查看Benchmark](benchmark.md)
 
 ## 主要特性
+> Axono v0.1 支持下列内容，当前版本正在重构您可能无法体验。
 - 支持的数据精度：
   - int8、int16、int32、int64、float32、float64  
   （精度接口见 axono.core -> DataType）
