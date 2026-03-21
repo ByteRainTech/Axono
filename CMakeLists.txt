@@ -1,53 +1,55 @@
-cmake_minimum_required(VERSION 3.15)
-project(axono LANGUAGES CXX)
+# 项目名称设定
+project(axono CXX CUDA)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/axono/library)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/axono/library)
+# where python3
+find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 
-foreach(cfg IN LISTS CMAKE_CONFIGURATION_TYPES)
-    string(TOUPPER ${cfg} CFG_UC)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_UC} ${CMAKE_SOURCE_DIR}/python/axono/library)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_UC} ${CMAKE_SOURCE_DIR}/python/axono/library)
-endforeach()
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# 查找 OpenMP 包
-find_package(OpenMP REQUIRED)
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Wall -Wextra -O3 -march=native -fPIC -ffast-math -fopenmp -DNDEBUG)
-    # 添加链接选项
-    add_link_options(-fopenmp)
+# POLICY
+if(POLICY CMP0007)
+    cmake_policy(SET CMP0007 NEW)
 endif()
 
-# 检测CPU架构并自动定义宏
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|i386|i686" OR 
-   CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|amd64" OR
-   CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64|i386|i686")
-    message(STATUS "Detected x86 architecture, enabling AVX optimizations")
-    add_compile_definitions(AXONO_USE_X86_INTRINSICS=1)
-    
-    # 检查AVX2支持
-    include(CheckCXXCompilerFlag)
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        check_cxx_compiler_flag("-mavx2" COMPILER_SUPPORTS_AVX2)
-        if(COMPILER_SUPPORTS_AVX2)
-            add_compile_options(-mavx2 -mfma)
-            add_link_options(-mavx2 -mfma)
-        endif()
+# 最低限度要求
+cmake_minimum_required(VERSION 3.18)
+
+# INFO 展示
+function(showInfo text)
+    if(CMAKE_HOST_UNIX)
+        message("[32m-- ${text}[0m")
+    else()
+        message(STATUS "-- ${text}")
     endif()
-else()
-    message(STATUS "Non-x86 architecture, using generic implementation")
-    add_compile_definitions(AXONO_USE_X86_INTRINSICS=0)
+endfunction()
+
+# CMake 基本设定档
+set(CMAKE_MODULE_PATH 
+    ${CMAKE_MODULE_PATH} 
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/wizard/"
+)
+
+include(cmake/wizard/FindNanoBind.cmake)
+
+# 对于 Nvidia 用户
+option(WITH_CUDA "编译 Axono 时附带 CUDA 支持" OFF)
+option(WITH_CINN "编译 Axono 时附带 CINN 支持" OFF)
+option(WITH_NCCL "编译 Axono 时附带 NCCL 支持" OFF)
+
+if(WITH_CUDA)
+  add_definitions(-DWITH_CUDA)
+  showInfo("CUDA Support - ON")
+endif()
+if(WITH_CINN)
+  add_definitions(-DWITH_CINN)
+  showInfo("CINN Support - ON")
+endif()
+if(WITH_NCCL)
+  add_definitions(-DWITH_NCCL)
+  showInfo("NCCL Support - ON")
 endif()
 
-# Find Python with the correct components
-find_package(Python REQUIRED COMPONENTS Interpreter Development.Module Development.Embed)
-find_package(pybind11 REQUIRED)
+# 第三方 THIRD PARTY
+include(third_party)
 
-include_directories(include)
-
-# Add Python subdirectory
-add_subdirectory(python)
+# 核心编译
+add_subdirectory(axono)
